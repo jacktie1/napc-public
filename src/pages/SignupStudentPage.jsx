@@ -10,14 +10,14 @@ import { Container, Button, Row, Col, Accordion } from 'react-bootstrap';
 
 const SignupStudentPage = () => {
   const navigate = useNavigate();
-  const [activeCard, setActiveCard] = useState("studentProfile");
-
+  const [activeCard, setActiveCard] = useState('studentProfile');
   var studentProfile;
   var flightInfo;
 
   const studentProfileFormRef = useRef(null);
   const flightInfoFormRef = useRef(null);
 
+  /*
   const handleClick = () => {
     studentProfileFormRef.current.submitForm()
       .then(() => {
@@ -38,6 +38,24 @@ const SignupStudentPage = () => {
           setActiveCard("flightInfo");
         }
       });
+    });
+  };
+  */
+
+  const handleClick = () => {
+    studentProfileFormRef.current.submitForm()
+      .then(() => {
+        const studentProfileErrors = studentProfileFormRef.current.errors;
+        if (Object.keys(studentProfileErrors).length == 0)
+        {
+          alert('Success!');
+          console.log(studentProfile);
+          //navigate('/login');
+        }
+        else if (Object.keys(studentProfileErrors).length > 0)
+        {
+          setActiveCard("studentProfile");
+        }
     });
   };
 
@@ -65,7 +83,7 @@ const SignupStudentPage = () => {
             <PatienceInfo />
             <RequiredFieldInfo />
             <hr/>
-            <Accordion defaultActiveKey="studentProfile" activeKey={activeCard} onSelect={selectAccordionItem} fl>
+            <Accordion defaultActiveKey="studentProfile" activeKey={activeCard} onSelect={selectAccordionItem}>
               <Accordion.Item eventKey="studentProfile">
                 <Accordion.Header>Basic Information</Accordion.Header>
                 <Accordion.Body>
@@ -77,12 +95,15 @@ const SignupStudentPage = () => {
               </Accordion.Item>
               <Accordion.Item eventKey="flightInfo">
                 <Accordion.Header>Flight Information</Accordion.Header>
-                <Accordion.Body>
-                <StudentProfileForm
-                    innerRef={flightInfoFormRef}
-                    onSubmit={handleflightInfoFormSubmit}
-                  />
-                </Accordion.Body>
+                  <Accordion.Body>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                    aliquip ex ea commodo consequat. Duis aute irure dolor in
+                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+                    culpa qui officia deserunt mollit anim id est laborum.
+                  </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="tempHousing">
                 <Accordion.Header>Temporary Housing</Accordion.Header>

@@ -49,7 +49,7 @@ const LoginPage = () => {
           <Form onSubmit={handleLogin}>
             <h2 className="auth-form-heading">Login</h2>
 
-            <Form.Group controlId="username">
+            <Form.Group controlId="loginFormUsername">
               <Form.Label>Username</Form.Label>
               <Form.Control
                 type="text"
@@ -60,7 +60,7 @@ const LoginPage = () => {
               />
             </Form.Group>
 
-            <Form.Group controlId="password">
+            <Form.Group controlId="loginFormPassword">
               <Form.Label>Password</Form.Label>
               <Form.Control
                 type="password"
