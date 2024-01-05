@@ -100,7 +100,7 @@ const SignupStudentPage = () => {
         <Col className="auth-form" >
             <h2 className="auth-form-heading">Student Registration</h2> 
             <PrivacyStatement />
-            <PatienceInfo />
+            <PatienceInfo targetGroup='student'/>
             <RequiredFieldInfo />
             <hr/>
             <Accordion defaultActiveKey="studentProfile" activeKey={activeCard} onSelect={selectAccordionItem}>

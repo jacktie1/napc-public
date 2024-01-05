@@ -80,7 +80,7 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
   const sexOptions = [
     { value: '', label: "Select an option" },
     { value: 'male', label: "Male" },
-    { value: 'Female', label: "Female" },
+    { value: 'female', label: "Female" },
   ];
 
   const yesOrNoOptions = [

@@ -29,11 +29,11 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
   };
 
   const requiredAlphaNumTest = yup.string().required('Required!').matches(/^[a-zA-Z0-9]+$/, { message: 'Can only contain English letters and numbers!', excludeEmptyString: true });
-  const requiredAlphaSpaceTest =  yup.string().required().matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
+  const requiredAlphaSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
   const requiredSelectTest = yup.string().required('Required!');
   const requiredDateTest = yup.date().typeError('Must be a valid date!').required('Required!');
   const requiredTimeTest = yup.string().required('Required!').matches(/^([01][0-9]|2[0-3]):([0-5][0-9])$/, { message: 'Must be a valid time!', excludeEmptyString: true });
-  const requiredPosIntegerTest = yup.number().typeError('Must be a whole number!').integer('Must be a whole number!').min(0, 'Must be a positive number！').required('Required!');
+  const requiredNonNegIntegerTest = yup.number().typeError('Must be a whole number!').integer('Must be a whole number!').min(0, 'Must be a non-negative number！').required('Required!');
 
   const schema = yup.object().shape({
     needsPickup: requiredSelectTest,
@@ -60,8 +60,8 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
             }),
     leavingFlightDate: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredDateTest}),
     leavingFlightTime: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredTimeTest}),
-    numLgLuggages: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredPosIntegerTest}),
-    numSmLuggages: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredPosIntegerTest}),
+    numLgLuggages: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredNonNegIntegerTest}),
+    numSmLuggages: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredNonNegIntegerTest}),
   });
 
   const yesOrNoOptions = [
