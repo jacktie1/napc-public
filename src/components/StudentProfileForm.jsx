@@ -16,6 +16,7 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
     fromSchool: '',
     comeAs: '',
     major: '',
+    majorOther: '',
     hasCompanion: '',
     emailAddress: '',
     weChatId: '',
@@ -59,6 +60,13 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
       comeAs: requiredSelectTest,
       fromSchool: optionalAlphaSpaceTest,
       major: requiredSelectTest,
+      majorOther: yup.string()
+      .when(
+          'major', 
+          {
+              is: 'other',
+              then: () => requiredAlphaTest,
+          }),
       hasCompanion: requiredSelectTest,
       emailAddress: emailAddressTest,
       weChatId: requireNoSpaceTest,
@@ -95,7 +103,8 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
     { value: 'ece', label: "ECE" },
     { value: 'math', label: "MATH" },
     { value: 'eas', label: "EAS" },
-  ]
+    { value: 'other', label: "Other (Please provided the name)"},
+  ];
 
   return (
     <Formik
@@ -226,7 +235,7 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
             </Form.Group>
           </Row>
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormMajor">
+            <Form.Group as={Col} md="6" controlId="studentProfileFormMajor">
               <RequiredFieldFormLabel>Major</RequiredFieldFormLabel>
               <Form.Select
                 name='major'
@@ -241,6 +250,21 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
               </Form.Select>
               <Form.Control.Feedback type="invalid">
                 {errors.major}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Row>
+          <Row className="mb-3">
+            <Form.Group as={Col} md="6" controlId="studentProfileFormMajorOther">
+              <Form.Label>If Other:</Form.Label>
+              <Form.Control
+                    name='majorOther'
+                    value={values.majorOther}
+                    onChange={handleChange}
+                    isValid={touched.majorOther && !errors.majorOther}
+                    isInvalid={touched.majorOther && !!errors.majorOther}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.majorOther}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>

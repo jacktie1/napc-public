@@ -1,6 +1,9 @@
 import React, { useState, useRef } from 'react';
 import AppTitle from '../components/AppTitle';
 import StudentProfileForm from '../components/StudentProfileForm';
+import FlightInfoForm from '../components/FlightInfoForm';
+import TempHousingForm from '../components/TempHousingForm';
+import StudentCommentForm from '../components/StudentCommentForm';
 import PrivacyStatement from '../components/PrivacyStatement';
 import PatienceInfo from '../components/PatienceInfo';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
@@ -13,49 +16,56 @@ const SignupStudentPage = () => {
   const [activeCard, setActiveCard] = useState('studentProfile');
   var studentProfile;
   var flightInfo;
+  var tempHousing;
+  var studentComment;
 
   const studentProfileFormRef = useRef(null);
   const flightInfoFormRef = useRef(null);
+  const tempHousingFormRef = useRef(null);
+  const studentCommentFormRef = useRef(null);
 
-  /*
   const handleClick = () => {
     studentProfileFormRef.current.submitForm()
       .then(() => {
-      flightInfoFormRef.current.submitForm().then(() => {
-        const studentProfileErrors = studentProfileFormRef.current.errors;
-        const flightInfoErrors = flightInfoFormRef.current.errors;
-    
-        if (Object.keys(studentProfileErrors).length == 0 && Object.keys(flightInfoErrors).length == 0)
-        {
-          navigate('/login');
-        }
-        else if (Object.keys(studentProfileErrors).length > 0)
-        {
-          setActiveCard("studentProfile");
-        }
-        else if (Object.keys(flightInfoErrors).length > 0)
-        {
-          setActiveCard("flightInfo");
-        }
+        flightInfoFormRef.current.submitForm()
+        .then(() => {
+          tempHousingFormRef.current.submitForm()
+          .then(() => {
+            studentCommentFormRef.current.submitForm()
+            .then(() => {
+              const studentProfileErrors = studentProfileFormRef.current.errors;
+              const flightInfoErrors = flightInfoFormRef.current.errors;
+              const tempHousingErrors = tempHousingFormRef.current.errors;
+              const studentCommentErrors = studentCommentFormRef.current.errors;
+          
+              if (Object.keys(studentProfileErrors).length == 0
+                && Object.keys(flightInfoErrors).length == 0
+                && Object.keys(tempHousingErrors).length == 0
+                && Object.keys(studentCommentErrors).length == 0)
+              {
+                alert('success');
+
+                navigate('/login');
+              }
+              else if (Object.keys(studentProfileErrors).length > 0)
+              {
+                setActiveCard("studentProfile");
+              }
+              else if (Object.keys(flightInfoErrors).length > 0)
+              {
+                setActiveCard("flightInfo");
+              }
+              else if (Object.keys(tempHousingErrors).length > 0)
+              {
+                setActiveCard("tempHousing");
+              }
+              else if (Object.keys(studentCommentErrors).length > 0)
+              {
+                setActiveCard("studentComment");
+              }
+          });
+        });
       });
-    });
-  };
-  */
-
-  const handleClick = () => {
-    studentProfileFormRef.current.submitForm()
-      .then(() => {
-        const studentProfileErrors = studentProfileFormRef.current.errors;
-        if (Object.keys(studentProfileErrors).length == 0)
-        {
-          alert('Success!');
-          console.log(studentProfile);
-          //navigate('/login');
-        }
-        else if (Object.keys(studentProfileErrors).length > 0)
-        {
-          setActiveCard("studentProfile");
-        }
     });
   };
 
@@ -64,8 +74,18 @@ const SignupStudentPage = () => {
     setSubmitting(false);
   };
 
-  const handleflightInfoFormSubmit = (values, { setSubmitting }) => {
+  const handleFlightInfoFormSubmit = (values, { setSubmitting }) => {
     flightInfo = values;
+    setSubmitting(false);
+  };
+
+  const handleTempHousingFormSubmit = (values, { setSubmitting }) => {
+    tempHousing = values;
+    setSubmitting(false);
+  };
+
+  const handleStudentCommentFormSubmit = (values, { setSubmitting }) => {
+    studentComment = values;
     setSubmitting(false);
   };
 
@@ -95,26 +115,29 @@ const SignupStudentPage = () => {
               </Accordion.Item>
               <Accordion.Item eventKey="flightInfo">
                 <Accordion.Header>Flight Information</Accordion.Header>
-                  <Accordion.Body>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                    aliquip ex ea commodo consequat. Duis aute irure dolor in
-                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                    culpa qui officia deserunt mollit anim id est laborum.
-                  </Accordion.Body>
+                <Accordion.Body>
+                  <FlightInfoForm
+                    innerRef={flightInfoFormRef}
+                    onSubmit={handleFlightInfoFormSubmit}
+                  />
+                </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="tempHousing">
                 <Accordion.Header>Temporary Housing</Accordion.Header>
                 <Accordion.Body>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                  eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                  minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                  aliquip ex ea commodo consequat. Duis aute irure dolor in
-                  reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                  pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                  culpa qui officia deserunt mollit anim id est laborum.
+                  <TempHousingForm
+                      innerRef={tempHousingFormRef}
+                      onSubmit={handleTempHousingFormSubmit}
+                    />
+                </Accordion.Body>
+              </Accordion.Item>
+              <Accordion.Item eventKey="studentComment">
+                <Accordion.Header>Comment</Accordion.Header>
+                <Accordion.Body>
+                  <StudentCommentForm
+                      innerRef={studentCommentFormRef}
+                      onSubmit={handleStudentCommentFormSubmit}
+                    />
                 </Accordion.Body>
               </Accordion.Item>
             </Accordion>
