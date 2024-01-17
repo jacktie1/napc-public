@@ -23,7 +23,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
         endDate: '2024-08-19',
         numDoubleBeds: '2',
         numSingleBeds: '2',
-        studentSexPreference: 'male',
+        studentGenderPreference: 'male',
         providesRide: 'yes',
         comment: 'Nothing special',
       });
@@ -40,7 +40,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
     endDate: '',
     numDoubleBeds: '',
     numSingleBeds: '',
-    studentSexPreference: '',
+    studentGenderPreference: '',
     providesRide: '',
     comment: '',
   };
@@ -61,7 +61,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
     endDate: optionalDateTest.min(yup.ref('startDate'), "End time cannot be before start time"),
     numDoubleBeds: capacityNumTest,
     numSingleBeds: capacityNumTest,
-    studentSexPreference: '',
+    studentGenderPreference: '',
     comment: yup.string().max(500),
   });
 
@@ -71,7 +71,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
     { value: 'no', label: "No" },
   ];
 
-  const sexOptions = [
+  const genderOptions = [
     { value: '', label: "Select an option" },
     { value: 'male', label: "Male" },
     { value: 'Female', label: "Female" },
@@ -223,23 +223,23 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
               </Form.Group>
             </Row>
             <Row className="mb-3">
-              <Form.Group as={Col} controlId="housingCapacityFormStudentSexPreference">
+              <Form.Group as={Col} controlId="housingCapacityFormStudentGenderPreference">
                 <Form.Label>Preference of male or female student</Form.Label>
                 <Form.Select
-                  name='studentSexPreference'
+                  name='studentGenderPreference'
                   onChange={handleChange}
-                  value={values.studentSexPreference}
-                  isValid={touched.studentSexPreference && !errors.studentSexPreference}
-                  isInvalid={touched.studentSexPreference && !!errors.studentSexPreference}
+                  value={values.studentGenderPreference}
+                  isValid={touched.studentGenderPreference && !errors.studentGenderPreference}
+                  isInvalid={touched.studentGenderPreference && !!errors.studentGenderPreference}
                   readOnly={formReadOnly}
                   disabled={formReadOnly}
                 >
-                  {sexOptions.map((option) => (
+                  {genderOptions.map((option) => (
                     <option key={option.value} value={option.value} label={option.label} />
                   ))}
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">
-                  {errors.studentSexPreference}
+                  {errors.studentGenderPreference}
                 </Form.Control.Feedback>
               </Form.Group>
             </Row>

@@ -22,7 +22,7 @@ const VolunteerAirportPickupAssignmentPage = () => {
         "lastName": 'Zhao',
         'firstName': 'Siming',
         'wechat': 'qqad1323',
-        'sex': 'F',
+        'gender': 'F',
         'major': 'ECE',
         'airlineName': 'Delta',
         'flightNumber': 'DL2053',
@@ -56,8 +56,8 @@ const VolunteerAirportPickupAssignmentPage = () => {
       field: 'wechat',
     },
     {
-      headerName: 'Sex',
-      field: 'sex',
+      headerName: 'Gender',
+      field: 'gender',
     },
     {
       headerName: 'Major',

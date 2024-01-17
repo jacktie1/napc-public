@@ -20,7 +20,7 @@ const VolunteerTempHousingAssignmentPage = () => {
         "lastName": 'Jason',
         'firstName': 'Tang',
         'wechat': 'lucyismymom',
-        'sex': 'M',
+        'gender': 'M',
         'major': 'CE',
         'airlineName': 'American Airline',
         'flightNumber': 'AA2051',
@@ -54,8 +54,8 @@ const VolunteerTempHousingAssignmentPage = () => {
       field: 'wechat',
     },
     {
-      headerName: 'Sex',
-      field: 'sex',
+      headerName: 'Gender',
+      field: 'gender',
     },
     {
       headerName: 'Major',

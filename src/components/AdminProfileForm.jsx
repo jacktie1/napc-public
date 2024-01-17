@@ -12,7 +12,7 @@ const AdminProfileForm = ({ innerRef, onSubmit, userId }) => {
       innerRef.current.setValues({
         firstName: 'Jason',
         lastName: 'Chen',
-        sex: 'male',
+        gender: 'male',
         affiliation: 'Neal Hightower',
         emailAddress: 'test@gmail.com',
         primaryPhoneNumber: '2212221233',
@@ -26,7 +26,7 @@ const AdminProfileForm = ({ innerRef, onSubmit, userId }) => {
   const initialValues = {
     firstName: '',
     lastName: '',
-    sex: '',
+    gender: '',
     affiliation: '',
     emailAddress: '',
     primaryPhoneNumber: '',
@@ -62,7 +62,7 @@ const AdminProfileForm = ({ innerRef, onSubmit, userId }) => {
   const schema = yup.object().shape({
       firstName: requiredAlphaTest,
       lastName: requiredAlphaTest,
-      sex: requiredSelectTest,
+      gender: requiredSelectTest,
       affiliation: requiredAlphaSpaceTest,
       emailAddress: emailAddressTest,
       primaryPhoneNumber: phoneNumberTest.required('Required!'),
@@ -71,7 +71,7 @@ const AdminProfileForm = ({ innerRef, onSubmit, userId }) => {
       confirmPassword: confirmPasswordTest,
   });
 
-  const sexOptions = [
+  const genderOptions = [
     { value: '', label: "Select an option" },
     { value: 'male', label: "Male" },
     { value: 'Female', label: "Female" },
@@ -118,20 +118,20 @@ const AdminProfileForm = ({ innerRef, onSubmit, userId }) => {
           </Row>
           <Row className="mb-3">
             <Form.Group as={Col} controlId="studentProfileFormGender">
-              <RequiredFieldFormLabel>Sex</RequiredFieldFormLabel>
+              <RequiredFieldFormLabel>Gender</RequiredFieldFormLabel>
               <Form.Select
-                name='sex'
+                name='gender'
                 onChange={handleChange}
-                value={values.sex}
-                isValid={touched.sex && !errors.sex}
-                isInvalid={touched.sex && !!errors.sex}
+                value={values.gender}
+                isValid={touched.gender && !errors.gender}
+                isInvalid={touched.gender && !!errors.gender}
               >
-                {sexOptions.map((option) => (
+                {genderOptions.map((option) => (
                   <option key={option.value} value={option.value} label={option.label} />
                 ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">
-                {errors.sex}
+                {errors.gender}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>

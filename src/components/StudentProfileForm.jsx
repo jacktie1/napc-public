@@ -17,7 +17,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
         firstName: 'Jason',
         lastName: 'Chen',
         englishName: '',
-        sex: 'male',
+        gender: 'male',
         isNew: 'yes',
         fromSchool: 'Gatech',
         comeAs: 'grad',
@@ -39,7 +39,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
     firstName: '',
     lastName: '',
     englishName: '',
-    sex: '',
+    gender: '',
     isNew: '',
     fromSchool: '',
     comeAs: '',
@@ -83,7 +83,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
       firstName: requiredAlphaTest,
       lastName: requiredAlphaTest,
       englishName: optionalAlphaSpaceTest,
-      sex: requiredSelectTest,
+      gender: requiredSelectTest,
       isNew: requiredSelectTest,
       comeAs: requiredSelectTest,
       fromSchool: optionalAlphaSpaceTest,
@@ -105,7 +105,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
       confirmPassword: confirmPasswordTest,
   });
 
-  const sexOptions = [
+  const genderOptions = [
     { value: '', label: "Select an option" },
     { value: 'male', label: "Male" },
     { value: 'female', label: "Female" },
@@ -198,21 +198,21 @@ const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
           </Row>
           <Row className="mb-3">
             <Form.Group as={Col} controlId="studentProfileFormGender">
-              <RequiredFieldFormLabel>Sex</RequiredFieldFormLabel>
+              <RequiredFieldFormLabel>Gender</RequiredFieldFormLabel>
               <Form.Select
-                name='sex'
+                name='gender'
                 onChange={handleChange}
-                value={values.sex}
-                isValid={touched.sex && !errors.sex}
-                isInvalid={touched.sex && !!errors.sex}
+                value={values.gender}
+                isValid={touched.gender && !errors.gender}
+                isInvalid={touched.gender && !!errors.gender}
                 disabled={formReadOnly}
               >
-                {sexOptions.map((option) => (
+                {genderOptions.map((option) => (
                   <option key={option.value} value={option.value} label={option.label} />
                 ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">
-                {errors.sex}
+                {errors.gender}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>

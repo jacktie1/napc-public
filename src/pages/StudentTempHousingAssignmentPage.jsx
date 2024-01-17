@@ -17,7 +17,7 @@ const StudentTempHousingAssignmentPage = () => {
         "id": '1024',
         "lastName": 'Zhao',
         'firstName': 'Siming',
-        'sex': 'F',
+        'gender': 'F',
         'emailAddress': 'fake_email@gmail.com',
         'phoneNumber': '123554-3321',
         'homeAddress': '832 Atlanta St NW, Atlanta, GA, 30332',
@@ -42,8 +42,8 @@ const StudentTempHousingAssignmentPage = () => {
       field: 'firstName',
     },
     {
-      headerName: 'Sex',
-      field: 'sex',
+      headerName: 'Gender',
+      field: 'gender',
     },
     {
       headerName: 'Email Address',

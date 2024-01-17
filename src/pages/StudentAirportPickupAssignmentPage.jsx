@@ -19,7 +19,7 @@ const StudentAirportPickupAssignmentPage = () => {
         "id": '1024',
         "lastName": 'Zhao',
         'firstName': 'Siming',
-        'sex': 'F',
+        'gender': 'F',
         'emailAddress': 'fake_email@gmail.com',
         'phoneNumber': '123554-3321'
       }])
@@ -42,8 +42,8 @@ const StudentAirportPickupAssignmentPage = () => {
       field: 'firstName',
     },
     {
-      headerName: 'Sex',
-      field: 'sex',
+      headerName: 'Gender',
+      field: 'gender',
     },
     {
       headerName: 'Email Address',

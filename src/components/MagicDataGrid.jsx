@@ -96,7 +96,7 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
             delete columnDef['booleanFilter'];
         }
 
-        if(columnDef['sexFilter'])
+        if(columnDef['genderFilter'])
         {
             columnDef['filter'] = 'agTextColumnFilter';
             columnDef['filterParams'] =  {
@@ -128,7 +128,7 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
                 columnDef['width'] = 100;
             }
 
-            delete columnDef['sexFilter'];
+            delete columnDef['genderFilter'];
         }
 
         if(columnDef['dateFilter'])

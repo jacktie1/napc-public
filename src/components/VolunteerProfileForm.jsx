@@ -18,7 +18,7 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
         innerRef.current.setValues({
           firstName: 'Jason',
           lastName: 'Chen',
-          sex: 'male',
+          gender: 'male',
           affiliation: 'Neal Hightower',
           emailAddress: 'test@gmail.com',
           weChatId: 'aaqqq1111',
@@ -35,7 +35,7 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
         innerRef.current.setValues({
           firstName: 'Jason',
           lastName: 'Chen',
-          sex: 'male',
+          gender: 'male',
           affiliation: 'Neal Hightower',
           emailAddress: 'test@gmail.com',
           weChatId: 'aaqqq1111',
@@ -53,7 +53,7 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
   const initialValues = adminView ? {
     firstName: '',
     lastName: '',
-    sex: '',
+    gender: '',
     affiliation: '',
     emailAddress: '',
     weChatId: '',
@@ -65,7 +65,7 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
   } : {
     firstName: '',
     lastName: '',
-    sex: '',
+    gender: '',
     affiliation: '',
     emailAddress: '',
     weChatId: '',
@@ -104,7 +104,7 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
   const schema = adminView ? yup.object().shape({
       firstName: requiredAlphaTest,
       lastName: requiredAlphaTest,
-      sex: requiredSelectTest,
+      gender: requiredSelectTest,
       affiliation: requiredAlphaSpaceTest,
       emailAddress: emailAddressTest,
       weChatId: optionalNoSpaceTest,
@@ -116,7 +116,7 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
   }) : yup.object().shape({
     firstName: requiredAlphaTest,
     lastName: requiredAlphaTest,
-    sex: requiredSelectTest,
+    gender: requiredSelectTest,
     affiliation: requiredAlphaSpaceTest,
     emailAddress: emailAddressTest,
     weChatId: optionalNoSpaceTest,
@@ -128,7 +128,7 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
     enabled: requiredSelectTest,
 });
 
-  const sexOptions = [
+  const genderOptions = [
     { value: '', label: "Select an option" },
     { value: 'male', label: "Male" },
     { value: 'Female', label: "Female" },
@@ -184,21 +184,21 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
           </Row>
           <Row className="mb-3">
             <Form.Group as={Col} controlId="studentProfileFormGender">
-              <RequiredFieldFormLabel>Sex</RequiredFieldFormLabel>
+              <RequiredFieldFormLabel>Gender</RequiredFieldFormLabel>
               <Form.Select
-                name='sex'
+                name='gender'
                 onChange={handleChange}
-                value={values.sex}
-                isValid={touched.sex && !errors.sex}
-                isInvalid={touched.sex && !!errors.sex}
+                value={values.gender}
+                isValid={touched.gender && !errors.gender}
+                isInvalid={touched.gender && !!errors.gender}
                 disabled={formReadOnly}
               >
-                {sexOptions.map((option) => (
+                {genderOptions.map((option) => (
                   <option key={option.value} value={option.value} label={option.label} />
                 ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">
-                {errors.sex}
+                {errors.gender}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
