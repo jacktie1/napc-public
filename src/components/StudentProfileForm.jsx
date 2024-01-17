@@ -1,11 +1,39 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Row, Form, Col} from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
 
-const StudentProfileForm = ({ innerRef, onSubmit }) => {
+const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly }) => {
   const { Formik } = formik;
+
+  useEffect(() => {
+    if (
+      userId !== undefined &&
+      userId !== null &&
+      ((lazyLoadToggle === undefined || lazyLoadToggle === null) || lazyLoadToggle) // either not passed in or true
+      ) {
+      innerRef.current.setValues({
+        firstName: 'Jason',
+        lastName: 'Chen',
+        englishName: '',
+        sex: 'male',
+        isNew: 'yes',
+        fromSchool: 'Gatech',
+        comeAs: 'grad',
+        major: 'cs',
+        majorOther: '',
+        hasCompanion: 'no',
+        emailAddress: 'test@gmail.com',
+        weChatId: 'aaqqq1111',
+        chinaPhoneNumber: '2212221233',
+        usPhoneNumber: '',
+        username: 'student',
+        password: 'testPassword!123',
+        confirmPassword: 'testPassword!123',
+      });
+    }
+  }, [lazyLoadToggle]);
 
   const initialValues = {
     firstName: '',
@@ -111,6 +139,7 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
       innerRef={innerRef}
       validationSchema={schema}
       onSubmit={onSubmit}
+      enableReinitialize={true}
       initialValues={initialValues}
     >
       {({ handleSubmit, handleChange, values, touched, errors }) => (
@@ -125,6 +154,8 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                 onChange={handleChange}
                 isValid={touched.firstName && !errors.firstName}
                 isInvalid={touched.firstName && !!errors.firstName}
+                readOnly={formReadOnly}
+                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.firstName}
@@ -139,6 +170,8 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                 onChange={handleChange}
                 isValid={touched.lastName && !errors.lastName}
                 isInvalid={touched.lastName && !!errors.lastName}
+                readOnly={formReadOnly}
+                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.lastName}
@@ -155,6 +188,8 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                 onChange={handleChange}
                 isValid={touched.englishName && !errors.englishName && values.englishName != ''}
                 isInvalid={touched.englishName && !!errors.englishName}
+                readOnly={formReadOnly}
+                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.englishName}
@@ -170,6 +205,7 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                 value={values.sex}
                 isValid={touched.sex && !errors.sex}
                 isInvalid={touched.sex && !!errors.sex}
+                disabled={formReadOnly}
               >
                 {sexOptions.map((option) => (
                   <option key={option.value} value={option.value} label={option.label} />
@@ -189,6 +225,7 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                 value={values.isNew}
                 isValid={touched.isNew && !errors.isNew}
                 isInvalid={touched.isNew && !!errors.isNew}
+                disabled={formReadOnly}
               >
                 {yesOrNoOptions.map((option) => (
                   <option key={option.value} value={option.value} label={option.label} />
@@ -208,6 +245,7 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                 value={values.comeAs}
                 isValid={touched.comeAs && !errors.comeAs}
                 isInvalid={touched.comeAs && !!errors.comeAs}
+                disabled={formReadOnly}
               >
                 {comeASOptions.map((option) => (
                   <option key={option.value} value={option.value} label={option.label} />
@@ -228,6 +266,8 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                 onChange={handleChange}
                 isValid={touched.fromSchool && !errors.fromSchool && values.fromSchool != ''}
                 isInvalid={touched.fromSchool && !!errors.fromSchool}
+                readOnly={formReadOnly}
+                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.fromSchool}
@@ -243,6 +283,7 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                 value={values.major}
                 isValid={touched.major && !errors.major}
                 isInvalid={touched.major && !!errors.major}
+                disabled={formReadOnly}
               >
                 {majorOptions.map((option) => (
                   <option key={option.value} value={option.value} label={option.label} />
@@ -262,6 +303,8 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.majorOther && !errors.majorOther}
                     isInvalid={touched.majorOther && !!errors.majorOther}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.majorOther}
@@ -277,6 +320,7 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                 value={values.hasCompanion}
                 isValid={touched.hasCompanion && !errors.hasCompanion}
                 isInvalid={touched.hasCompanion && !!errors.hasCompanion}
+                disabled={formReadOnly}
               >
                 {yesOrNoOptions.map((option) => (
                   <option key={option.value} value={option.value} label={option.label} />
@@ -297,6 +341,8 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                 onChange={handleChange}
                 isValid={touched.emailAddress && !errors.emailAddress}
                 isInvalid={touched.emailAddress && !!errors.emailAddress}
+                readOnly={formReadOnly}
+                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.emailAddress}
@@ -312,6 +358,8 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                 onChange={handleChange}
                 isValid={touched.weChatId && !errors.weChatId}
                 isInvalid={touched.weChatId && !!errors.weChatId}
+                readOnly={formReadOnly}
+                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.weChatId}
@@ -327,6 +375,8 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                 value={values.chinaPhoneNumber}
                 isValid={touched.chinaPhoneNumber && !errors.chinaPhoneNumber && values.chinaPhoneNumber !== ''}
                 isInvalid={touched.chinaPhoneNumber && !!errors.chinaPhoneNumber}
+                readOnly={formReadOnly}
+                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.chinaPhoneNumber}
@@ -342,59 +392,67 @@ const StudentProfileForm = ({ innerRef, onSubmit }) => {
                 value={values.usPhoneNumber}
                 isValid={touched.usPhoneNumber && !errors.usPhoneNumber && values.usPhoneNumber !== ''}
                 isInvalid={touched.usPhoneNumber && !!errors.usPhoneNumber}
+                readOnly={formReadOnly}
+                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.usPhoneNumber}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormUsername">
-              <RequiredFieldFormLabel>Username</RequiredFieldFormLabel>
-              <Form.Control
-                name='username'
-                value={values.username}
-                onChange={handleChange}
-                isValid={touched.username && !errors.username}
-                isInvalid={touched.username && !!errors.username}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.username}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormPassword">
-              <RequiredFieldFormLabel>Password</RequiredFieldFormLabel>
-              <Form.Control
-                name='password'
-                type='password'
-                value={values.password}
-                onChange={handleChange}
-                isValid={touched.password && !errors.password}
-                isInvalid={touched.password && !!errors.password}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.password}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormConfirmPassword">
-              <RequiredFieldFormLabel>Confirm Password</RequiredFieldFormLabel>
-              <Form.Control
-                name='confirmPassword'
-                type='password'
-                value={values.confirmPassword}
-                onChange={handleChange}
-                isValid={touched.confirmPassword && !errors.confirmPassword}
-                isInvalid={touched.confirmPassword && !!errors.confirmPassword}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.confirmPassword}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
+          { !formReadOnly ?
+          <>
+            <Row className="mb-3">
+              <Form.Group as={Col} controlId="studentProfileFormUsername">
+                <RequiredFieldFormLabel>Username</RequiredFieldFormLabel>
+                <Form.Control
+                  name='username'
+                  value={values.username}
+                  onChange={handleChange}
+                  isValid={touched.username && !errors.username}
+                  isInvalid={touched.username && !!errors.username}
+                  readOnly={formReadOnly}
+                  disabled={formReadOnly}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.username}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Row>
+            <Row className="mb-3">
+              <Form.Group as={Col} controlId="studentProfileFormPassword">
+                <RequiredFieldFormLabel>Password</RequiredFieldFormLabel>
+                <Form.Control
+                  name='password'
+                  type='password'
+                  value={values.password}
+                  onChange={handleChange}
+                  isValid={touched.password && !errors.password}
+                  isInvalid={touched.password && !!errors.password}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.password}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Row>
+            <Row className="mb-3">
+              <Form.Group as={Col} controlId="studentProfileFormConfirmPassword">
+                <RequiredFieldFormLabel>Confirm Password</RequiredFieldFormLabel>
+                <Form.Control
+                  name='confirmPassword'
+                  type='password'
+                  value={values.confirmPassword}
+                  onChange={handleChange}
+                  isValid={touched.confirmPassword && !errors.confirmPassword}
+                  isInvalid={touched.confirmPassword && !!errors.confirmPassword}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.confirmPassword}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Row>
+            </> : null
+          }
         </Form>
       )}
     </Formik>

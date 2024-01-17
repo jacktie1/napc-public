@@ -1,47 +1,77 @@
-import { useState, useEffect } from 'react';
+import { createContext, useState, useEffect } from 'react';
 
-var UserSession = (function() {
-    var is_authenticated = false;
-    var access_token;
-    var profile;
+const UserContext = createContext();
 
-    const storedToken = localStorage.getItem('faith-path-access-token');
-    const storedProfile = localStorage.getItem('profile');
+const UserSession = ({ children }) => {
+  const [token, setToken] = useState(null);
+  const [profile, setProfile] = useState({});
+  const [userId, setUserId] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isStudent, setIsStudent] = useState(false);
+  const [isVolunteer, setIsVolunteer] = useState(false);
+  const [fullName, setFullName] = useState('Jason Chen');
 
-    // Validate token with the server and set isAuthenticated accordingly
-    // ...
-    access_token = storedToken;
-    is_authenticated = (storedToken !== null);
-    profile = JSON.parse(storedProfile);
-  
-    var isAuthenticated = function() {
-      return is_authenticated;
+  useEffect(() => {
+    // Fetch data from API and set it in the state
+    // For demonstration purposes, assuming you have a function fetchDataFromApi
+    // Replace this with your actual API fetching logic
+    const fetchSession = () => {
+      const storedToken = localStorage.getItem('faith-path-access-token')
+      const storedProfile = localStorage.getItem('profile');
+
+      setToken(storedToken);
+
+      if(storedToken !== null)
+      {
+        setIsAuthenticated(true);
+      }
+
+      if(storedProfile !== null)
+      {
+        const parsedProfile= JSON.parse(storedProfile);
+        setProfile(parsedProfile);
+        setUserId(parsedProfile.userId);
+        setIsAdmin(parsedProfile.role === 'admin');
+        setIsStudent(parsedProfile.role === 'student');
+        setIsVolunteer(parsedProfile.role === 'volunteer');
+      }
     };
 
-    var startSession = function(token, profile) {
-        localStorage.setItem('faith-path-access-token', token);
-        localStorage.setItem('role', JSON.stringify(profile));
-    };
+    fetchSession();
+  }, []);
 
-    var isAdmin = function() {
-        return (profile.role === 'admin')
-    }
+  const startSession = (token, profile) => {
+      localStorage.setItem('faith-path-access-token', token);
+      localStorage.setItem('profile', JSON.stringify(profile));
+      setToken(token);
+      setProfile(profile);
+      setIsAuthenticated(true);
+      setFullName('Jason Chen')
+      setUserId(profile.userId);
+      setIsAdmin(profile.role === 'admin');
+      setIsStudent(profile.role === 'student');
+      setIsVolunteer(profile.role === 'volunteer');
+  };
 
-    var isStudent = function(token, profile) {
-        return (profile.role === 'student')
-    }
+  const endSession = () => {
+    localStorage.removeItem('faith-path-access-token');
+    localStorage.removeItem('profile');
+    setToken(null);
+    setProfile({});
+    setIsAuthenticated(false);
+    setUserId(null);
+    setFullName(null)
+    setIsAdmin(false);
+    setIsStudent(false);
+    setIsVolunteer(false);
+  }
 
-    var isVolunteer = function(token, profile) {
-        return (profile.role === 'volunteer')
-    }
+  return (
+    <UserContext.Provider value={{ token, profile, isAuthenticated, isAdmin, isStudent, isVolunteer, fullName, userId, setFullName, startSession, endSession }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
   
-    return {
-      isAuthenticated: isAuthenticated,
-      startSession: startSession,
-      isAdmin: isAdmin,
-      isStudent: isStudent,
-      isVolunteer: isVolunteer,
-    }
-  })();
-  
-  export default UserSession;
+export { UserContext, UserSession };

@@ -1,13 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Row, Form, Col, Alert } from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
 
-const PickupCapacityForm = ({ innerRef, onSubmit }) => {
+const PickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly }) => {
   const { Formik } = formik;
 
   const [showCapacityDetails, setShowCapacityDetails] = useState(false);
+
+  useEffect(() => {
+    if (
+      userId !== undefined &&
+      userId !== null &&
+      ((lazyLoadToggle === undefined || lazyLoadToggle === null) || lazyLoadToggle) // either not passed in or true
+      ) {
+      innerRef.current.setValues({
+        doesPickup: 'yes',
+        carManufacturer: 'Honda',
+        carModel: 'Civic',
+        numSeats: '4',
+        numLgLuggages: '2',
+        numTrips: '9',
+        comment: 'Nothing'
+      });
+
+      setShowCapacityDetails(true);
+    }
+  }, [lazyLoadToggle]);
 
   const initialValues = {
     doesPickup: '',
@@ -68,6 +88,7 @@ const PickupCapacityForm = ({ innerRef, onSubmit }) => {
                 value={values.doesPickup}
                 isValid={touched.doesPickup && !errors.doesPickup}
                 isInvalid={touched.doesPickup && !!errors.doesPickup}
+                disabled={formReadOnly}
               >
                 {yesOrNoOptions.map((option) => (
                   <option key={option.value} value={option.value} label={option.label} />
@@ -88,6 +109,8 @@ const PickupCapacityForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.carManufacturer && !errors.carManufacturer}
                     isInvalid={touched.carManufacturer && !!errors.carManufacturer}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.carManufacturer}
@@ -101,6 +124,8 @@ const PickupCapacityForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.carModel && !errors.carModel}
                     isInvalid={touched.carModel && !!errors.carModel}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.carModel}
@@ -109,7 +134,7 @@ const PickupCapacityForm = ({ innerRef, onSubmit }) => {
             </Row>
             <Row className="mb-3">
                 <Form.Group as={Col} controlId="pickupCapacityFormNumSeats">
-                    <Form.Label>How many seats your car has(use a number from 0 - 9)</Form.Label>
+                    <Form.Label>How many seats your car has (use a number from 0 - 9)</Form.Label>
                     <Form.Control
                     type="number"
                     name='numSeats'
@@ -117,6 +142,8 @@ const PickupCapacityForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.numSeats && !errors.numSeats}
                     isInvalid={touched.numSeats && !!errors.numSeats}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.numSeats}
@@ -125,7 +152,7 @@ const PickupCapacityForm = ({ innerRef, onSubmit }) => {
             </Row>
             <Row className="mb-3">
                 <Form.Group as={Col} controlId="pickupCapacityFormNumLgLuggages">
-                    <Form.Label>How many seats your car has(use a number from 0 - 9)</Form.Label>
+                    <Form.Label>How many seats your car has (use a number from 0 - 9)</Form.Label>
                     <Form.Control
                     type="number"
                     name='numLgLuggages'
@@ -133,6 +160,8 @@ const PickupCapacityForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.numLgLuggages && !errors.numLgLuggages}
                     isInvalid={touched.numLgLuggages && !!errors.numLgLuggages}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.numLgLuggages}
@@ -141,7 +170,7 @@ const PickupCapacityForm = ({ innerRef, onSubmit }) => {
             </Row>
             <Row className="mb-3">
                 <Form.Group as={Col} controlId="pickupCapacityFormNumTrips">
-                    <Form.Label>How many seats your car has(use a number from 0 - 9)</Form.Label>
+                    <Form.Label>How many seats your car has (use a number from 0 - 9)</Form.Label>
                     <Form.Control
                     type="number"
                     name='numTrips'
@@ -149,6 +178,8 @@ const PickupCapacityForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.numTrips && !errors.numTrips}
                     isInvalid={touched.numTrips && !!errors.numTrips}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.numTrips}
@@ -167,6 +198,8 @@ const PickupCapacityForm = ({ innerRef, onSubmit }) => {
                 onChange={handleChange}
                 isValid={touched.comment && !errors.comment}
                 isInvalid={touched.comment && !!errors.comment}
+                readOnly={formReadOnly}
+                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.comment}

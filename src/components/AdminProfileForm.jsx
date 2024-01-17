@@ -4,78 +4,36 @@ import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
 
-const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly, adminView }) => {
+const AdminProfileForm = ({ innerRef, onSubmit, userId }) => {
   const { Formik } = formik;
 
   useEffect(() => {
-    if (
-      userId !== undefined &&
-      userId !== null &&
-      ((lazyLoadToggle === undefined || lazyLoadToggle === null) || lazyLoadToggle) // either not passed in or true
-      ) {
-      if(adminView)
-      {
-        innerRef.current.setValues({
-          firstName: 'Jason',
-          lastName: 'Chen',
-          sex: 'male',
-          affiliation: 'Neal Hightower',
-          emailAddress: 'test@gmail.com',
-          weChatId: 'aaqqq1111',
-          primaryPhoneNumber: '2212221233',
-          secondaryPhoneNumber: '',
-          username: 'volunteer',
-          password: 'testPassword!123',
-          confirmPassword: 'testPassword!123',
-          enabled: 'enabled',
-        });
-      }
-      else
-      {
-        innerRef.current.setValues({
-          firstName: 'Jason',
-          lastName: 'Chen',
-          sex: 'male',
-          affiliation: 'Neal Hightower',
-          emailAddress: 'test@gmail.com',
-          weChatId: 'aaqqq1111',
-          primaryPhoneNumber: '2212221233',
-          secondaryPhoneNumber: '',
-          username: 'volunteer',
-          password: 'testPassword!123',
-          confirmPassword: 'testPassword!123',
-        });
-      }
+    if (userId !== undefined && userId !== null) {
+      innerRef.current.setValues({
+        firstName: 'Jason',
+        lastName: 'Chen',
+        sex: 'male',
+        affiliation: 'Neal Hightower',
+        emailAddress: 'test@gmail.com',
+        primaryPhoneNumber: '2212221233',
+        username: 'admin',
+        password: 'testPassword!123',
+        confirmPassword: 'testPassword!123',
+      });
     }
-  }, [lazyLoadToggle]);
+  }, []);
 
-
-  const initialValues = adminView ? {
+  const initialValues = {
     firstName: '',
     lastName: '',
     sex: '',
     affiliation: '',
     emailAddress: '',
-    weChatId: '',
     primaryPhoneNumber: '',
-    secondaryPhoneNumber: '',
     username: '',
     password: '',
     confirmPassword: '',
-  } : {
-    firstName: '',
-    lastName: '',
-    sex: '',
-    affiliation: '',
-    emailAddress: '',
-    weChatId: '',
-    primaryPhoneNumber: '',
-    secondaryPhoneNumber: '',
-    username: '',
-    password: '',
-    confirmPassword: '',
-    enabled: '',
-  };
+  }
 
   const requiredAlphaTest = yup.string().required('Required!').matches(/^[a-zA-Z]+$/, { message: 'Can only contain English letters!', excludeEmptyString: true });
   const requiredAlphaNumTest = yup.string().required('Required!').matches(/^[a-zA-Z0-9]+$/, { message: 'Can only contain English letters and numbers!', excludeEmptyString: true });
@@ -101,42 +59,22 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
     .required('Required!')
     .oneOf([yup.ref('password')], 'Your passwords do not match!');
 
-  const schema = adminView ? yup.object().shape({
+  const schema = yup.object().shape({
       firstName: requiredAlphaTest,
       lastName: requiredAlphaTest,
       sex: requiredSelectTest,
       affiliation: requiredAlphaSpaceTest,
       emailAddress: emailAddressTest,
-      weChatId: optionalNoSpaceTest,
       primaryPhoneNumber: phoneNumberTest.required('Required!'),
-      secondaryPhoneNumber: phoneNumberTest,
       username: requiredAlphaNumTest,
       password: strongPasswordTest,
       confirmPassword: confirmPasswordTest,
-  }) : yup.object().shape({
-    firstName: requiredAlphaTest,
-    lastName: requiredAlphaTest,
-    sex: requiredSelectTest,
-    affiliation: requiredAlphaSpaceTest,
-    emailAddress: emailAddressTest,
-    weChatId: optionalNoSpaceTest,
-    primaryPhoneNumber: phoneNumberTest.required('Required!'),
-    secondaryPhoneNumber: phoneNumberTest,
-    username: requiredAlphaNumTest,
-    password: strongPasswordTest,
-    confirmPassword: confirmPasswordTest,
-    enabled: requiredSelectTest,
-});
+  });
 
   const sexOptions = [
     { value: '', label: "Select an option" },
     { value: 'male', label: "Male" },
     { value: 'Female', label: "Female" },
-  ];
-
-  const userStatusOptions = [
-    { value: 'enabled', label: "Enabled" },
-    { value: 'disabled', label: "Disabled" },
   ];
 
   return (
@@ -158,8 +96,6 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
                 onChange={handleChange}
                 isValid={touched.firstName && !errors.firstName}
                 isInvalid={touched.firstName && !!errors.firstName}
-                readOnly={formReadOnly}
-                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.firstName}
@@ -174,8 +110,6 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
                 onChange={handleChange}
                 isValid={touched.lastName && !errors.lastName}
                 isInvalid={touched.lastName && !!errors.lastName}
-                readOnly={formReadOnly}
-                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.lastName}
@@ -191,7 +125,6 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
                 value={values.sex}
                 isValid={touched.sex && !errors.sex}
                 isInvalid={touched.sex && !!errors.sex}
-                disabled={formReadOnly}
               >
                 {sexOptions.map((option) => (
                   <option key={option.value} value={option.value} label={option.label} />
@@ -211,8 +144,6 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
                 onChange={handleChange}
                 isValid={touched.affiliation && !errors.affiliation}
                 isInvalid={touched.affiliation && !!errors.affiliation}
-                readOnly={formReadOnly}
-                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.affiliation}
@@ -229,8 +160,6 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
                 onChange={handleChange}
                 isValid={touched.emailAddress && !errors.emailAddress}
                 isInvalid={touched.emailAddress && !!errors.emailAddress}
-                readOnly={formReadOnly}
-                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.emailAddress}
@@ -246,45 +175,9 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
                 value={values.primaryPhoneNumber}
                 isValid={touched.primaryPhoneNumber && !errors.primaryPhoneNumber && values.primaryPhoneNumber !== ''}
                 isInvalid={touched.primaryPhoneNumber && !!errors.primaryPhoneNumber}
-                readOnly={formReadOnly}
-                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.primaryPhoneNumber}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormSecondaryPhoneNumber">
-              <Form.Label>Backup phone to contact you</Form.Label>
-              <Form.Control
-                name='secondaryPhoneNumber'
-                onChange={handleChange}
-                value={values.secondaryPhoneNumber}
-                isValid={touched.secondaryPhoneNumber && !errors.secondaryPhoneNumber && values.secondaryPhoneNumber !== ''}
-                isInvalid={touched.secondaryPhoneNumber && !!errors.secondaryPhoneNumber}
-                readOnly={formReadOnly}
-                disabled={formReadOnly}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.secondaryPhoneNumber}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormWeChatId">
-              <Form.Label>WeChat ID</Form.Label>
-              <Form.Control
-                name='weChatId'
-                value={values.weChatId}
-                onChange={handleChange}
-                isValid={touched.weChatId && !errors.weChatId}
-                isInvalid={touched.weChatId && !!errors.weChatId}
-                readOnly={formReadOnly}
-                disabled={formReadOnly}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.weChatId}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
@@ -297,8 +190,6 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
                 onChange={handleChange}
                 isValid={touched.username && !errors.username}
                 isInvalid={touched.username && !!errors.username}
-                readOnly={formReadOnly}
-                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.username}
@@ -315,8 +206,6 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
                 onChange={handleChange}
                 isValid={touched.password && !errors.password}
                 isInvalid={touched.password && !!errors.password}
-                readOnly={formReadOnly}
-                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.password}
@@ -333,41 +222,16 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
                 onChange={handleChange}
                 isValid={touched.confirmPassword && !errors.confirmPassword}
                 isInvalid={touched.confirmPassword && !!errors.confirmPassword}
-                readOnly={formReadOnly}
-                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.confirmPassword}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
-          { adminView ? 
-            <Row className="mb-3">
-              <Form.Group as={Col} controlId="studentProfileFormUserStatus">
-                <RequiredFieldFormLabel>User Status</RequiredFieldFormLabel>
-                <Form.Select
-                  name='userStatus'
-                  onChange={handleChange}
-                  value={values.userStatus}
-                  isValid={touched.userStatus && !errors.userStatus}
-                  isInvalid={touched.userStatus && !!errors.userStatus}
-                  readOnly={formReadOnly}
-                  disabled={formReadOnly}
-                >
-                  {userStatusOptions.map((option) => (
-                    <option key={option.value} value={option.value} label={option.label} />
-                  ))}
-                </Form.Select>
-                <Form.Control.Feedback type="invalid">
-                  {errors.userStatus}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Row>
-          : null }
         </Form>
       )}
     </Formik>
   );
 };
 
-export default VolunteerProfileForm;
+export default AdminProfileForm;

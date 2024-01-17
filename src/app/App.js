@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense } from "react";
+import React from "react";
 import CustomRouter from "../router";
 
 const App = () => {

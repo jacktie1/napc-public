@@ -77,11 +77,11 @@ const SignupVolunteerPage = () => {
   }
 
   return (
-    <Container>
+    <Container className="mt-5">
       <AppTitle />
-      <Row className="mt-5 signup-form-box">
-        <Col className="auth-form" >
-            <h2 className="auth-form-heading">Volunteer Registration</h2> 
+      <Row className="mt-5 wide-pretty-box-layout">
+        <Col className="pretty-box" >
+            <h2 className="pretty-box-heading">Volunteer Registration</h2> 
             <PrivacyStatement />
             <PatienceInfo targetGroup="volunteer"/>
             <RequiredFieldInfo />
@@ -116,10 +116,10 @@ const SignupVolunteerPage = () => {
               </Accordion.Item>
             </Accordion>
             <hr/>
-            <Button variant="primary" onClick={handleClick} className="auth-form-button">
+            <Button variant="primary" onClick={handleClick} className="pretty-box-button">
               Submit
             </Button> 
-            <Button variant="secondary" href='/login' className="auth-form-button">
+            <Button variant="secondary" href='/login' className="pretty-box-button">
               Back To Login
             </Button> 
         </Col>

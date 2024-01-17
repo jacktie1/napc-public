@@ -1,13 +1,36 @@
-import React, { useState } from 'react';
-import { Row, Form, Col, Alert } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Row, Form, Col } from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
 
-const HousingCapacityForm = ({ innerRef, onSubmit }) => {
+const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly }) => {
   const { Formik } = formik;
 
   const [showCapacityDetails, setShowCapacityDetails] = useState(false);
+
+  useEffect(() => {
+    if (
+      userId !== undefined &&
+      userId !== null &&
+      ((lazyLoadToggle === undefined || lazyLoadToggle === null) || lazyLoadToggle) // either not passed in or true
+      ) {
+      innerRef.current.setValues({
+        doesHousing: 'yes',
+        homeAddress: '131 Mars St, Atlanta, GA, 30332',
+        numStudents: '2',
+        startDate: '2024-08-17',
+        endDate: '2024-08-19',
+        numDoubleBeds: '2',
+        numSingleBeds: '2',
+        studentSexPreference: 'male',
+        providesRide: 'yes',
+        comment: 'Nothing special',
+      });
+
+      setShowCapacityDetails(true);
+    }
+  }, [lazyLoadToggle]);
 
   const initialValues = {
     doesHousing: '',
@@ -57,7 +80,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit }) => {
   ];
 
   const handleDoesHousingChange = (e, action) => {
-    setShowCapacityDetails(e.target.value == 'yes');
+    setShowCapacityDetails(e.target.value === 'yes');
     action({values: { ...initialValues, doesHousing: e.target.value}}); 
   }; 
 
@@ -80,6 +103,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit }) => {
                 value={values.doesHousing}
                 isValid={touched.doesHousing && !errors.doesHousing}
                 isInvalid={touched.doesHousing && !!errors.doesHousing}
+                disabled={formReadOnly}
               >
                 {yesOrNoOptions.map((option) => (
                   <option key={option.value} value={option.value} label={option.label} />
@@ -100,6 +124,8 @@ const HousingCapacityForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.homeAddress && !errors.homeAddress}
                     isInvalid={touched.homeAddress && !!errors.homeAddress}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.homeAddress}
@@ -116,6 +142,8 @@ const HousingCapacityForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.numStudents && !errors.numStudents}
                     isInvalid={touched.numStudents && !!errors.numStudents}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.numStudents}
@@ -132,6 +160,8 @@ const HousingCapacityForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.startDate && !errors.startDate}
                     isInvalid={touched.startDate && !!errors.startDate}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.startDate}
@@ -148,6 +178,8 @@ const HousingCapacityForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.endDate && !errors.endDate}
                     isInvalid={touched.endDate && !!errors.endDate}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.endDate}
@@ -164,6 +196,8 @@ const HousingCapacityForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.numDoubleBeds && !errors.numDoubleBeds}
                     isInvalid={touched.numDoubleBeds && !!errors.numDoubleBeds}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.numDoubleBeds}
@@ -180,6 +214,8 @@ const HousingCapacityForm = ({ innerRef, onSubmit }) => {
                   onChange={handleChange}
                   isValid={touched.numSingleBeds && !errors.numSingleBeds}
                   isInvalid={touched.numSingleBeds && !!errors.numSingleBeds}
+                  readOnly={formReadOnly}
+                  disabled={formReadOnly}
                   />
                   <Form.Control.Feedback type="invalid">
                   {errors.numSingleBeds}
@@ -195,6 +231,8 @@ const HousingCapacityForm = ({ innerRef, onSubmit }) => {
                   value={values.studentSexPreference}
                   isValid={touched.studentSexPreference && !errors.studentSexPreference}
                   isInvalid={touched.studentSexPreference && !!errors.studentSexPreference}
+                  readOnly={formReadOnly}
+                  disabled={formReadOnly}
                 >
                   {sexOptions.map((option) => (
                     <option key={option.value} value={option.value} label={option.label} />
@@ -214,6 +252,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit }) => {
                   value={values.providesRide}
                   isValid={touched.providesRide && !errors.providesRide}
                   isInvalid={touched.providesRide && !!errors.providesRide}
+                  disabled={formReadOnly}
                 >
                   {yesOrNoOptions.map((option) => (
                     <option key={option.value} value={option.value} label={option.label} />
@@ -236,6 +275,8 @@ const HousingCapacityForm = ({ innerRef, onSubmit }) => {
                 onChange={handleChange}
                 isValid={touched.comment && !errors.comment}
                 isInvalid={touched.comment && !!errors.comment}
+                readOnly={formReadOnly}
+                disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.comment}

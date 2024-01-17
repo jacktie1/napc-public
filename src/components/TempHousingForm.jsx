@@ -1,10 +1,296 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Row, Form, Col } from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
 
-const TempHousingForm = ({ innerRef, onSubmit }) => {
+// Hard-coded for now
+const locationsOptions = [
+  {
+    "categoryId": '',
+    "categoryName": "Select an option",
+  },
+  {
+    "categoryId": 1,
+    "categoryName": "On Campus",
+    "houseLocations": [
+      {
+        "locationId": 1,
+        "locationName": "East",
+        "houseDormApartment": [
+          {
+            "dormAppartmentId": 1,
+            "dormAppartmentName": "Brown-625 Techwood Dr NW"
+          },
+          {
+            "dormAppartmentId": 2,
+            "dormAppartmentName": "Cloudman-661 Techwood Dr NW"
+          },
+          {
+            "dormAppartmentId": 3,
+            "dormAppartmentName": "Field-711 Techwood Dr NW"
+          },
+          {
+            "dormAppartmentId": 4,
+            "dormAppartmentName": "Glenn-118 Bobby Dodd Way"
+          },
+          {
+            "dormAppartmentId": 5,
+            "dormAppartmentName": "Hanson-711 Techwood Dr NW"
+          },
+          {
+            "dormAppartmentId": 6,
+            "dormAppartmentName": "Harrison-660 Williams St NW"
+          },
+          {
+            "dormAppartmentId": 7,
+            "dormAppartmentName": "Hopkins-711 Techwood Dr NW"
+          },
+          {
+            "dormAppartmentId": 8,
+            "dormAppartmentName": "Matheson-711 Techwood Dr NW"
+          },
+          {
+            "dormAppartmentId": 9,
+            "dormAppartmentName": "Perry-711 Techwood Dr NW"
+          },
+          {
+            "dormAppartmentId": 10,
+            "dormAppartmentName": "Smith-630 Williams St NW"
+          },
+          {
+            "dormAppartmentId": 11,
+            "dormAppartmentName": "Towers-112 Bobby Dodd Way"
+          },
+          {
+            "dormAppartmentId": 12,
+            "dormAppartmentName": "Stein House-733 Techwood Dr NW"
+          },
+          {
+            "dormAppartmentId": 13,
+            "dormAppartmentName": "4th Street E-733 Techwood Dr NW"
+          },
+          {
+            "dormAppartmentId": 14,
+            "dormAppartmentName": "Hayes House-733 Techwood Dr NW"
+          },
+          {
+            "dormAppartmentId": 15,
+            "dormAppartmentName": "Goldin House-733 Techwood Dr NW"
+          },
+          {
+            "dormAppartmentId": 16,
+            "dormAppartmentName": "Howell-640 Williams St NW"
+          },
+          {
+            "dormAppartmentId": 17,
+            "dormAppartmentName": "Harris-633 Techwood Dr NW"
+          },
+          {
+            "dormAppartmentId": 18,
+            "dormAppartmentName": "North Avenue East-120 North Avenue NW"
+          }
+        ]
+      },
+      {
+        "locationId": 2,
+        "locationName": "West",
+        "houseDormApartment": [
+          {
+            "dormAppartmentId": 1,
+            "dormAppartmentName": "Armstrong-498 8th St NW"
+          },
+          {
+            "dormAppartmentId": 2,
+            "dormAppartmentName": "Caldwell-521 Turner Place NW"
+          },
+          {
+            "dormAppartmentId": 3,
+            "dormAppartmentName": "Fitten-855 McMillan St NW"
+          },
+          {
+            "dormAppartmentId": 4,
+            "dormAppartmentName": "Folk-531 Turner Place NW"
+          },
+          {
+            "dormAppartmentId": 5,
+            "dormAppartmentName": "Freeman-835 McMillan St NW"
+          },
+          {
+            "dormAppartmentId": 6,
+            "dormAppartmentName": "Hefner-510 8th St NW"
+          },
+          {
+            "dormAppartmentId": 7,
+            "dormAppartmentName": "Montag-845 McMillan St NW"
+          },
+          {
+            "dormAppartmentId": 8,
+            "dormAppartmentName": "Center Street North/South-939 Hemphill Ave NW"
+          },
+          {
+            "dormAppartmentId": 9,
+            "dormAppartmentName": "Crecine-900 Hemphill Ave NW"
+          },
+          {
+            "dormAppartmentId": 10,
+            "dormAppartmentName": "8th Street East/South/West-555 8th St NW"
+          },
+          {
+            "dormAppartmentId": 11,
+            "dormAppartmentName": "Fulmer-871 McMillan St NW"
+          },
+          {
+            "dormAppartmentId": 12,
+            "dormAppartmentName": "Maulding-501 6th St NW"
+          },
+          {
+            "dormAppartmentId": 13,
+            "dormAppartmentName": "6th Street-501 6th St NW"
+          },
+          {
+            "dormAppartmentId": 14,
+            "dormAppartmentName": "Undergraduate Living Center-580 Turner Place NW"
+          },
+          {
+            "dormAppartmentId": 15,
+            "dormAppartmentName": "Woodruff North/South-890 Curran St NW"
+          }
+        ]
+      },
+      {
+        "locationId": 4,
+        "locationName": "North",
+        "houseDormApartment": [
+          {
+            "dormAppartmentId": 1,
+            "dormAppartmentName": "Graduate Living Center (GLC)-301 10th St NW"
+          },
+          {
+            "dormAppartmentId": 2,
+            "dormAppartmentName": "10th and Home-251 10th Street NW"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "categoryId": 2,
+    "categoryName": "Off Campus",
+    "houseLocations": [
+      {
+        "locationId": 1,
+        "locationName": "East",
+        "houseDormApartment": [
+          {
+            "dormAppartmentId": 1,
+            "dormAppartmentName": "Biltmore at Midtown-855 West Peachtree St NW"
+          },
+          {
+            "dormAppartmentId": 2,
+            "dormAppartmentName": "Solace-710 Peachtree St NE"
+          },
+          {
+            "dormAppartmentId": 3,
+            "dormAppartmentName": "Alexander on Ponce-144 Ponce De Leon Ave NE"
+          },
+          {
+            "dormAppartmentId": 4,
+            "dormAppartmentName": "100 Midtown-100 10th St NW"
+          },
+          {
+            "dormAppartmentId": 5,
+            "dormAppartmentName": "Modera Midtown-95 8th St NW"
+          },
+          {
+            "dormAppartmentId": 6,
+            "dormAppartmentName": "Square on Fifth-848 Spring St NW"
+          },
+          {
+            "dormAppartmentId": 7,
+            "dormAppartmentName": "The Byron on Peachtree-549 Peachtree St NE"
+          },
+          {
+            "dormAppartmentId": 8,
+            "dormAppartmentName": "Hanover West Peachtree-1010 West Peachtree Street NW"
+          }
+        ]
+      },
+      {
+        "locationId": 2,
+        "locationName": "West",
+        "houseDormApartment": [
+          {
+            "dormAppartmentId": 1,
+            "dormAppartmentName": "Arium West (formerly Tenside)-1000 Northside Dr NW"
+          },
+          {
+            "dormAppartmentId": 2,
+            "dormAppartmentName": "935M-935 Marietta St NW"
+          },
+          {
+            "dormAppartmentId": 3,
+            "dormAppartmentName": "M Street-950 Marietta St NW"
+          },
+          {
+            "dormAppartmentId": 4,
+            "dormAppartmentName": "Westmar-800 West Marietta St NW"
+          }
+        ]
+      },
+      {
+        "locationId": 3,
+        "locationName": "South",
+        "houseDormApartment": [
+          {
+            "dormAppartmentId": 1,
+            "dormAppartmentName": "Centennial Place-526 Centennial Olympic Park Dr"
+          }
+        ]
+      },
+      {
+        "locationId": 4,
+        "locationName": "North",
+        "houseDormApartment": [
+          {
+            "dormAppartmentId": 1,
+            "dormAppartmentName": "500 Northside Circle (formerly Hartford)-500 Northside Cir NW"
+          },
+          {
+            "dormAppartmentId": 2,
+            "dormAppartmentName": "Highland Ridge-499 Northside Cir NW"
+          },
+          {
+            "dormAppartmentId": 3,
+            "dormAppartmentName": "Home Park-"
+          },
+          {
+            "dormAppartmentId": 4,
+            "dormAppartmentName": "The Exchange-470 16th St NW"
+          },
+          {
+            "dormAppartmentId": 5,
+            "dormAppartmentName": "Element-390 17th St NW"
+          },
+          {
+            "dormAppartmentId": 6,
+            "dormAppartmentName": "Alexander at the District-1750 Commerce Dr"
+          },
+          {
+            "dormAppartmentId": 7,
+            "dormAppartmentName": "464 Bishop Apartments-464 Bishop St NW"
+          },
+          {
+            "dormAppartmentId": 8,
+            "dormAppartmentName": "1016 Lofts-1016 Howell Mill Rd."
+          }
+        ]
+      }
+    ]
+  }
+];
+
+const TempHousingForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly }) => {
   const { Formik } = formik;
 
   const [showNumNights, setShowNumNights] = useState(false);
@@ -15,6 +301,40 @@ const TempHousingForm = ({ innerRef, onSubmit }) => {
 
   const [locationLv2Options, setLocationLv2Options] = useState([{"locationId": '', "locationName": 'Select an option'}]);
   const [locationLv3Options, setLocationLv3Options] = useState([{"dormAppartmentId": '', "dormAppartmentName": 'Select an option'}]);
+
+  useEffect(() => {
+    if (
+      userId !== undefined &&
+      userId !== null &&
+      ((lazyLoadToggle === undefined || lazyLoadToggle === null) || lazyLoadToggle) // either not passed in or true
+      ) {
+      innerRef.current.setValues({
+        needsTempHousing: 'yes',
+        numNights: '4',
+        locationLv1: 1,
+        locationLv2: 1,
+        locationLv3: 1,
+        locationOther: '',
+        contactName: '',
+        contactEmailAddress: '',
+        contactPhoneNumber: '',
+      });
+
+      setShowNumNights(true);
+      setShowContact(false);
+      setAddressText('Where should we send you to after this period? Address');
+      setShowLocationLv2(true);
+      setShowLocationLv3(true);
+
+      const selectedCategory = locationsOptions.filter((category) => category.categoryId == 1);
+      const newLocationLv2Options = selectedCategory[0].houseLocations;
+      setLocationLv2Options([{"locationId": '', "locationName": 'Select an option'}].concat(newLocationLv2Options));
+      
+      const selectedLocation = newLocationLv2Options.filter((location) => location.locationId == 1);
+      const newLocationLv3Options = selectedLocation[0].houseDormApartment;
+      setLocationLv3Options([{"dormAppartmentId": '', "dormAppartmentName": 'Select an option'}].concat(newLocationLv3Options));
+    }
+  }, [lazyLoadToggle])
 
   const initialValues = {
     needsTempHousing: '',
@@ -65,291 +385,6 @@ const TempHousingForm = ({ innerRef, onSubmit }) => {
     { value: '3', label: "3" },
     { value: '4', label: "4" },
     { value: '5', label: "5" },
-  ];
-
-  const locationsOptions = [
-    {
-      "categoryId": '',
-      "categoryName": "Select an option",
-    },
-    {
-      "categoryId": 1,
-      "categoryName": "On Campus",
-      "houseLocations": [
-        {
-          "locationId": 1,
-          "locationName": "East",
-          "houseDormApartment": [
-            {
-              "dormAppartmentId": 1,
-              "dormAppartmentName": "Brown-625 Techwood Dr NW"
-            },
-            {
-              "dormAppartmentId": 2,
-              "dormAppartmentName": "Cloudman-661 Techwood Dr NW"
-            },
-            {
-              "dormAppartmentId": 3,
-              "dormAppartmentName": "Field-711 Techwood Dr NW"
-            },
-            {
-              "dormAppartmentId": 4,
-              "dormAppartmentName": "Glenn-118 Bobby Dodd Way"
-            },
-            {
-              "dormAppartmentId": 5,
-              "dormAppartmentName": "Hanson-711 Techwood Dr NW"
-            },
-            {
-              "dormAppartmentId": 6,
-              "dormAppartmentName": "Harrison-660 Williams St NW"
-            },
-            {
-              "dormAppartmentId": 7,
-              "dormAppartmentName": "Hopkins-711 Techwood Dr NW"
-            },
-            {
-              "dormAppartmentId": 8,
-              "dormAppartmentName": "Matheson-711 Techwood Dr NW"
-            },
-            {
-              "dormAppartmentId": 9,
-              "dormAppartmentName": "Perry-711 Techwood Dr NW"
-            },
-            {
-              "dormAppartmentId": 10,
-              "dormAppartmentName": "Smith-630 Williams St NW"
-            },
-            {
-              "dormAppartmentId": 11,
-              "dormAppartmentName": "Towers-112 Bobby Dodd Way"
-            },
-            {
-              "dormAppartmentId": 12,
-              "dormAppartmentName": "Stein House-733 Techwood Dr NW"
-            },
-            {
-              "dormAppartmentId": 13,
-              "dormAppartmentName": "4th Street E-733 Techwood Dr NW"
-            },
-            {
-              "dormAppartmentId": 14,
-              "dormAppartmentName": "Hayes House-733 Techwood Dr NW"
-            },
-            {
-              "dormAppartmentId": 15,
-              "dormAppartmentName": "Goldin House-733 Techwood Dr NW"
-            },
-            {
-              "dormAppartmentId": 16,
-              "dormAppartmentName": "Howell-640 Williams St NW"
-            },
-            {
-              "dormAppartmentId": 17,
-              "dormAppartmentName": "Harris-633 Techwood Dr NW"
-            },
-            {
-              "dormAppartmentId": 18,
-              "dormAppartmentName": "North Avenue East-120 North Avenue NW"
-            }
-          ]
-        },
-        {
-          "locationId": 2,
-          "locationName": "West",
-          "houseDormApartment": [
-            {
-              "dormAppartmentId": 1,
-              "dormAppartmentName": "Armstrong-498 8th St NW"
-            },
-            {
-              "dormAppartmentId": 2,
-              "dormAppartmentName": "Caldwell-521 Turner Place NW"
-            },
-            {
-              "dormAppartmentId": 3,
-              "dormAppartmentName": "Fitten-855 McMillan St NW"
-            },
-            {
-              "dormAppartmentId": 4,
-              "dormAppartmentName": "Folk-531 Turner Place NW"
-            },
-            {
-              "dormAppartmentId": 5,
-              "dormAppartmentName": "Freeman-835 McMillan St NW"
-            },
-            {
-              "dormAppartmentId": 6,
-              "dormAppartmentName": "Hefner-510 8th St NW"
-            },
-            {
-              "dormAppartmentId": 7,
-              "dormAppartmentName": "Montag-845 McMillan St NW"
-            },
-            {
-              "dormAppartmentId": 8,
-              "dormAppartmentName": "Center Street North/South-939 Hemphill Ave NW"
-            },
-            {
-              "dormAppartmentId": 9,
-              "dormAppartmentName": "Crecine-900 Hemphill Ave NW"
-            },
-            {
-              "dormAppartmentId": 10,
-              "dormAppartmentName": "8th Street East/South/West-555 8th St NW"
-            },
-            {
-              "dormAppartmentId": 11,
-              "dormAppartmentName": "Fulmer-871 McMillan St NW"
-            },
-            {
-              "dormAppartmentId": 12,
-              "dormAppartmentName": "Maulding-501 6th St NW"
-            },
-            {
-              "dormAppartmentId": 13,
-              "dormAppartmentName": "6th Street-501 6th St NW"
-            },
-            {
-              "dormAppartmentId": 14,
-              "dormAppartmentName": "Undergraduate Living Center-580 Turner Place NW"
-            },
-            {
-              "dormAppartmentId": 15,
-              "dormAppartmentName": "Woodruff North/South-890 Curran St NW"
-            }
-          ]
-        },
-        {
-          "locationId": 4,
-          "locationName": "North",
-          "houseDormApartment": [
-            {
-              "dormAppartmentId": 1,
-              "dormAppartmentName": "Graduate Living Center (GLC)-301 10th St NW"
-            },
-            {
-              "dormAppartmentId": 2,
-              "dormAppartmentName": "10th and Home-251 10th Street NW"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "categoryId": 2,
-      "categoryName": "Off Campus",
-      "houseLocations": [
-        {
-          "locationId": 1,
-          "locationName": "East",
-          "houseDormApartment": [
-            {
-              "dormAppartmentId": 1,
-              "dormAppartmentName": "Biltmore at Midtown-855 West Peachtree St NW"
-            },
-            {
-              "dormAppartmentId": 2,
-              "dormAppartmentName": "Solace-710 Peachtree St NE"
-            },
-            {
-              "dormAppartmentId": 3,
-              "dormAppartmentName": "Alexander on Ponce-144 Ponce De Leon Ave NE"
-            },
-            {
-              "dormAppartmentId": 4,
-              "dormAppartmentName": "100 Midtown-100 10th St NW"
-            },
-            {
-              "dormAppartmentId": 5,
-              "dormAppartmentName": "Modera Midtown-95 8th St NW"
-            },
-            {
-              "dormAppartmentId": 6,
-              "dormAppartmentName": "Square on Fifth-848 Spring St NW"
-            },
-            {
-              "dormAppartmentId": 7,
-              "dormAppartmentName": "The Byron on Peachtree-549 Peachtree St NE"
-            },
-            {
-              "dormAppartmentId": 8,
-              "dormAppartmentName": "Hanover West Peachtree-1010 West Peachtree Street NW"
-            }
-          ]
-        },
-        {
-          "locationId": 2,
-          "locationName": "West",
-          "houseDormApartment": [
-            {
-              "dormAppartmentId": 1,
-              "dormAppartmentName": "Arium West (formerly Tenside)-1000 Northside Dr NW"
-            },
-            {
-              "dormAppartmentId": 2,
-              "dormAppartmentName": "935M-935 Marietta St NW"
-            },
-            {
-              "dormAppartmentId": 3,
-              "dormAppartmentName": "M Street-950 Marietta St NW"
-            },
-            {
-              "dormAppartmentId": 4,
-              "dormAppartmentName": "Westmar-800 West Marietta St NW"
-            }
-          ]
-        },
-        {
-          "locationId": 3,
-          "locationName": "South",
-          "houseDormApartment": [
-            {
-              "dormAppartmentId": 1,
-              "dormAppartmentName": "Centennial Place-526 Centennial Olympic Park Dr"
-            }
-          ]
-        },
-        {
-          "locationId": 4,
-          "locationName": "North",
-          "houseDormApartment": [
-            {
-              "dormAppartmentId": 1,
-              "dormAppartmentName": "500 Northside Circle (formerly Hartford)-500 Northside Cir NW"
-            },
-            {
-              "dormAppartmentId": 2,
-              "dormAppartmentName": "Highland Ridge-499 Northside Cir NW"
-            },
-            {
-              "dormAppartmentId": 3,
-              "dormAppartmentName": "Home Park-"
-            },
-            {
-              "dormAppartmentId": 4,
-              "dormAppartmentName": "The Exchange-470 16th St NW"
-            },
-            {
-              "dormAppartmentId": 5,
-              "dormAppartmentName": "Element-390 17th St NW"
-            },
-            {
-              "dormAppartmentId": 6,
-              "dormAppartmentName": "Alexander at the District-1750 Commerce Dr"
-            },
-            {
-              "dormAppartmentId": 7,
-              "dormAppartmentName": "464 Bishop Apartments-464 Bishop St NW"
-            },
-            {
-              "dormAppartmentId": 8,
-              "dormAppartmentName": "1016 Lofts-1016 Howell Mill Rd."
-            }
-          ]
-        }
-      ]
-    }
   ];
 
   const  handleLocationLv1Change= (e, action) => {
@@ -429,6 +464,7 @@ const TempHousingForm = ({ innerRef, onSubmit }) => {
                 value={values.needsTempHousing}
                 isValid={touched.needsTempHousing && !errors.needsTempHousing}
                 isInvalid={touched.needsTempHousing && !!errors.needsTempHousing}
+                disabled={formReadOnly}
               >
                 {yesOrNoOptions.map((option) => (
                   <option key={option.value} value={option.value} label={option.label} />
@@ -449,6 +485,7 @@ const TempHousingForm = ({ innerRef, onSubmit }) => {
                   value={values.numNights}
                   isValid={touched.numNights && !errors.numNights}
                   isInvalid={touched.numNights && !!errors.numNights}
+                  disabled={formReadOnly}
                 >
                   {numNightsOptions.map((option) => (
                     <option key={option.value} value={option.value} label={option.label} />
@@ -471,6 +508,7 @@ const TempHousingForm = ({ innerRef, onSubmit }) => {
                     name='locationLv1'
                     onChange={(e) => {handleChange(e); handleLocationLv1Change(e, setFieldValue);}}
                     value={values.locationLv1}
+                    disabled={formReadOnly}
                   >
                     {locationsOptions.map((option) => (
                       <option key={option.categoryId} value={option.categoryId} label={option.categoryName} />
@@ -486,6 +524,7 @@ const TempHousingForm = ({ innerRef, onSubmit }) => {
                     name='locationLv2'
                     onChange={(e) => {handleChange(e); handleLocationLv2Change(e, setFieldValue);}}
                     value={values.locationLv2}
+                    disabled={formReadOnly}
                   >
                     {locationLv2Options.map((option) => (
                       <option key={option.locationId} value={option.locationId} label={option.locationName} />
@@ -502,6 +541,7 @@ const TempHousingForm = ({ innerRef, onSubmit }) => {
                     name='locationLv3'
                     onChange={(e) => {handleChange(e); setFieldValue('locationOther', ''); setTouched('locationOther');}}
                     value={values.locationLv3}
+                    disabled={formReadOnly}
                   >
                     {locationLv3Options.map((option) => (
                       <option key={option.dormAppartmentId} value={option.dormAppartmentId} label={option.dormAppartmentName} />
@@ -519,6 +559,8 @@ const TempHousingForm = ({ innerRef, onSubmit }) => {
                     onChange={(e) => {handleChange(e); setFieldValue('locationLv3', '');}}
                     isValid={touched.locationOther && !errors.locationOther}
                     isInvalid={touched.locationOther && !!errors.locationOther}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.locationOther}
@@ -539,6 +581,8 @@ const TempHousingForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.contactName && !errors.contactName}
                     isInvalid={touched.contactName && !!errors.contactName}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.contactName}
@@ -555,6 +599,8 @@ const TempHousingForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.contactEmailAddress && !errors.contactEmailAddress}
                     isInvalid={touched.contactEmailAddress && !!errors.contactEmailAddress}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.contactEmailAddress}
@@ -570,6 +616,8 @@ const TempHousingForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.contactPhoneNumber && !errors.contactPhoneNumber}
                     isInvalid={touched.contactPhoneNumber && !!errors.contactPhoneNumber}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.contactPhoneNumber}

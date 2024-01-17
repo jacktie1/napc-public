@@ -1,15 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Row, Form, Col, Alert } from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
 
-const FlightInfoForm = ({ innerRef, onSubmit }) => {
+const FlightInfoForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly }) => {
   const { Formik } = formik;
 
   const [showHasFlightInfoQ, setShowHasFlightInfoQ] = useState(false);
   const [showUpdateFlightInfoAlert, setShowUpdateFlightInfoAlert] = useState(false);
   const [showFlightDetails, setShowFlightDetails] = useState(false);
+
+  useEffect(() => {
+    if (
+      userId !== undefined &&
+      userId !== null &&
+      ((lazyLoadToggle === undefined || lazyLoadToggle === null) || lazyLoadToggle) // either not passed in or true
+      ) {
+      innerRef.current.setValues({
+        needsPickup: 'yes',
+        hasFlightInfo: 'yes',
+        arrivingFlightNum: 'KE035',
+        arrivingFlightAirline: 'ke',
+        arrivingFlightAirlineOther: '',
+        arrivingFlightDate: '2024-10-01',
+        arrivingFlightTime: '16:12',
+        leavingFlightNum: 'KK013',
+        leavingFlightAirline: 'ot',
+        leavingFlightAirlineOther: 'Jupiter',
+        leavingFlightDate: '2024-09-30',
+        leavingFlightTime: '02:11',
+        numLgLuggages: '4',
+        numSmLuggages: '2',
+      });
+
+      setShowHasFlightInfoQ(true);
+      setShowUpdateFlightInfoAlert(false);
+      setShowFlightDetails(true);
+    }
+  }, [lazyLoadToggle]);
 
   const initialValues = {
     needsPickup: '',
@@ -104,6 +133,7 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                 value={values.needsPickup}
                 isValid={touched.needsPickup && !errors.needsPickup}
                 isInvalid={touched.needsPickup && !!errors.needsPickup}
+                disabled={formReadOnly}
               >
                 {yesOrNoOptions.map((option) => (
                   <option key={option.value} value={option.value} label={option.label} />
@@ -124,6 +154,7 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                 value={values.hasFlightInfo}
                 isValid={touched.hasFlightInfo && !errors.hasFlightInfo}
                 isInvalid={touched.hasFlightInfo && !!errors.hasFlightInfo}
+                disabled={formReadOnly}
                 >
                 {yesOrNoOptions.map((option) => (
                     <option key={option.value} value={option.value} label={option.label} />
@@ -151,6 +182,8 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.arrivingFlightNum && !errors.arrivingFlightNum}
                     isInvalid={touched.arrivingFlightNum && !!errors.arrivingFlightNum}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.arrivingFlightNum}
@@ -158,7 +191,7 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} md="6" controlId="flightInfoFormArrivingFlightAirline">
+                <Form.Group as={Col} md="7" controlId="flightInfoFormArrivingFlightAirline">
                 <RequiredFieldFormLabel>Arriving Atlanta - Airline Name</RequiredFieldFormLabel>
                 <Form.Select
                     name='arrivingFlightAirline'
@@ -166,6 +199,7 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     value={values.arrivingFlightAirline}
                     isValid={touched.arrivingFlightAirline && !errors.arrivingFlightAirline}
                     isInvalid={touched.arrivingFlightAirline && !!errors.arrivingFlightAirline}
+                    disabled={formReadOnly}
                 >
                     {airlineOptions.map((option) => (
                     <option key={option.value} value={option.value} label={option.label} />
@@ -175,7 +209,7 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     {errors.arrivingFlightAirline}
                 </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group as={Col} md="6" controlId="flightInfoFormArrivingFlightAirlineOther">
+                <Form.Group as={Col} md="5" controlId="flightInfoFormArrivingFlightAirlineOther">
                 <Form.Label>If Other:</Form.Label>
                 <Form.Control
                     name='arrivingFlightAirlineOther'
@@ -183,6 +217,8 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.arrivingFlightAirlineOther && !errors.arrivingFlightAirlineOther}
                     isInvalid={touched.arrivingFlightAirlineOther && !!errors.arrivingFlightAirlineOther}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                 <Form.Control.Feedback type="invalid">
                     {errors.arrivingFlightAirlineOther}
@@ -199,6 +235,8 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.arrivingFlightDate && !errors.arrivingFlightDate}
                     isInvalid={touched.arrivingFlightDate && !!errors.arrivingFlightDate}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.arrivingFlightDate}
@@ -215,6 +253,8 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.arrivingFlightTime && !errors.arrivingFlightTime}
                     isInvalid={touched.arrivingFlightTime && !!errors.arrivingFlightTime}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.arrivingFlightTime}
@@ -230,6 +270,8 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.leavingFlightNum && !errors.leavingFlightNum}
                     isInvalid={touched.leavingFlightNum && !!errors.leavingFlightNum}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.leavingFlightNum}
@@ -237,7 +279,7 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} md="6" controlId="flightInfoFormLeavingFlightAirline">
+                <Form.Group as={Col} md="7" controlId="flightInfoFormLeavingFlightAirline">
                 <RequiredFieldFormLabel>Leaving China - Airline Name</RequiredFieldFormLabel>
                 <Form.Select
                     name='leavingFlightAirline'
@@ -245,6 +287,7 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     value={values.leavingFlightAirline}
                     isValid={touched.leavingFlightAirline && !errors.leavingFlightAirline}
                     isInvalid={touched.leavingFlightAirline && !!errors.leavingFlightAirline}
+                    disabled={formReadOnly}
                 >
                     {airlineOptions.map((option) => (
                     <option key={option.value} value={option.value} label={option.label} />
@@ -254,7 +297,7 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     {errors.leavingFlightAirline}
                 </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group as={Col} md="6" controlId="flightInfoFormLeavingFlightAirlineOther">
+                <Form.Group as={Col} md="5" controlId="flightInfoFormLeavingFlightAirlineOther">
                 <Form.Label>If Other:</Form.Label>
                 <Form.Control
                     name='leavingFlightAirlineOther'
@@ -262,6 +305,8 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.leavingFlightAirlineOther && !errors.leavingFlightAirlineOther}
                     isInvalid={touched.leavingFlightAirlineOther && !!errors.leavingFlightAirlineOther}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                 <Form.Control.Feedback type="invalid">
                     {errors.leavingFlightAirlineOther}
@@ -278,6 +323,8 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.leavingFlightDate && !errors.leavingFlightDate}
                     isInvalid={touched.leavingFlightDate && !!errors.leavingFlightDate}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.leavingFlightDate}
@@ -294,6 +341,8 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.leavingFlightTime && !errors.leavingFlightTime}
                     isInvalid={touched.leavingFlightTime && !!errors.leavingFlightTime}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.leavingFlightTime}
@@ -310,6 +359,8 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.numLgLuggages && !errors.numLgLuggages}
                     isInvalid={touched.numLgLuggages && !!errors.numLgLuggages}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.numLgLuggages}
@@ -326,6 +377,8 @@ const FlightInfoForm = ({ innerRef, onSubmit }) => {
                     onChange={handleChange}
                     isValid={touched.numSmLuggages && !errors.numSmLuggages}
                     isInvalid={touched.numSmLuggages && !!errors.numSmLuggages}
+                    readOnly={formReadOnly}
+                    disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.numSmLuggages}

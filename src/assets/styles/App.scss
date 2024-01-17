@@ -1,41 +1,108 @@
 @import '~bootstrap/scss/bootstrap';
 
+// ResizeObserver loop completed with undelivered notifications error suppressing
+iframe#webpack-dev-server-client-overlay{display:none!important}
+
 .app-title {
   text-align: center;
 }
 
-.login-form-box {
+.nrw-pretty-box-layout {
   max-width: 400px;
+  padding-bottom: 20px;
   margin: auto;
 }
 
-.signup-form-box {
+.wide-pretty-box-layout {
   max-width: 600px;
+  padding-bottom: 20px;
+  margin: auto;
+}
+
+.sup-wide-pretty-box-layout {
+  max-width: 1500px;
+  padding: 20px;
+  margin: auto;
+}
+
+.admin-pretty-box-layout {
+  padding: 20px;
   margin: auto;
 }
   
-.auth-form {
+.pretty-box {
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 18px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.auth-form label {
+.pretty-box label {
   margin-top: 10px;
 }
 
-.auth-form-heading {
+.pretty-box-heading {
   text-align: center;
   margin-bottom: 20px;
 }
 
-.auth-form-button {
+.pretty-box-button {
   width: 100%;
   margin-top: 10px;
 }
 
-.auth-form.required .form-label:after {
+.pretty-box.required .form-label:after {
   content:"*";
   color:red;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background-color: #e4e4e4;
+  border-radius: 50px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  border-radius: 50px;
+}
+
+.hyperlink {
+  cursor: pointer;
+  text-decoration: underline;
+  color: blue;
+}
+
+/* Some overriding for small screen */
+.ag-paging-panel {
+  justify-content: center;
+  flex-wrap: wrap;
+  overflow: auto;
+  min-height: 100px;
+}
+
+.ag-header-cell-label {
+  justify-content: center;
+}
+
+.magic-grid-norm-cell {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  text-wrap: wrap;
+  text-align: center;
+}
+
+.magic-grid-checkbox-cell {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: left;
+  align-items: center;
+  text-wrap: wrap;
+  text-align: center;
 }

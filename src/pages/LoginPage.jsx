@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Container, Form, Button, Alert, Row, Col } from 'react-bootstrap';
-import UserSession from './../auth/UserSession';
+import { UserContext } from './../auth/UserSession';
 import AppTitle from './../components/AppTitle';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
+  const navigate = useNavigate();
+
+  const { startSession } = useContext(UserContext);
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [serverValidationError, setServerValidationError] = useState('');
@@ -16,18 +21,18 @@ const LoginPage = () => {
 
     if (username==='student' && password==='123456')
     {
-      UserSession.startSession('test-token', {role: 'student'});
-      alert('You have succesfully logged in!');
+      startSession('test-token', {role: 'student', userId: 1});
+      navigate('/student/announcement');
     }
     else if (username==='volunteer' && password==='123456')
     {
-      UserSession.startSession('test-token', {role: 'volunteer'});
-      alert('You have succesfully logged in!');
+      startSession('test-token', {role: 'volunteer', userId: 2});
+      navigate('/volunteer/agreement');
     }
     else if (username==='admin' && password==='123456')
     {
-      UserSession.startSession('test-token', {role: 'admin'});
-      alert('You have succesfully logged in!');
+      startSession('test-token', {role: 'admin', userId: 3});
+      navigate('/admin/home');
     }
     else
     {
@@ -42,12 +47,12 @@ const LoginPage = () => {
   };
 
   return (
-    <Container>
+    <Container className="mt-5">
       <AppTitle />
-      <Row className="mt-5 login-form-box">
-        <Col className="auth-form">
+      <Row className="mt-5 nrw-pretty-box-layout">
+        <Col className="pretty-box">
           <Form onSubmit={handleLogin}>
-            <h2 className="auth-form-heading">Login</h2>
+            <h2 className="pretty-box-heading">Login</h2>
 
             <Form.Group controlId="loginFormUsername">
               <Form.Label>Username</Form.Label>
@@ -73,7 +78,7 @@ const LoginPage = () => {
               <Form.Label><a href="/password/reset">Forgot Password?</a></Form.Label>
             </Form.Group>
 
-            <Button variant="primary" type="submit" className="auth-form-button">
+            <Button variant="primary" type="submit" className="pretty-box-button">
               Login
             </Button>
 
