@@ -43,7 +43,7 @@ const VolunteerPickupCapacityPage = () => {
       <Container>
         <Row className="mt-5 wide-pretty-box-layout">
           <Col className="pretty-box" >
-              <h2 className="pretty-box-heading">Flight Information</h2> 
+              <h2 className="pretty-box-heading">Airport Pickup</h2> 
               <RequiredFieldInfo />
               <hr/>
               <PickupCapacityForm
