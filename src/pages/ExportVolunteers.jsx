@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import AdminNavbar from '../components/AdminNavbar';
-import { Container, Row, Col, Alert, Button, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Alert, Button } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import XLSX from 'sheetjs-style';
 import Papa from "papaparse";
 
-const ExportVolunteersPage = ({}) => {
+const ExportVolunteersPage = () => {
     const [volunteerData, setVolunteerData] = useState([]);
 
     const gridRef = useRef();

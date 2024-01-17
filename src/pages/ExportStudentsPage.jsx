@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import AdminNavbar from '../components/AdminNavbar';
-import { Container, Row, Col, Alert, Button, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Alert, Button } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import XLSX from 'sheetjs-style';
 import Papa from "papaparse";
 
-const ExportStudentsPage = ({}) => {
+const ExportStudentsPage = () => {
     const [studentData, setStudentData] = useState([]);
 
     const gridRef = useRef();
@@ -230,22 +230,22 @@ const ExportStudentsPage = ({}) => {
                 <MultipleSortingInfo/>
                 <div className='py-3'>
                     <span className='mx-1'>
-                        <Button variant="danger" onClick={() => handleExportAsCSV('all')}>
+                        <Button variant="success" onClick={() => handleExportAsCSV('all')}>
                             Export CSV (All)
                         </Button>
                     </span>
                     <span className='mx-1'>
-                        <Button variant="danger" onClick={() => handleExportAsCSV('filteredAndSorted')}>
+                        <Button variant="success" onClick={() => handleExportAsCSV('filteredAndSorted')}>
                             Export CSV (Filtered Only)
                         </Button>
                     </span>
                     <span className='mx-1'>
-                        <Button variant="danger" onClick={() => handleExportAsExcel('all')}>
+                        <Button variant="success" onClick={() => handleExportAsExcel('all')}>
                             Export Excel (All)
                         </Button>
                     </span>
                     <span className='mx-1'>
-                        <Button variant="danger" onClick={() => handleExportAsExcel('filteredAndSorted')}>
+                        <Button variant="success" onClick={() => handleExportAsExcel('filteredAndSorted')}>
                             Export Excel (Filtered Only)
                         </Button>
                     </span>
