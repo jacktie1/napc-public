@@ -1,8 +1,11 @@
 import { createContext, useState, useEffect } from 'react';
+import { Container, Spinner } from 'react-bootstrap';
+
 
 const UserContext = createContext();
 
 const UserSession = ({ children }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState(null);
   const [profile, setProfile] = useState({});
   const [userId, setUserId] = useState(null);
@@ -36,6 +39,8 @@ const UserSession = ({ children }) => {
         setIsStudent(parsedProfile.role === 'student');
         setIsVolunteer(parsedProfile.role === 'volunteer');
       }
+
+      setIsLoading(false);
     };
 
     fetchSession();
@@ -67,11 +72,24 @@ const UserSession = ({ children }) => {
     setIsVolunteer(false);
   }
 
-  return (
-    <UserContext.Provider value={{ token, profile, isAuthenticated, isAdmin, isStudent, isVolunteer, fullName, userId, setFullName, startSession, endSession }}>
-      {children}
-    </UserContext.Provider>
-  );
+  if(isLoading)
+  {
+    return (
+      <UserContext.Provider value={{ token, profile, isAuthenticated, isAdmin, isStudent, isVolunteer, fullName, userId, setFullName, startSession, endSession }}>
+        <div className="loader-page">
+          <Spinner animation="border"/>
+        </div>
+      </UserContext.Provider>
+    );
+  }
+  else
+  {
+    return (
+      <UserContext.Provider value={{ token, profile, isAuthenticated, isAdmin, isStudent, isVolunteer, fullName, userId, setFullName, startSession, endSession }}>
+        {children}
+      </UserContext.Provider>
+    );
+  }
 };
   
 export { UserContext, UserSession };

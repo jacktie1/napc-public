@@ -3,6 +3,13 @@
 // ResizeObserver loop completed with undelivered notifications error suppressing
 iframe#webpack-dev-server-client-overlay{display:none!important}
 
+.loader-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Set the height to 100% of the viewport height */
+}
+
 .app-title {
   text-align: center;
 }
