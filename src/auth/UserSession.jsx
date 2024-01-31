@@ -20,8 +20,8 @@ const UserSession = ({ children }) => {
     // For demonstration purposes, assuming you have a function fetchDataFromApi
     // Replace this with your actual API fetching logic
     const fetchSession = () => {
-      const storedToken = localStorage.getItem('faith-path-access-token')
-      const storedProfile = localStorage.getItem('profile');
+      const storedToken = sessionStorage.getItem('faith-path-access-token')
+      const storedProfile = sessionStorage.getItem('profile');
 
       setToken(storedToken);
 
@@ -35,9 +35,9 @@ const UserSession = ({ children }) => {
         const parsedProfile= JSON.parse(storedProfile);
         setProfile(parsedProfile);
         setUserId(parsedProfile.userId);
-        setIsAdmin(parsedProfile.role === 'admin');
-        setIsStudent(parsedProfile.role === 'student');
-        setIsVolunteer(parsedProfile.role === 'volunteer');
+        setIsAdmin(parsedProfile.role === 'Admin');
+        setIsStudent(parsedProfile.role === 'Student');
+        setIsVolunteer(parsedProfile.role === 'Volunteer');
       }
 
       setIsLoading(false);
@@ -47,21 +47,21 @@ const UserSession = ({ children }) => {
   }, []);
 
   const startSession = (token, profile) => {
-      localStorage.setItem('faith-path-access-token', token);
-      localStorage.setItem('profile', JSON.stringify(profile));
+      sessionStorage.setItem('faith-path-access-token', token);
+      sessionStorage.setItem('profile', JSON.stringify(profile));
       setToken(token);
       setProfile(profile);
       setIsAuthenticated(true);
-      setFullName('Jason Chen')
+      setFullName(profile.firstName + ' ' + profile.lastName);
       setUserId(profile.userId);
-      setIsAdmin(profile.role === 'admin');
-      setIsStudent(profile.role === 'student');
-      setIsVolunteer(profile.role === 'volunteer');
+      setIsAdmin(profile.role === 'Admin');
+      setIsStudent(profile.role === 'Student');
+      setIsVolunteer(profile.role === 'Volunteer');
   };
 
   const endSession = () => {
-    localStorage.removeItem('faith-path-access-token');
-    localStorage.removeItem('profile');
+    sessionStorage.removeItem('faith-path-access-token');
+    sessionStorage.removeItem('profile');
     setToken(null);
     setProfile({});
     setIsAuthenticated(false);
