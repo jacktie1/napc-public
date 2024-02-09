@@ -40,56 +40,6 @@ const SignupStudentPage = () => {
 
   const currentDate = new Date();
 
-  const fetchStudentRigistrationDateRange = async () => {
-    try {
-      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getManagement`);
-
-      let managent = axiosResponse?.data?.result?.management;
-
-      // Error, we just forbid the user to register
-      if(!managent)
-      {
-        setStudentRegisterationStartDate('1900-01-01');
-        setStudentRegisterationEndDate('1900-01-01');
-        throw new Error('No management data found');
-      }
-      
-      let startDate = managent.studentRegistrationStartDate;
-      let endDate = managent.studentRegistrationEndDate;
-
-      // Add one day to the end date for comparison purpose
-      let endDateObject = new Date(endDate);
-      endDateObject.setDate(endDateObject.getDate() + 1);
-      endDate = endDateObject.toISOString().split('T')[0];
-
-      setStudentRegisterationStartDate(startDate);
-      setStudentRegisterationEndDate(endDate);
-
-      fetchOptions();
-    } catch (axiosError) {
-      let { errorMessage } = parseAxiosError(axiosError);
-
-      setServerError(errorMessage);
-    }
-  };
-
-  const fetchOptions = async () => {
-    try {
-      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
-        params: {
-          referenceTypes: ['Major', 'Airline', 'Area', 'Location', 'Apartment', 'SecurityQuestion'].join(','),
-        }
-      });
-
-      setOptionReferences(axiosResponse.data.result.referencesByType);
-
-    } catch (axiosError) {
-      let { errorMessage } = parseAxiosError(axiosError);
-
-      setServerError(errorMessage);
-    }
-  };
-
   const sendSignupStudentRequest = async () => {
     try {
       let preparedStudentProfile = {
@@ -155,9 +105,6 @@ const SignupStudentPage = () => {
         customDestinationAddress: fromCustomOptionValue(tempHousing.customDestinationAddress, tempHousing.apartmentReferenceId, true),
       };
 
-      console.log(preparedFlightInfo);
-      console.log(tempHousing);
-
       if(preparedTempHousing.needsTempHousing)
       {
         preparedTempHousing = {
@@ -192,11 +139,62 @@ const SignupStudentPage = () => {
     } catch (axiosError) {
       let { errorMessage } = parseAxiosError(axiosError);
 
+      window.scrollTo(0, 0);
       setServerError(errorMessage);
     }
   };
 
   useEffect(() => {
+    const fetchStudentRigistrationDateRange = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getManagement`);
+  
+        let managent = axiosResponse?.data?.result?.management;
+  
+        // Error, we just forbid the user to register
+        if(!managent)
+        {
+          setStudentRegisterationStartDate('1900-01-01');
+          setStudentRegisterationEndDate('1900-01-01');
+          throw new Error('No management data found');
+        }
+        
+        let startDate = managent.studentRegistrationStartDate;
+        let endDate = managent.studentRegistrationEndDate;
+  
+        // Add one day to the end date for comparison purpose
+        let endDateObject = new Date(endDate);
+        endDateObject.setDate(endDateObject.getDate() + 1);
+        endDate = endDateObject.toISOString().split('T')[0];
+  
+        setStudentRegisterationStartDate(startDate);
+        setStudentRegisterationEndDate(endDate);
+  
+        fetchOptions();
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        setServerError(errorMessage);
+      }
+    };
+  
+    const fetchOptions = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
+          params: {
+            referenceTypes: ['Major', 'Airline', 'Area', 'Location', 'Apartment', 'SecurityQuestion'].join(','),
+          }
+        });
+  
+        setOptionReferences(axiosResponse.data.result.referencesByType);
+  
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        setServerError(errorMessage);
+      }
+    };
+  
     fetchStudentRigistrationDateRange();
   }, [])
 
@@ -212,11 +210,11 @@ const SignupStudentPage = () => {
                 let tempHousingErrors = StudentTempHousingFormRef.current.errors;
                 let studentCommentErrors = studentCommentFormRef.current.errors;
           
-                if (Object.keys(studentProfileErrors).length == 0
-                  && Object.keys(userAccountErrors).length == 0
-                  && Object.keys(flightInfoErrors).length == 0
-                  && Object.keys(tempHousingErrors).length == 0
-                  && Object.keys(studentCommentErrors).length == 0)
+                if (Object.keys(studentProfileErrors).length === 0
+                  && Object.keys(userAccountErrors).length === 0
+                  && Object.keys(flightInfoErrors).length === 0
+                  && Object.keys(tempHousingErrors).length === 0
+                  && Object.keys(studentCommentErrors).length === 0)
                 {
                   sendSignupStudentRequest();
                 }

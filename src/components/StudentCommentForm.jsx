@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Row, Form, Col, Alert } from 'react-bootstrap';
 import * as formik from 'formik';
 import * as yup from 'yup';
+import * as formUtils from '../utils/formUtils';
 
 const StudentCommentForm = ({ innerRef, onSubmit, adminView, loadedData }) => {
   const { Formik } = formik;
@@ -14,11 +15,23 @@ const StudentCommentForm = ({ innerRef, onSubmit, adminView, loadedData }) => {
   }
 
   useEffect(() => {
-    if(loadedData && typeof loadedData === 'object')
+    if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
     {
-      innerRef.current.setValues(loadedData);
+      let formData = {
+        studentComment: formUtils.toOptionalTextValue(loadedData.studentComment),
+      };
+
+      if(adminView)
+      {
+        formData = {
+          ...formData,
+          adminComment: formUtils.toOptionalTextValue(loadedData.adminComment),
+        }
+      }
+
+      innerRef.current.setValues(formData);
     }
-  }, [loadedData]);
+  }, [loadedData, innerRef, adminView]);
 
   const schema = adminView ? yup.object().shape({
     studentComment: yup.string().max(500),

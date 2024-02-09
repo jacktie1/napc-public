@@ -22,40 +22,44 @@ const StudentTempHousingPage = () => {
 
   const studentTempHousingFormRef = useRef(null);
 
-  const fetchOptions = async () => {
-    try {
-      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
-        params: {
-          referenceTypes: ['Area', 'Location', 'Apartment'].join(','),
-        }
-      });
-
-      setOptionReferences(axiosResponse.data.result.referencesByType);
-
-      loadExistingData();
-    } catch (axiosError) {
-      let { errorMessage } = parseAxiosError(axiosError);
-
-      setServerError(errorMessage);
-    }
-  };
-
-  const loadExistingData = async () => {
-    setLoadedData({
-      needsTempHousing: 'yes',
-      numNights: '4',
-      locationOther: '',
-      contactName: '',
-      contactEmailAddress: '',
-      contactPhoneNumber: '',
-      apartment: 88,
-      customDestinationAddress: '',
-    });
-  }
   
   useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
+          params: {
+            referenceTypes: ['Area', 'Location', 'Apartment'].join(','),
+          }
+        });
+  
+        setOptionReferences(axiosResponse.data.result.referencesByType);
+  
+        loadExistingData();
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    };
+  
+    const loadExistingData = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getTempHousing/${userId}`);
+  
+        let studentTempHousing = axiosResponse.data.result.student.studentTempHousing;
+  
+        setLoadedData(studentTempHousing);
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    }
+
     fetchOptions();
-  }, [])
+  }, [userId])
 
   const handleClick = () => {
     studentTempHousingFormRef.current.submitForm().then(() => {

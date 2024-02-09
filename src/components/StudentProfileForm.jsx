@@ -1,24 +1,45 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Row, Form, Col} from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
+import * as formUtils from '../utils/formUtils';
 
 
 const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, formReadOnly }) => {
   const { Formik } = formik;
 
-  const majorReferenceIdOptions = useMemo(() => {
-    let majorReferenceIdOptionReferences = optionReferences.Major ?? [];
-    return [{ id: '', value: "Select an option" }, ...majorReferenceIdOptionReferences, { id: 'other', value: "Other" }];
+  const majorOptions = useMemo(() => {
+    let majorOptionReferences = optionReferences.Major ?? [];
+    majorOptionReferences = majorOptionReferences.map((optionReference) => {
+      return { id: optionReference.referenceId, value: optionReference.value };
+    });
+    return [{ id: '', value: "Select an option" }, ...majorOptionReferences, { id: 'other', value: "Other" }];
   }, [optionReferences]);
 
   useEffect(() => {
-    if(loadedData && typeof loadedData === 'object')
+    if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
     {
-      innerRef.current.setValues(loadedData);
+      let formData = {
+        firstName: loadedData.firstName,
+        lastName: loadedData.lastName,
+        englishName: formUtils.toOptionalTextValue( loadedData.englishName ),
+        gender: formUtils.toGenderOptionValue( loadedData.gender ),
+        isNewStudent: formUtils.toYesOrNoOptionValue( loadedData.isNewStudent ),
+        studentType: formUtils.toStudentTypeValue( loadedData.studentType ),
+        graduatesFrom: formUtils.toOptionalTextValue( loadedData.graduatesFrom ),
+        majorReferenceId: formUtils.toReferenceIdOptionValue( loadedData.majorReferenceId ),
+        customMajor: formUtils.toOptionalTextValue( loadedData.customMajor ),
+        hasCompanion: formUtils.toYesOrNoOptionValue( loadedData.hasCompanion ),
+        emailAddress: loadedData.emailAddress,
+        wechatId: loadedData.wechatId,
+        cnPhoneNumber: formUtils.toOptionalTextValue( loadedData.cnPhoneNumber ),
+        usPhoneNumber: formUtils.toOptionalTextValue( loadedData.usPhoneNumber ),
+      }
+
+      innerRef.current.setValues(formData);
     }
-  }, [loadedData]);
+  }, [loadedData, innerRef]);
 
   const initialValues = {
     firstName: '',
@@ -60,7 +81,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
           'majorReferenceId', 
           {
               is: 'other',
-              then: () => requiredAlphaTest,
+              then: () => requiredAlphaTest.required('Required if no provided major is selected!'),
           }),
       hasCompanion: requiredSelectTest,
       emailAddress: emailAddressTest,
@@ -141,7 +162,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
                 name='englishName'
                 value={values.englishName}
                 onChange={handleChange}
-                isValid={touched.englishName && !errors.englishName && values.englishName != ''}
+                isValid={touched.englishName && !errors.englishName && values.englishName !== ''}
                 isInvalid={touched.englishName && !!errors.englishName}
                 readOnly={formReadOnly}
                 disabled={formReadOnly}
@@ -219,7 +240,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
                 name='graduatesFrom'
                 value={values.graduatesFrom}
                 onChange={handleChange}
-                isValid={touched.graduatesFrom && !errors.graduatesFrom && values.graduatesFrom != ''}
+                isValid={touched.graduatesFrom && !errors.graduatesFrom && values.graduatesFrom !== ''}
                 isInvalid={touched.graduatesFrom && !!errors.graduatesFrom}
                 readOnly={formReadOnly}
                 disabled={formReadOnly}
@@ -240,7 +261,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
                 isInvalid={touched.majorReferenceId && !!errors.majorReferenceId}
                 disabled={formReadOnly}
               >
-                {majorReferenceIdOptions.map((option) => (
+                {majorOptions.map((option) => (
                   <option key={option.id} value={option.id} label={option.value} />
                 ))}
               </Form.Select>

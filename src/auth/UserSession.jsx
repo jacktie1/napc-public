@@ -1,13 +1,10 @@
 import { createContext, useState, useEffect } from 'react';
 import { Spinner } from 'react-bootstrap';
-import SpinnerOverlay from "../components/SpinnerOverlay";
 
 const UserContext = createContext();
 
 const UserSession = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [token, setToken] = useState(null);
-  const [profile, setProfile] = useState({});
   const [userId, setUserId] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -35,6 +32,7 @@ const UserSession = ({ children }) => {
         setIsAdmin(parsedProfile.role === 'Admin');
         setIsStudent(parsedProfile.role === 'Student');
         setIsVolunteer(parsedProfile.role === 'Volunteer');
+        setFullName(parsedProfile.firstName + ' ' + parsedProfile.lastName);
       }
 
       setIsLoading(false);
@@ -42,6 +40,18 @@ const UserSession = ({ children }) => {
 
     fetchSession();
   }, []);
+
+  // Update the session data
+  const updateSession = (profile) => {
+    let currentProfile = JSON.parse(sessionStorage.getItem('profile'));
+    let updatedProfile = { ...currentProfile, ...profile };
+    sessionStorage.setItem('profile', JSON.stringify(updatedProfile));
+    setUserId(updatedProfile.userId);
+    setIsAdmin(updatedProfile.role === 'Admin');
+    setIsStudent(updatedProfile.role === 'Student');
+    setIsVolunteer(updatedProfile.role === 'Volunteer');
+    setFullName(updatedProfile.firstName + ' ' + updatedProfile.lastName);
+  }
 
   const startSession = (token, profile) => {
       sessionStorage.setItem('faith-path-access-token', token);
@@ -73,7 +83,7 @@ const UserSession = ({ children }) => {
   if(isLoading)
   {
     return (
-      <UserContext.Provider value={{ isAuthenticated, isAdmin, isStudent, isVolunteer, fullName, userId, getUserId, setFullName, startSession, endSession }}>
+      <UserContext.Provider value={{ isAuthenticated, isAdmin, isStudent, isVolunteer, fullName, userId, getUserId, setFullName, startSession, updateSession, endSession }}>
         <div className="spinner-div">
           <Spinner animation="border"/>
         </div>
@@ -83,7 +93,7 @@ const UserSession = ({ children }) => {
   else
   {
     return (
-      <UserContext.Provider value={{ isAuthenticated, isAdmin, isStudent, isVolunteer, fullName, userId, getUserId, setFullName, startSession, endSession }}>
+      <UserContext.Provider value={{ isAuthenticated, isAdmin, isStudent, isVolunteer, fullName, userId, getUserId, setFullName, startSession, updateSession, endSession }}>
         {children}
       </UserContext.Provider>
     );

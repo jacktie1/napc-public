@@ -3,6 +3,7 @@ import { Row, Form, Col, Alert } from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
+import * as formUtils from '../utils/formUtils';
 
 
 const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedData, formReadOnly }) => {
@@ -14,25 +15,61 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
 
   const airlineOptions = useMemo(() => {
     let airlineOptionReferences = optionReferences.Airline ?? [];
+    airlineOptionReferences = airlineOptionReferences.map((optionReference) => ({ id: optionReference.referenceId, value: optionReference.value }));
     return [{ id: '', value: "Select an option" }, ...airlineOptionReferences, { id: 'other', value: "Other" }];
   }, [optionReferences]);
 
   useEffect(() => {
-    if(loadedData && typeof loadedData === 'object')
-    {
-      innerRef.current.setValues(loadedData);
+    if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0) {
+      let formData = {
+        needsAirportPickup: formUtils.toYesOrNoOptionValue(loadedData.needsAirportPickup),
+        hasFlightInfo: '',
+        arrivalFlightNumber: '',
+        arrivalAirlineReferenceId: '',
+        customArrivalAirline: '',
+        arrivalDate: '',
+        arrivalTime: '',
+        departureFlightNumber: '',
+        departureAirlineReferenceId: '',
+        customDepartureAirline: '',
+        departureDate: '',
+        departureTime: '',
+        numLgLuggages: '',
+        numSmLuggages: '',
+      };
 
-      if (loadedData.needsAirportPickup == 'yes') {
+      innerRef.current.setValues(formData);
+
+      if (formData.needsAirportPickup === 'yes') {
+        formData.hasFlightInfo = formUtils.toYesOrNoOptionValue(loadedData.hasFlightInfo);
         setShowHasFlightInfoQ(true);
       }
 
-      if (loadedData.hasFlightInfo == 'yes') {
+      if (formData.hasFlightInfo === 'yes') {
+        formData.arrivalFlightNumber = loadedData.arrivalFlightNumber;
+        formData.arrivalAirlineReferenceId = formUtils.toReferenceIdOptionValue(loadedData.arrivalAirlineReferenceId);
+        formData.customArrivalAirline = formUtils.toOptionalTextValue(loadedData.customArrivalAirline);
+        formData.departureFlightNumber = loadedData.departureFlightNumber;
+        formData.departureAirlineReferenceId = formUtils.toReferenceIdOptionValue(loadedData.departureAirlineReferenceId);
+        formData.customDepartureAirline = formUtils.toOptionalTextValue(loadedData.customDepartureAirline);
+        formData.numLgLuggages = loadedData.numLgLuggages;
+        formData.numSmLuggages = loadedData.numSmLuggages;
+
+        //split date and time in form of 'yyyy-MM-DD HH:mm'
+        let arrivalDateTime = loadedData.arrivalDatetime.split(' ');
+        formData.arrivalDate = arrivalDateTime[0];
+        formData.arrivalTime = arrivalDateTime[1];
+
+        let departureDateTime = loadedData.departureDatetime.split(' ');
+        formData.departureDate = departureDateTime[0];
+        formData.departureTime = departureDateTime[1];
+
         setShowFlightDetails(true);
-      } else if (loadedData.hasFlightInfo == 'no') {
+      } else if (formData.hasFlightInfo === 'no') {
         setShowUpdateFlightInfoAlert(true);
       }
     }
-  }, [loadedData]);
+  }, [loadedData, innerRef]);
 
   const initialValues = {
     needsAirportPickup: '',
@@ -68,7 +105,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
             ['hasFlightInfo','arrivalAirlineReferenceId'], 
             {
                 is: (hasFlightInfo, arrivalAirlineReferenceId) => hasFlightInfo === 'yes' && arrivalAirlineReferenceId === 'other',
-                then: () => requiredAlphaSpaceTest,
+                then: () => requiredAlphaSpaceTest.required('Required if no provided airline is selected!'),
             }),
     arrivalDate: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredDateTest}),
     arrivalTime: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredTimeTest}),
@@ -79,7 +116,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
             ['hasFlightInfo','departureAirlineReferenceId'], 
             {
                 is: (hasFlightInfo, departureAirlineReferenceId) => hasFlightInfo === 'yes' && departureAirlineReferenceId === 'other',
-                then: () => requiredAlphaSpaceTest,
+                then: () => requiredAlphaSpaceTest.required('Required if no provided airline is selected!'),
             }),
     departureDate: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredDateTest}),
     departureTime: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredTimeTest}),
@@ -94,7 +131,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
   ];
 
   const handleNeedsAirportPickupChange = (e, action) => {
-    setShowHasFlightInfoQ(e.target.value == 'yes');
+    setShowHasFlightInfoQ(e.target.value === 'yes');
     setShowUpdateFlightInfoAlert(false);
     setShowFlightDetails(false);
     action({values: { ...initialValues, needsAirportPickup: e.target.value}}); 
@@ -135,7 +172,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
                 <RequiredFieldFormLabel>Do you have the flight information?</RequiredFieldFormLabel>
                 <Form.Select
                 name='hasFlightInfo'
-                onChange={(e) => {handleChange(e); setShowUpdateFlightInfoAlert(e.target.value == 'no'); setShowFlightDetails(e.target.value == 'yes')}}
+                onChange={(e) => {handleChange(e); setShowUpdateFlightInfoAlert(e.target.value === 'no'); setShowFlightDetails(e.target.value === 'yes')}}
                 value={values.hasFlightInfo}
                 isValid={touched.hasFlightInfo && !errors.hasFlightInfo}
                 isInvalid={touched.hasFlightInfo && !!errors.hasFlightInfo}

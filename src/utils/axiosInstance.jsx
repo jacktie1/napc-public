@@ -7,7 +7,7 @@ const axiosInstance = axios.create();
 axiosInstance.interceptors.request.use(
   config => {
     // Check if there's a token in localStorage or any other source
-    const token = sessionStorage.getItem('token');
+    const token = sessionStorage.getItem('faith-path-access-token');
 
     // If a token exists, add it to the request headers
     if (token) {

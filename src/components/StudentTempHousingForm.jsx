@@ -3,6 +3,7 @@ import { Row, Form, Col } from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
+import * as formUtils from '../utils/formUtils';
 
 
 const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedData, formReadOnly }) => {
@@ -18,7 +19,7 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
 
   // Parse optionReferences to build a location hierarchy tree
   const areaReferences = useMemo(() => {
-    if(optionReferences.Area != undefined)
+    if(optionReferences.Area !== undefined)
     {
       return JSON.parse(JSON.stringify(optionReferences.Area));
     }
@@ -27,7 +28,7 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
   }, [optionReferences]);
 
   const locationReferences = useMemo(() => {
-    if(optionReferences.Location != undefined)
+    if(optionReferences.Location !== undefined)
     {
       return JSON.parse(JSON.stringify(optionReferences.Location));
     }
@@ -36,7 +37,7 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
   }, [optionReferences]);
 
   const apartmentReferences = useMemo(() => {
-    if(optionReferences.Apartment != undefined)
+    if(optionReferences.Apartment !== undefined)
     {
       return JSON.parse(JSON.stringify(optionReferences.Apartment));
     }
@@ -48,15 +49,11 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
     let referencesById = {};
 
     for (let reference of areaReferences.concat(locationReferences).concat(apartmentReferences)) {
-      referencesById[reference.id] = reference;
+      referencesById[reference.referenceId] = reference;
     }
 
-    return referencesById;
-  }, [optionReferences]);
-
-  const locationHierarchy = useMemo(() => {
     for (let reference of locationReferences.concat(apartmentReferences)) {
-      let parentId = reference.parentReference.id;
+      let parentId = reference.parentReference.referenceId;
       let parentReference = referencesById[parentId];
       if (!parentReference.children) {
           parentReference.children = [];
@@ -64,55 +61,100 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
       parentReference.children.push(reference);
     }
 
-    return [{id: '', value: 'Select an option'}, ...areaReferences];
-  }, [optionReferences]);
+    return referencesById;
+  }, [areaReferences, locationReferences, apartmentReferences]);
+
+  // only area options won't change state
+  const areaOptions = useMemo(() => {
+    let areaOptionReferences = areaReferences.map((areaReference) => {
+      return {
+        id: areaReference.referenceId,
+        value: areaReference.value
+      };
+    });
+
+    return [{ id: '', value: "Select an option" }, ...areaOptionReferences];
+  }, [areaReferences]);
 
   useEffect(() => {
-    if(loadedData && typeof loadedData === 'object')
+    if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
     {
-      innerRef.current.setValues(loadedData);
+      let formData = {
+        needsTempHousing: formUtils.toYesOrNoOptionValue(loadedData.needsTempHousing),
+        numNights: '',
+        area: '',
+        location: '',
+        apartmentReferenceId: formUtils.toReferenceIdOptionValue(loadedData.apartmentReferenceId, true),
+        customDestinationAddress: formUtils.toOptionalTextValue(loadedData.customDestinationAddress),
+        contactName: '',
+        contactEmailAddress: '',
+        contactPhoneNumber: '',
+      }
   
-      if (loadedData.needsTempHousing == 'yes') {
+      if (formData.needsTempHousing === 'yes') {
+        formData.numNights = loadedData.numNights;
+
         setShowNumNights(true);
         setAddressText('Where should we send you to after this period? Address');
-      } else if (loadedData.needsTempHousing == 'no') {
+      } else if (formData.needsTempHousing === 'no') {
+        formData.contactName = formUtils.toOptionalTextValue(loadedData.contactName);
+        formData.contactEmailAddress = formUtils.toOptionalTextValue(loadedData.contactEmailAddress);
+        formData.contactPhoneNumber = formUtils.toOptionalTextValue(loadedData.contactPhoneNumber);
         setShowContact(true);
+        setAddressText('If not, where should we drive you to from the airport? Address');
       }
 
-      if (loadedData.apartmentReferenceId !== undefined && loadedData.apartmentReferenceId != '') {
+      innerRef.current.setValues(formData);
+
+      if (formData.apartmentReferenceId !== '') {
         setShowLocation(true);
         setShowApartment(true);
 
-        if (referencesById[loadedData.apartmentReferenceId] === undefined) {
+        if (referencesById[formData.apartmentReferenceId] === undefined) {
           return;
         }
 
-        let selectedLocationReference = referencesById[referencesById[loadedData.apartmentReferenceId]?.parentReference?.id];
+        let selectedLocationReference = referencesById[referencesById[formData.apartmentReferenceId]?.parentReference?.referenceId];
 
         if (selectedLocationReference === undefined) {
           return;
         }
         
-        if (referencesById[selectedLocationReference.id] === undefined) {
+        if (referencesById[selectedLocationReference.referenceId] === undefined) {
           return;
         }
 
-        let selectedAreaReference = referencesById[referencesById[selectedLocationReference.id]?.parentReference?.id];
+        let selectedAreaReference = referencesById[referencesById[selectedLocationReference.referenceId]?.parentReference?.referenceId];
 
         if (selectedAreaReference === undefined) {
           return;
         }
 
-        innerRef.current.setFieldValue('area', selectedAreaReference.id);
-        innerRef.current.setFieldValue('location', selectedLocationReference.id);
+        innerRef.current.setFieldValue('area', selectedAreaReference.referenceId);
+        innerRef.current.setFieldValue('location', selectedLocationReference.referenceId);
 
-        const newLocationOptions = selectedAreaReference.children ?? [];
-        const newApartmentOptions = selectedLocationReference.children ?? [];
+        let newLocationOptions = selectedAreaReference.children ?? [];
+        let newApartmentOptions = selectedLocationReference.children ?? [];
+
+        newLocationOptions = newLocationOptions.map((optionReference) => {
+          return {
+            id: optionReference.referenceId,
+            value: optionReference.value
+          };
+        });
+
+        newApartmentOptions = newApartmentOptions.map((optionReference) => {
+          return {
+            id: optionReference.referenceId,
+            value: optionReference.value
+          };
+        });
+
         setLocationOptions([{"id": '', "value": 'Select an option'}].concat(newLocationOptions));
         setApartmentOptions([{"id": '', "value": 'Select an option'}].concat(newApartmentOptions));
       }
     }
-  }, [loadedData]);
+  }, [loadedData, innerRef, referencesById]);
 
   const initialValues = {
     needsTempHousing: '',
@@ -126,7 +168,6 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
     contactPhoneNumber: '',
   };
 
-  const requiredAlphaNumSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z0-9][a-zA-Z0-9, ]*$/, { message: 'Can only contain English letters, numbers, comma(,) and spaces!', excludeEmptyString: true });
   const optionalAlphaSpaceTest =  yup.string().matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
   const requiredSelectTest = yup.string().required('Required!');
   const emailAddressTest = yup.string().email('Must be a valid email address');
@@ -141,8 +182,8 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
       .when(
           ['needsTempHousing','apartmentReferenceId'], 
           {
-              is: (needsTempHousing, apartmentReferenceId) => (needsTempHousing != '' && (typeof apartmentReferenceId === 'undefined' || apartmentReferenceId == '')),
-              then: () => requiredAlphaNumSpaceTest,
+              is: (needsTempHousing, apartmentReferenceId) => (needsTempHousing !== '' && (typeof apartmentReferenceId === 'undefined' || apartmentReferenceId === '')),
+              then: () => yup.string().required('Required if no provided apartment is selected!').matches(/^[a-zA-Z0-9][a-zA-Z0-9, ]*$/, { message: 'Can only contain English letters, numbers, comma(,) and spaces!', excludeEmptyString: true }),
           }),
     contactName: optionalAlphaSpaceTest,
     contactEmailAddress: emailAddressTest,
@@ -166,13 +207,21 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
   ];
 
   const handleAreaChange= (e, action) => {
-    if(e.target.value != '')
+    if(e.target.value !== '')
     {
       setShowLocation(true);
       setShowApartment(false);
 
-      let selectedArea = locationHierarchy.filter((area) => area.id == e.target.value);
+      let selectedArea = areaReferences.filter((area) => parseInt(area.referenceId, 10) === parseInt(e.target.value, 10));
       let newLocationOptions = selectedArea[0].children ?? [];
+      
+      newLocationOptions = newLocationOptions.map((optionReference) => {
+        return {
+          id: optionReference.referenceId,
+          value: optionReference.value
+        };
+      });
+
       setLocationOptions([{"id": '', "value": 'Select an option'}].concat(newLocationOptions));
     }
     else
@@ -190,12 +239,20 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
   };
 
   const handleLocationChange = (e, action) => {
-    if(e.target.value != '')
+    if(e.target.value !== '')
     {
       setShowApartment(true);
 
-      let selectedLocation = locationOptions.filter((location) => location.id == e.target.value);
+      let selectedLocation = locationReferences.filter((location) => parseInt(location.referenceId, 10) === parseInt(e.target.value, 10));
       let newApartmentOptions = selectedLocation[0].children ?? [];
+
+      newApartmentOptions = newApartmentOptions.map((optionReference) => {
+        return {
+          id: optionReference.referenceId,
+          value: optionReference.value
+        };
+      });
+
       setApartmentOptions([{"id": '', "value": 'Select an option'}].concat(newApartmentOptions));
     }
     else
@@ -209,14 +266,14 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
   };
 
   const handleNeedsTempHousingChange = (e, action) => {
-    setShowNumNights(e.target.value == 'yes');
-    setShowContact(e.target.value == 'no');
+    setShowNumNights(e.target.value === 'yes');
+    setShowContact(e.target.value === 'no');
 
-    if(e.target.value == 'yes')
+    if(e.target.value === 'yes')
     {
       setAddressText('Where should we send you to after this period? Address');
     }
-    else if(e.target.value == 'no')
+    else if(e.target.value === 'no')
     {
       setAddressText('If not, where should we drive you to from the airport? Address');
     }
@@ -288,7 +345,7 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
                     value={values.area}
                     disabled={formReadOnly}
                   >
-                    {locationHierarchy.map((option) => (
+                    {areaOptions.map((option) => (
                       <option key={option.id} value={option.id} label={option.value} />
                     ))}
                 </Form.Select>

@@ -22,48 +22,44 @@ const StudentFlightInfoPage = () => {
 
   const studentStudentFlightInfoFormRef = useRef(null);
 
-  const fetchOptions = async () => {
-    try {
-      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
-        params: {
-          referenceTypes: ['Airline'].join(','),
-        }
-      });
-
-      setOptionReferences(axiosResponse.data.result.referencesByType);
-
-      loadExistingData();
-    } catch (axiosError) {
-      let { errorMessage } = parseAxiosError(axiosError);
-
-      setServerError(errorMessage);
-    }
-  };
-
-  const loadExistingData = async () => {
-    setLoadedData({
-      needsPickup: 'yes',
-      hasFlightInfo: 'yes',
-      arrivingFlightNum: 'KE035',
-      arrivingFlightAirline: 120,
-      arrivingFlightAirlineOther: '',
-      arrivingFlightDate: '2024-10-01',
-      arrivingFlightTime: '16:12',
-      leavingFlightNum: 'KK013',
-      leavingFlightAirline: '',
-      leavingFlightAirlineOther: 'Jupiter',
-      leavingFlightDate: '2024-09-30',
-      leavingFlightTime: '02:11',
-      numLgLuggages: '4',
-      numSmLuggages: '2',
-    });
-
-    setDataLoaded(true);
-  }
-  
   useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
+          params: {
+            referenceTypes: ['Airline'].join(','),
+          }
+        });
+  
+        setOptionReferences(axiosResponse.data.result.referencesByType);
+  
+        loadExistingData();
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    };
+
+    const loadExistingData = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getFlightInfo/${userId}`);
+  
+        let studentFlightInfo = axiosResponse.data.result.student.studentFlightInfo;
+  
+        setLoadedData(studentFlightInfo);
+      }
+      catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    }
+
     fetchOptions();
-  }, [])
+  }, [userId])
 
   const handleClick = () => {
     studentStudentFlightInfoFormRef.current.submitForm().then(() => {

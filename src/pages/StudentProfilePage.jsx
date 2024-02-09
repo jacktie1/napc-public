@@ -10,7 +10,7 @@ import { UserContext } from '../auth/UserSession';
 
 
 const StudentProfilePage = () => {
-  const { userId, setFullName } = useContext(UserContext);
+  const { userId, updateSession } = useContext(UserContext);
 
   const [loadedData, setLoadedData] = useState({});
 
@@ -22,46 +22,42 @@ const StudentProfilePage = () => {
 
   const studentProfileFormRef = useRef(null);
 
-  const fetchOptions = async () => {
-    try {
-      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
-        params: {
-          referenceTypes: ['Major'].join(','),
-        }
-      });
-
-      setOptionReferences(axiosResponse.data.result.referencesByType);
-
-      loadExistingData();
-    } catch (axiosError) {
-      let { errorMessage } = parseAxiosError(axiosError);
-
-      setServerError(errorMessage);
-    }
-  };
-
-  const loadExistingData = async () => {
-    setLoadedData({
-      firstName: '',
-      lastName: '',
-      englishName: '',
-      gender: '',
-      isNewStudent: '',
-      graduatesFrom: '',
-      studentType: '',
-      majorReferenceId: '',
-      customMajor: '',
-      hasCompanion: '',
-      emailAddress: '',
-      wechatId: '',
-      cnPhoneNumber: '',
-      usPhoneNumber: '',
-    });
-  }
-
   useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
+          params: {
+            referenceTypes: ['Major'].join(','),
+          }
+        });
+  
+        setOptionReferences(axiosResponse.data.result.referencesByType);
+  
+        loadExistingData();
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        setServerError(errorMessage);
+      }
+    };
+  
+    const loadExistingData = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getProfile/${userId}`);
+  
+        let studentProfile = axiosResponse.data.result.student.studentProfile;
+  
+        setLoadedData(studentProfile);
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    }
+  
     fetchOptions();
-  }, [])
+  }, [userId])
 
   const handleClick = () => {
     studentProfileFormRef.current.submitForm().then(() => {
@@ -69,8 +65,8 @@ const StudentProfilePage = () => {
     
         if (Object.keys(studentProfileErrors).length === 0)
         {
-          setFullName(studentProfile.firstName + ' ' + studentProfile.lastName);
-          alert('success');
+          updateSession({firstName: studentProfile.firstName, lastName: studentProfile.lastName});
+          alert('Your profile has been updated!');
         }
     });
   };

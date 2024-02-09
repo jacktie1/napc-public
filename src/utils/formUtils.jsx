@@ -29,8 +29,12 @@ export const fromReferenceIdOptionValue = (optionValue) => {
     }
 }
 
-export const toReferenceIdOptionValue = (dbValue) => {
+export const toReferenceIdOptionValue = (dbValue, emtpyOnNullValue) => {
     if (dbValue === null) {
+        if(emtpyOnNullValue) {
+            return '';
+        }
+
         return 'other';
     } else {
         return dbValue;
@@ -116,5 +120,13 @@ export const fromOptionalTextValue = (textValue) => {
         return null;
     } else {
         return textValue;
+    }
+}
+
+export const toOptionalTextValue = (dbValue) => {
+    if (dbValue === null) {
+        return '';
+    } else {
+        return dbValue;
     }
 }

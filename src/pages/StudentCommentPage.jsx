@@ -7,7 +7,7 @@ import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import StudentNavbar from '../components/StudentNavbar';
 import { UserContext } from '../auth/UserSession';
 
-import { Container, Button, Row, Col } from 'react-bootstrap';
+import { Container, Button, Row, Col, Alert } from 'react-bootstrap';
 
 const StudentCommentPage = () => {
   const { userId } = useContext(UserContext);
@@ -20,15 +20,25 @@ const StudentCommentPage = () => {
 
   const studentCommentFormRef = useRef(null);
 
-  const loadExistingData = async () => {
-    setLoadedData({
-      studentComment: 'Test Comment',
-    });
-  }
-
   useEffect(() => {
+    const loadExistingData = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getComment/${userId}`);
+
+        let studentComment = axiosResponse.data.result.student.studentComment;
+
+        setLoadedData(studentComment);
+      }
+      catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    }
+
     loadExistingData();
-  }, [])
+  }, [userId])
 
   const handleClick = () => {
     studentCommentFormRef.current.submitForm().then(() => {
@@ -62,6 +72,11 @@ const StudentCommentPage = () => {
               <h2 className="pretty-box-heading">Comment</h2> 
               <RequiredFieldInfo />
               <hr/>
+              {serverError && (
+                <Alert variant='danger'>
+                  {serverError}
+                </Alert>
+              )}
               <StudentCommentForm
                 innerRef={studentCommentFormRef}
                 onSubmit={handleStudentCommentSubmit}
