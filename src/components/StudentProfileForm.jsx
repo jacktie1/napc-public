@@ -1,62 +1,43 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Row, Form, Col} from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
 
-const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly }) => {
+
+const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, formReadOnly }) => {
   const { Formik } = formik;
 
+  const majorReferenceIdOptions = useMemo(() => {
+    let majorReferenceIdOptionReferences = optionReferences.Major ?? [];
+    return [{ id: '', value: "Select an option" }, ...majorReferenceIdOptionReferences, { id: 'other', value: "Other" }];
+  }, [optionReferences]);
+
   useEffect(() => {
-    if (
-      userId !== undefined &&
-      userId !== null &&
-      ((lazyLoadToggle === undefined || lazyLoadToggle === null) || lazyLoadToggle) // either not passed in or true
-      ) {
-      innerRef.current.setValues({
-        firstName: 'Jason',
-        lastName: 'Chen',
-        englishName: '',
-        gender: 'male',
-        isNew: 'yes',
-        fromSchool: 'Gatech',
-        comeAs: 'grad',
-        major: 'cs',
-        majorOther: '',
-        hasCompanion: 'no',
-        emailAddress: 'test@gmail.com',
-        weChatId: 'aaqqq1111',
-        chinaPhoneNumber: '2212221233',
-        usPhoneNumber: '',
-        username: 'student',
-        password: 'testPassword!123',
-        confirmPassword: 'testPassword!123',
-      });
+    if(loadedData && typeof loadedData === 'object')
+    {
+      innerRef.current.setValues(loadedData);
     }
-  }, [lazyLoadToggle]);
+  }, [loadedData]);
 
   const initialValues = {
     firstName: '',
     lastName: '',
     englishName: '',
     gender: '',
-    isNew: '',
-    fromSchool: '',
-    comeAs: '',
-    major: '',
-    majorOther: '',
+    isNewStudent: '',
+    graduatesFrom: '',
+    studentType: '',
+    majorReferenceId: '',
+    customMajor: '',
     hasCompanion: '',
     emailAddress: '',
-    weChatId: '',
-    chinaPhoneNumber: '',
+    wechatId: '',
+    cnPhoneNumber: '',
     usPhoneNumber: '',
-    username: '',
-    password: '',
-    confirmPassword: '',
   }
 
   const requiredAlphaTest = yup.string().required('Required!').matches(/^[a-zA-Z]+$/, { message: 'Can only contain English letters!', excludeEmptyString: true });
-  const requiredAlphaNumTest = yup.string().required('Required!').matches(/^[a-zA-Z0-9]+$/, { message: 'Can only contain English letters and numbers!', excludeEmptyString: true });
   const requireNoSpaceTest = yup.string().required('Required!').matches(/^[^ ]+$/, { message: 'Cannot contain any space!', excludeEmptyString: true });
   const optionalAlphaSpaceTest = yup.string().matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
   const requiredSelectTest = yup.string().required('Required!');
@@ -64,51 +45,34 @@ const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
   const phoneNumberTest = yup.string()
     .min(8, 'Too Short!')
     .matches( /^[0-9\+\-\(\) ]*$/, 'Must be a valid phone number' );
-  const strongPasswordTest = yup.string()
-    .required('Required!')
-    .matches(
-      /^[0-9a-zA-Z\!\@\#\$\%\^\&\*\(\)\+]+$/,
-      "Cannot contain special symbols other than !@#$%^&*()+"
-    )
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-      "Must contain at least 8 characters, which includes at least one Uppercase letter, one Lowercase letter, and one Number"
-    );
-
-  const confirmPasswordTest = yup.string()
-    .required('Required!')
-    .oneOf([yup.ref('password')], 'Your passwords do not match!');
 
   const schema = yup.object().shape({
       firstName: requiredAlphaTest,
       lastName: requiredAlphaTest,
       englishName: optionalAlphaSpaceTest,
       gender: requiredSelectTest,
-      isNew: requiredSelectTest,
-      comeAs: requiredSelectTest,
-      fromSchool: optionalAlphaSpaceTest,
-      major: requiredSelectTest,
-      majorOther: yup.string()
+      isNewStudent: requiredSelectTest,
+      studentType: requiredSelectTest,
+      graduatesFrom: optionalAlphaSpaceTest,
+      majorReferenceId: requiredSelectTest,
+      customMajor: yup.string()
       .when(
-          'major', 
+          'majorReferenceId', 
           {
               is: 'other',
               then: () => requiredAlphaTest,
           }),
       hasCompanion: requiredSelectTest,
       emailAddress: emailAddressTest,
-      weChatId: requireNoSpaceTest,
-      chinaPhoneNumber: phoneNumberTest,
+      wechatId: requireNoSpaceTest,
+      cnPhoneNumber: phoneNumberTest,
       usPhoneNumber: phoneNumberTest,
-      username: requiredAlphaNumTest,
-      password: strongPasswordTest,
-      confirmPassword: confirmPasswordTest,
   });
 
   const genderOptions = [
     { value: '', label: "Select an option" },
     { value: 'male', label: "Male" },
-    { value: 'female', label: "Female" },
+    { value: 'femail', label: "Female" },
   ];
 
   const yesOrNoOptions = [
@@ -123,15 +87,6 @@ const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
     { value: 'grad', label: "Graduate Student" },
     { value: 'visiting', label: "Visiting Scholar" },
     { value: 'other', label: "Other" },
-  ];
-
-  const majorOptions = [
-    { value: '', label: "Select an option" },
-    { value: 'cs', label: "CS" },
-    { value: 'ece', label: "ECE" },
-    { value: 'math', label: "MATH" },
-    { value: 'eas', label: "EAS" },
-    { value: 'other', label: "Other (Please provided the name)"},
   ];
 
   return (
@@ -217,14 +172,14 @@ const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
             </Form.Group>
           </Row>
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormIsNew">
+            <Form.Group as={Col} controlId="studentProfileFormIsNewStudent">
               <RequiredFieldFormLabel>Are you a first-time (new) student?</RequiredFieldFormLabel>
               <Form.Select
-                name='isNew'
+                name='isNewStudent'
                 onChange={handleChange}
-                value={values.isNew}
-                isValid={touched.isNew && !errors.isNew}
-                isInvalid={touched.isNew && !!errors.isNew}
+                value={values.isNewStudent}
+                isValid={touched.isNewStudent && !errors.isNewStudent}
+                isInvalid={touched.isNewStudent && !!errors.isNewStudent}
                 disabled={formReadOnly}
               >
                 {yesOrNoOptions.map((option) => (
@@ -232,19 +187,19 @@ const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
                 ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">
-                {errors.isNew}
+                {errors.isNewStudent}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormComeAs">
+            <Form.Group as={Col} controlId="studentProfileFormStudentType">
               <RequiredFieldFormLabel>I'm coming to the US to be a</RequiredFieldFormLabel>
               <Form.Select
-                name='comeAs'
+                name='studentType'
                 onChange={handleChange}
-                value={values.comeAs}
-                isValid={touched.comeAs && !errors.comeAs}
-                isInvalid={touched.comeAs && !!errors.comeAs}
+                value={values.studentType}
+                isValid={touched.studentType && !errors.studentType}
+                isInvalid={touched.studentType && !!errors.studentType}
                 disabled={formReadOnly}
               >
                 {comeASOptions.map((option) => (
@@ -252,62 +207,62 @@ const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
                 ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">
-                {errors.comeAs}
+                {errors.studentType}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
           <Row className="mb-3">
-          <Form.Group as={Col} controlId="studentProfileFormFromSchool">
+          <Form.Group as={Col} controlId="studentProfileFormGraduatesFrom">
               <Form.Label>School you graduated from</Form.Label>
               <Form.Control
                 type="text"
-                name='fromSchool'
-                value={values.fromSchool}
+                name='graduatesFrom'
+                value={values.graduatesFrom}
                 onChange={handleChange}
-                isValid={touched.fromSchool && !errors.fromSchool && values.fromSchool != ''}
-                isInvalid={touched.fromSchool && !!errors.fromSchool}
+                isValid={touched.graduatesFrom && !errors.graduatesFrom && values.graduatesFrom != ''}
+                isInvalid={touched.graduatesFrom && !!errors.graduatesFrom}
                 readOnly={formReadOnly}
                 disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
-                {errors.fromSchool}
+                {errors.graduatesFrom}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
           <Row className="mb-3">
-            <Form.Group as={Col} md="6" controlId="studentProfileFormMajor">
-              <RequiredFieldFormLabel>Major</RequiredFieldFormLabel>
+            <Form.Group as={Col} controlId="studentProfileFormMajorReferenceId">
+              <RequiredFieldFormLabel>Major (Select 'Other' if not present)</RequiredFieldFormLabel>
               <Form.Select
-                name='major'
+                name='majorReferenceId'
                 onChange={handleChange}
-                value={values.major}
-                isValid={touched.major && !errors.major}
-                isInvalid={touched.major && !!errors.major}
+                value={values.majorReferenceId}
+                isValid={touched.majorReferenceId && !errors.majorReferenceId}
+                isInvalid={touched.majorReferenceId && !!errors.majorReferenceId}
                 disabled={formReadOnly}
               >
-                {majorOptions.map((option) => (
-                  <option key={option.value} value={option.value} label={option.label} />
+                {majorReferenceIdOptions.map((option) => (
+                  <option key={option.id} value={option.id} label={option.value} />
                 ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">
-                {errors.major}
+                {errors.majorReferenceId}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
           <Row className="mb-3">
-            <Form.Group as={Col} md="6" controlId="studentProfileFormMajorOther">
+            <Form.Group as={Col} controlId="studentProfileFormCustomMajor">
               <Form.Label>If Other:</Form.Label>
               <Form.Control
-                    name='majorOther'
-                    value={values.majorOther}
+                    name='customMajor'
+                    value={values.customMajor}
                     onChange={handleChange}
-                    isValid={touched.majorOther && !errors.majorOther}
-                    isInvalid={touched.majorOther && !!errors.majorOther}
+                    isValid={touched.customMajor && !errors.customMajor}
+                    isInvalid={touched.customMajor && !!errors.customMajor}
                     readOnly={formReadOnly}
                     disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
-                {errors.majorOther}
+                {errors.customMajor}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
@@ -350,36 +305,36 @@ const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
             </Form.Group>
           </Row>
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormWeChatId">
+            <Form.Group as={Col} controlId="studentProfileFormWechatId">
               <RequiredFieldFormLabel>WeChat ID (微信号)</RequiredFieldFormLabel>
               <Form.Control
-                name='weChatId'
-                value={values.weChatId}
+                name='wechatId'
+                value={values.wechatId}
                 onChange={handleChange}
-                isValid={touched.weChatId && !errors.weChatId}
-                isInvalid={touched.weChatId && !!errors.weChatId}
+                isValid={touched.wechatId && !errors.wechatId}
+                isInvalid={touched.wechatId && !!errors.wechatId}
                 readOnly={formReadOnly}
                 disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
-                {errors.weChatId}
+                {errors.wechatId}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormChinaPhoneNumber">
+            <Form.Group as={Col} controlId="studentProfileFormCnPhoneNumber">
               <Form.Label>Phone Number (China)</Form.Label>
               <Form.Control
-                name='chinaPhoneNumber'
+                name='cnPhoneNumber'
                 onChange={handleChange}
-                value={values.chinaPhoneNumber}
-                isValid={touched.chinaPhoneNumber && !errors.chinaPhoneNumber && values.chinaPhoneNumber !== ''}
-                isInvalid={touched.chinaPhoneNumber && !!errors.chinaPhoneNumber}
+                value={values.cnPhoneNumber}
+                isValid={touched.cnPhoneNumber && !errors.cnPhoneNumber && values.cnPhoneNumber !== ''}
+                isInvalid={touched.cnPhoneNumber && !!errors.cnPhoneNumber}
                 readOnly={formReadOnly}
                 disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
-                {errors.chinaPhoneNumber}
+                {errors.cnPhoneNumber}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
@@ -400,59 +355,6 @@ const StudentProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
-          { !formReadOnly ?
-          <>
-            <Row className="mb-3">
-              <Form.Group as={Col} controlId="studentProfileFormUsername">
-                <RequiredFieldFormLabel>Username</RequiredFieldFormLabel>
-                <Form.Control
-                  name='username'
-                  value={values.username}
-                  onChange={handleChange}
-                  isValid={touched.username && !errors.username}
-                  isInvalid={touched.username && !!errors.username}
-                  readOnly={formReadOnly}
-                  disabled={formReadOnly}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.username}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Row>
-            <Row className="mb-3">
-              <Form.Group as={Col} controlId="studentProfileFormPassword">
-                <RequiredFieldFormLabel>Password</RequiredFieldFormLabel>
-                <Form.Control
-                  name='password'
-                  type='password'
-                  value={values.password}
-                  onChange={handleChange}
-                  isValid={touched.password && !errors.password}
-                  isInvalid={touched.password && !!errors.password}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.password}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Row>
-            <Row className="mb-3">
-              <Form.Group as={Col} controlId="studentProfileFormConfirmPassword">
-                <RequiredFieldFormLabel>Confirm Password</RequiredFieldFormLabel>
-                <Form.Control
-                  name='confirmPassword'
-                  type='password'
-                  value={values.confirmPassword}
-                  onChange={handleChange}
-                  isValid={touched.confirmPassword && !errors.confirmPassword}
-                  isInvalid={touched.confirmPassword && !!errors.confirmPassword}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.confirmPassword}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Row>
-            </> : null
-          }
         </Form>
       )}
     </Formik>

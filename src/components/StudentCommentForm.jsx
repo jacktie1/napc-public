@@ -3,30 +3,8 @@ import { Row, Form, Col, Alert } from 'react-bootstrap';
 import * as formik from 'formik';
 import * as yup from 'yup';
 
-const StudentCommentForm = ({ innerRef,  onSubmit, lazyLoadToggle, userId, adminView }) => {
+const StudentCommentForm = ({ innerRef, onSubmit, adminView, loadedData }) => {
   const { Formik } = formik;
-
-  useEffect(() => {
-    if (
-      userId !== undefined &&
-      userId !== null &&
-      ((lazyLoadToggle === undefined || lazyLoadToggle === null) || lazyLoadToggle) // either not passed in or true
-      ) {
-      if(adminView)
-      {
-        innerRef.current.setValues({
-          studentComment: 'Test Comment',
-          adminComment: 'Admin Comment',
-        });
-      }
-      else
-      {
-        innerRef.current.setValues({
-          studentComment: 'Test Comment',
-        });
-      }
-    }
-  }, [lazyLoadToggle]);
 
   const initialValues = adminView ? {
     studentComment: '',
@@ -34,6 +12,13 @@ const StudentCommentForm = ({ innerRef,  onSubmit, lazyLoadToggle, userId, admin
   } : {
     studentComment: '',
   }
+
+  useEffect(() => {
+    if(loadedData && typeof loadedData === 'object')
+    {
+      innerRef.current.setValues(loadedData);
+    }
+  }, [loadedData]);
 
   const schema = adminView ? yup.object().shape({
     studentComment: yup.string().max(500),

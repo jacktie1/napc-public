@@ -4,7 +4,7 @@ import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
 
-const PickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly }) => {
+const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly }) => {
   const { Formik } = formik;
 
   const [showCapacityDetails, setShowCapacityDetails] = useState(false);
@@ -80,7 +80,7 @@ const PickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
 
         <Form noValidate onSubmit={handleSubmit}>
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="pickupCapacityFormDoesPickup">
+            <Form.Group as={Col} controlId="VolunteerPickupCapacityFormDoesPickup">
               <RequiredFieldFormLabel>Are you willing to pick up students from the airport?</RequiredFieldFormLabel>
               <Form.Select
                 name='doesPickup'
@@ -101,8 +101,8 @@ const PickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
           </Row>
           { showCapacityDetails ? <>
             <Row className="mb-3">
-                <Form.Group md="8" as={Col} controlId="pickupCapacityFormCarManufacturer">
-                    <Form.Label>What is the manufacture of you car?</Form.Label>
+                <Form.Group md="8" as={Col} controlId="VolunteerPickupCapacityFormCarManufacturer">
+                    <Form.Label>What is the manufacturer of you car?</Form.Label>
                     <Form.Control
                     name='carManufacturer'
                     value={values.carManufacturer}
@@ -116,7 +116,7 @@ const PickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
                     {errors.carManufacturer}
                     </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group md="4" as={Col} controlId="pickupCapacityFormCarModel">
+                <Form.Group md="4" as={Col} controlId="VolunteerPickupCapacityFormCarModel">
                     <Form.Label>Car Model</Form.Label>
                     <Form.Control
                     name='carModel'
@@ -133,7 +133,7 @@ const PickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="pickupCapacityFormNumSeats">
+                <Form.Group as={Col} controlId="VolunteerPickupCapacityFormNumSeats">
                     <Form.Label>How many seats your car has (use a number from 0 - 9)</Form.Label>
                     <Form.Control
                     type="number"
@@ -151,8 +151,8 @@ const PickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="pickupCapacityFormNumLgLuggages">
-                    <Form.Label>How many seats your car has (use a number from 0 - 9)</Form.Label>
+                <Form.Group as={Col} controlId="VolunteerPickupCapacityFormNumLgLuggages">
+                    <Form.Label>How many piece of big luggage your vehicle could handle (use a number from 0 - 9)</Form.Label>
                     <Form.Control
                     type="number"
                     name='numLgLuggages'
@@ -169,8 +169,8 @@ const PickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="pickupCapacityFormNumTrips">
-                    <Form.Label>How many seats your car has (use a number from 0 - 9)</Form.Label>
+                <Form.Group as={Col} controlId="VolunteerPickupCapacityFormNumTrips">
+                    <Form.Label>How many trips to the airport you are willing to go (use a number from 0 - 9)</Form.Label>
                     <Form.Control
                     type="number"
                     name='numTrips'
@@ -188,7 +188,7 @@ const PickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
             </Row>
           </>: null}
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="pickupCapacityFormComment">
+            <Form.Group as={Col} controlId="VolunteerPickupCapacityFormComment">
               <Form.Label>Do you have any comment or special needs (Maximum 500 characters):</Form.Label>
               <Form.Control
                  as="textarea"
@@ -212,4 +212,4 @@ const PickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formRe
   );
 };
 
-export default PickupCapacityForm;
+export default VolunteerPickupCapacityForm;

@@ -1,6 +1,6 @@
 import React, { useRef, useContext } from 'react';
 import EmergencyContactInfo from '../components/EmergencyContactInfo';
-import PickupCapacityForm from '../components/PickupCapacityForm';
+import VolunteerPickupCapacityForm from '../components/VolunteerPickupCapacityForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import VolunteerNavbar from '../components/VolunteerNavbar';
 import { UserContext } from '../auth/UserSession';
@@ -12,11 +12,11 @@ const VolunteerPickupCapacityPage = () => {
 
   var volunteerPickupCapacity;
 
-  const volunteerPickupCapacityFormRef = useRef(null);
+  const volunteerVolunteerPickupCapacityFormRef = useRef(null);
 
   const handleClick = () => {
-    volunteerPickupCapacityFormRef.current.submitForm().then(() => {
-        const volunteerPickupCapacityErrors = volunteerPickupCapacityFormRef.current.errors;
+    volunteerVolunteerPickupCapacityFormRef.current.submitForm().then(() => {
+        const volunteerPickupCapacityErrors = volunteerVolunteerPickupCapacityFormRef.current.errors;
     
         if (Object.keys(volunteerPickupCapacityErrors).length === 0)
         {
@@ -46,8 +46,8 @@ const VolunteerPickupCapacityPage = () => {
               <h2 className="pretty-box-heading">Airport Pickup</h2> 
               <RequiredFieldInfo />
               <hr/>
-              <PickupCapacityForm
-                innerRef={volunteerPickupCapacityFormRef}
+              <VolunteerPickupCapacityForm
+                innerRef={volunteerVolunteerPickupCapacityFormRef}
                 onSubmit={handleVolunteerPickupCapacitySubmit}
                 userId={userId}
               />

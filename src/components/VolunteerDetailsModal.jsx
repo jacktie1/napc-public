@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { Modal, Button, Tabs, Tab } from 'react-bootstrap';
 import VolunteerProfileForm from './VolunteerProfileForm';
-import PickupCapacityForm from './PickupCapacityForm';
-import HousingCapacityForm from './HousingCapacityForm';
+import VolunteerPickupCapacityForm from './VolunteerPickupCapacityForm';
+import VolunteerHousingCapacityForm from './VolunteerHousingCapacityForm';
 
 const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
     const [showModal, setShowModal] = useState(false);
@@ -13,8 +13,8 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
     var housingCapacity;
 
     const studentProfileFormRef = useRef(null);
-    const pickupCapacityFormRef = useRef(null);
-    const housingCapacityFormRef = useRef(null);
+    const VolunteerPickupCapacityFormRef = useRef(null);
+    const VolunteerHousingCapacityFormRef = useRef(null);
 
     const modalSize = 'md';
   
@@ -47,10 +47,10 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
       }
       else if (currentTab === 'pickupCapacity')
       {
-        pickupCapacityFormRef.current.submitForm().then(() => {
-            const PickupCapacityFormErros = pickupCapacityFormRef.current.errors;
+        VolunteerPickupCapacityFormRef.current.submitForm().then(() => {
+            const VolunteerPickupCapacityFormErros = VolunteerPickupCapacityFormRef.current.errors;
         
-            if (Object.keys(PickupCapacityFormErros).length === 0)
+            if (Object.keys(VolunteerPickupCapacityFormErros).length === 0)
             {
               alert('success');
               handleClose();
@@ -59,10 +59,10 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
       }
       else if (currentTab === 'housingCapacity')
       {
-        housingCapacityFormRef.current.submitForm().then(() => {
-            const housingCapacityFormErros = housingCapacityFormRef.current.errors;
+        VolunteerHousingCapacityFormRef.current.submitForm().then(() => {
+            const VolunteerHousingCapacityFormErros = VolunteerHousingCapacityFormRef.current.errors;
         
-            if (Object.keys(housingCapacityFormErros).length === 0)
+            if (Object.keys(VolunteerHousingCapacityFormErros).length === 0)
             {
               alert('success');
               handleClose();
@@ -76,12 +76,12 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
       setSubmitting(false);
     };
   
-    const handlePickupCapacityFormSubmit = (values, { setSubmitting }) => {
+    const handleVolunteerPickupCapacityFormSubmit = (values, { setSubmitting }) => {
       pickupCapacity = values;
       setSubmitting(false);
     };
   
-    const handleHousingCapacityFormSubmit = (values, { setSubmitting }) => {
+    const handleVolunteerHousingCapacityFormSubmit = (values, { setSubmitting }) => {
       housingCapacity = values;
       setSubmitting(false);
     };
@@ -114,20 +114,20 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
                 />
               </Tab>
               <Tab eventKey="pickupCapacity" title="Airport Pickup">
-                <PickupCapacityForm
+                <VolunteerPickupCapacityForm
                   userId={value}
-                  innerRef={pickupCapacityFormRef}
-                  onSubmit={handlePickupCapacityFormSubmit}
+                  innerRef={VolunteerPickupCapacityFormRef}
+                  onSubmit={handleVolunteerPickupCapacityFormSubmit}
                   formReadOnly={readOnly}
                   lazyLoadToggle={currentTab==='pickupCapacity'}
 
                 />
               </Tab>
               <Tab eventKey="housingCapacity" title="Temporary Housing">
-                <HousingCapacityForm
+                <VolunteerHousingCapacityForm
                   userId={value}
-                  innerRef={housingCapacityFormRef}
-                  onSubmit={handleHousingCapacityFormSubmit}
+                  innerRef={VolunteerHousingCapacityFormRef}
+                  onSubmit={handleVolunteerHousingCapacityFormSubmit}
                   formReadOnly={readOnly}
                   lazyLoadToggle={currentTab==='housingCapacity'}
                 />

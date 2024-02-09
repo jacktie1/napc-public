@@ -5,13 +5,22 @@ import AppTitle from './../components/AppTitle';
 import { useNavigate } from 'react-router-dom';
 import * as formik from 'formik';
 import * as yup from 'yup';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
 
 const LoginPage = () => {
   const navigate = useNavigate();
 
   const { Formik } = formik;
 
+  const { startSession } = useContext(UserContext);
+
+  const [serverError, setServerError] = useState('');
+
+  const loginFormRef = useRef(null);
+
+  var loginInfo;;
+  
   const initialValues = {
     username: '',
     password: '',
@@ -22,36 +31,31 @@ const LoginPage = () => {
     password: yup.string().required('Required'),
   });
 
-  const { startSession } = useContext(UserContext);
-
-  const loginFormRef = useRef(null);
-  const [serverValidationError, setServerValidationError] = useState('');
-
-  var loginInfo;;
-
   // this has to be bound to form onSubmit because the boostrap validator binds
   // itself to form's submit() method
   const handleLogin = ()  => {
     loginFormRef.current.submitForm().then(async () => {
-      const loginFormErrors = loginFormRef.current.errors;
+      let loginFormErrors = loginFormRef.current.errors;
 
       if (Object.keys(loginFormErrors).length > 0) {
         return;
       }
 
       try {
-        const axios_response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/auth/login`, {
+        let axiosResponse = await axiosInstance.post(`${process.env.REACT_APP_API_BASE_URL}/api/auth/login`, {
           username: loginInfo.username,
           password: loginInfo.password,
         });
 
-        const data = axios_response.data.result;
+        let data = axiosResponse.data.result;
 
-        const jwtToken = data.token;
-        const role = data.role;
-        const firstName = data.firstName;
-        const lastName = data.lastName;
-        const profile = {
+        let jwtToken = data.token;
+        let role = data.role;
+        let firstName = data.firstName;
+        let lastName = data.lastName;
+        let userId = data.userId;
+        let profile = {
+          userId: userId,
           role: role,
           firstName: firstName,
           lastName: lastName,
@@ -66,14 +70,10 @@ const LoginPage = () => {
         } else if (role === 'admin') {  
           navigate('/admin/home');
         }
-      } catch (axios_error) {
-        const ret_error = axios_error?.response?.data?.error?.message;
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
 
-        if(!ret_error) console.log(axios_error);
-
-        const error_message = ret_error ? ret_error : 'An unexpected error occurred. Please try again later.';
-        
-        setServerValidationError(error_message);
+        setServerError(errorMessage);
         loginFormRef.current.resetForm();
       }
     });
@@ -137,9 +137,9 @@ const LoginPage = () => {
             <Form.Label>New User? <a href="/signup/option">Signup</a> instead</Form.Label>
             <hr />
 
-            {serverValidationError && (
+            {serverError && (
             <Alert variant='danger'>
-              {serverValidationError}
+              {serverError}
             </Alert>
           )}
             

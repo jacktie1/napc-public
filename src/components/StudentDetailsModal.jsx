@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { Modal, Button, Tabs, Tab } from 'react-bootstrap';
 import StudentProfileForm from './StudentProfileForm';
-import FlightInfoForm from './FlightInfoForm';
-import TempHousingForm from './TempHousingForm';
+import StudentFlightInfoForm from './StudentFlightInfoForm';
+import StudentTempHousingForm from './StudentTempHousingForm';
 import StudentCommentForm from './StudentCommentForm';
 
 const StudentDetailsModal = ({ value, readOnly, adminView }) => {
@@ -15,8 +15,8 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
     var studentComment;
 
     const studentProfileFormRef = useRef(null);
-    const flightInfoFormRef = useRef(null);
-    const tempHousingFormRef = useRef(null);
+    const StudentFlightInfoFormRef = useRef(null);
+    const StudentTempHousingFormRef = useRef(null);
     const studentCommentFormRef = useRef(null);
 
     const modalSize = adminView ? 'lg' : 'md';
@@ -50,10 +50,10 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
       }
       else if (currentTab === 'flightInfo')
       {
-        flightInfoFormRef.current.submitForm().then(() => {
-            const FlightInfoFormErros = flightInfoFormRef.current.errors;
+        StudentFlightInfoFormRef.current.submitForm().then(() => {
+            const StudentFlightInfoFormErros = StudentFlightInfoFormRef.current.errors;
         
-            if (Object.keys(FlightInfoFormErros).length === 0)
+            if (Object.keys(StudentFlightInfoFormErros).length === 0)
             {
               alert('success');
               handleClose();
@@ -62,10 +62,10 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
       }
       else if (currentTab === 'tempHousing')
       {
-        tempHousingFormRef.current.submitForm().then(() => {
-            const tempHousingFormErros = tempHousingFormRef.current.errors;
+        StudentTempHousingFormRef.current.submitForm().then(() => {
+            const StudentTempHousingFormErros = StudentTempHousingFormRef.current.errors;
         
-            if (Object.keys(tempHousingFormErros).length === 0)
+            if (Object.keys(StudentTempHousingFormErros).length === 0)
             {
               alert('success');
               handleClose();
@@ -91,12 +91,12 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
       setSubmitting(false);
     };
   
-    const handleFlightInfoFormSubmit = (values, { setSubmitting }) => {
+    const handleStudentFlightInfoFormSubmit = (values, { setSubmitting }) => {
       flightInfo = values;
       setSubmitting(false);
     };
   
-    const handleTempHousingFormSubmit = (values, { setSubmitting }) => {
+    const handleStudentTempHousingFormSubmit = (values, { setSubmitting }) => {
       tempHousing = values;
       setSubmitting(false);
     };
@@ -133,19 +133,19 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
                 />
               </Tab>
               <Tab eventKey="flightInfo" title="Airport Pickup">
-                <FlightInfoForm
+                <StudentFlightInfoForm
                   userId={value}
-                  innerRef={flightInfoFormRef}
-                  onSubmit={handleFlightInfoFormSubmit}
+                  innerRef={StudentFlightInfoFormRef}
+                  onSubmit={handleStudentFlightInfoFormSubmit}
                   formReadOnly={readOnly}
                   lazyLoadToggle={currentTab==='flightInfo'}
                 />
               </Tab>
               <Tab eventKey="tempHousing" title="Temporary Housing">
-                <TempHousingForm
+                <StudentTempHousingForm
                   userId={value}
-                  innerRef={tempHousingFormRef}
-                  onSubmit={handleTempHousingFormSubmit}
+                  innerRef={StudentTempHousingFormRef}
+                  onSubmit={handleStudentTempHousingFormSubmit}
                   formReadOnly={readOnly}
                   lazyLoadToggle={currentTab==='tempHousing'}
                 />
@@ -155,7 +155,7 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
                   <StudentCommentForm
                     userId={value}
                     innerRef={studentCommentFormRef}
-                    onSubmit={handleTempHousingFormSubmit}
+                    onSubmit={handleStudentTempHousingFormSubmit}
                     formReadOnly={readOnly}
                     adminView={true}
                     lazyLoadToggle={currentTab==='comment'}

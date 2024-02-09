@@ -4,7 +4,7 @@ import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
 
-const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly }) => {
+const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly }) => {
   const { Formik } = formik;
 
   const [showCapacityDetails, setShowCapacityDetails] = useState(false);
@@ -95,7 +95,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
 
         <Form noValidate onSubmit={handleSubmit}>
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="housingCapacityFormDoesHousing">
+            <Form.Group as={Col} controlId="VolunteerHousingCapacityFormDoesHousing">
               <RequiredFieldFormLabel>Are you willing to provide temporary housing?</RequiredFieldFormLabel>
               <Form.Select
                 name='doesHousing'
@@ -116,7 +116,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
           </Row>
           { showCapacityDetails ? <>
             <Row className="mb-3">
-              <Form.Group as={Col} controlId="housingCapacityFormHomeAddress">
+              <Form.Group as={Col} controlId="VolunteerHousingCapacityFormHomeAddress">
                 <RequiredFieldFormLabel>If yes, what is your home address (please provide street with number, city, and zip)</RequiredFieldFormLabel>
                     <Form.Control
                     name='homeAddress'
@@ -133,7 +133,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
               </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="housingCapacityFormNumStudents">
+                <Form.Group as={Col} controlId="VolunteerHousingCapacityFormNumStudents">
                     <Form.Label>How many students could you host at the same time?</Form.Label>
                     <Form.Control
                     type="number"
@@ -151,7 +151,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="housingCapacityFormStartDate">
+                <Form.Group as={Col} controlId="VolunteerHousingCapacityFormStartDate">
                     <Form.Label>Temp housing is available from date</Form.Label>
                     <Form.Control
                     type="date"
@@ -169,7 +169,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="housingCapacityFormEndDate">
+                <Form.Group as={Col} controlId="VolunteerHousingCapacityFormEndDate">
                     <Form.Label>Temp housing is available to date</Form.Label>
                     <Form.Control
                     type="date"
@@ -187,7 +187,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="housingCapacityFormNumDoubleBeds">
+                <Form.Group as={Col} controlId="VolunteerHousingCapacityFormNumDoubleBeds">
                     <Form.Label>No. of double bed (use a number from 0 - 9)</Form.Label>
                     <Form.Control
                     type="number"
@@ -205,7 +205,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-              <Form.Group as={Col} controlId="housingCapacityFormNumSingleBeds">
+              <Form.Group as={Col} controlId="VolunteerHousingCapacityFormNumSingleBeds">
                   <Form.Label>No. of single bed (use a number from 0 - 9)</Form.Label>
                   <Form.Control
                   type="number"
@@ -223,7 +223,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
               </Form.Group>
             </Row>
             <Row className="mb-3">
-              <Form.Group as={Col} controlId="housingCapacityFormStudentGenderPreference">
+              <Form.Group as={Col} controlId="VolunteerHousingCapacityFormStudentGenderPreference">
                 <Form.Label>Preference of male or female student</Form.Label>
                 <Form.Select
                   name='studentGenderPreference'
@@ -244,7 +244,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
               </Form.Group>
             </Row>
             <Row className="mb-3">
-              <Form.Group as={Col} controlId="housingCapacityFormProvidesRide">
+              <Form.Group as={Col} controlId="VolunteerHousingCapacityFormProvidesRide">
                 <Form.Label>Could you provide ride to and from campus for students?</Form.Label>
                 <Form.Select
                   name='providesRide'
@@ -265,7 +265,7 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
             </Row>
           </>: null}
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="housingCapacityFormComment">
+            <Form.Group as={Col} controlId="VolunteerHousingCapacityFormComment">
               <Form.Label>Do you have any comment or special needs (Maximum 500 characters):</Form.Label>
               <Form.Control
                  as="textarea"
@@ -289,4 +289,4 @@ const HousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formR
   );
 };
 
-export default HousingCapacityForm;
+export default VolunteerHousingCapacityForm;

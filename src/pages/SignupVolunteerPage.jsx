@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import AppTitle from '../components/AppTitle';
 import VolunteerProfileForm from '../components/VolunteerProfileForm';
-import PickupCapacityForm from '../components/PickupCapacityForm';
-import HousingCapacityForm from '../components/HousingCapacityForm';
+import VolunteerPickupCapacityForm from '../components/VolunteerPickupCapacityForm';
+import VolunteerHousingCapacityForm from '../components/VolunteerHousingCapacityForm';
 import PrivacyStatement from '../components/PrivacyStatement';
 import PatienceInfo from '../components/PatienceInfo';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
@@ -18,19 +18,19 @@ const SignupVolunteerPage = () => {
   var housingCapacity;
 
   const volunteerProfileFormRef = useRef(null);
-  const pickupCapacityFormRef = useRef(null);
-  const housingCapacityFormRef = useRef(null);
+  const VolunteerPickupCapacityFormRef = useRef(null);
+  const VolunteerHousingCapacityFormRef = useRef(null);
 
   const handleClick = () => {
     volunteerProfileFormRef.current.submitForm()
       .then(() => {
-        pickupCapacityFormRef.current.submitForm()
+        VolunteerPickupCapacityFormRef.current.submitForm()
         .then(() => {
-          housingCapacityFormRef.current.submitForm()
+          VolunteerHousingCapacityFormRef.current.submitForm()
           .then(() => {
             const volunteerProfileErrors = volunteerProfileFormRef.current.errors;
-            const pickupCapacityErrors = pickupCapacityFormRef.current.errors;
-            const housingCapacityErrors = housingCapacityFormRef.current.errors;
+            const pickupCapacityErrors = VolunteerPickupCapacityFormRef.current.errors;
+            const housingCapacityErrors = VolunteerHousingCapacityFormRef.current.errors;
         
             if (Object.keys(volunteerProfileErrors).length == 0
               && Object.keys(pickupCapacityErrors).length == 0
@@ -62,12 +62,12 @@ const SignupVolunteerPage = () => {
     setSubmitting(false);
   };
 
-  const handlePickupCapacityFormSubmit = (values, { setSubmitting }) => {
+  const handleVolunteerPickupCapacityFormSubmit = (values, { setSubmitting }) => {
     pickupCapacity = values;
     setSubmitting(false);
   };
 
-  const handleHousingCapacityFormSubmit = (values, { setSubmitting }) => {
+  const handleVolunteerHousingCapacityFormSubmit = (values, { setSubmitting }) => {
     housingCapacity = values;
     setSubmitting(false);
   };
@@ -99,18 +99,18 @@ const SignupVolunteerPage = () => {
               <Accordion.Item eventKey="pickupCapacity">
                 <Accordion.Header>Airport Pickup Volunteer</Accordion.Header>
                 <Accordion.Body>
-                  <PickupCapacityForm
-                    innerRef={pickupCapacityFormRef}
-                    onSubmit={handlePickupCapacityFormSubmit}
+                  <VolunteerPickupCapacityForm
+                    innerRef={VolunteerPickupCapacityFormRef}
+                    onSubmit={handleVolunteerPickupCapacityFormSubmit}
                   />
                 </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="housingCapacity">
                 <Accordion.Header>Temporary Housing Volunteer</Accordion.Header>
                 <Accordion.Body>
-                  <HousingCapacityForm
-                      innerRef={housingCapacityFormRef}
-                      onSubmit={handleHousingCapacityFormSubmit}
+                  <VolunteerHousingCapacityForm
+                      innerRef={VolunteerHousingCapacityFormRef}
+                      onSubmit={handleVolunteerHousingCapacityFormSubmit}
                     />
                 </Accordion.Body>
               </Accordion.Item>

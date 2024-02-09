@@ -1,4 +1,6 @@
-import React, { useRef, useContext } from 'react';
+import React, { useRef, useState, useContext, useEffect } from 'react';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
 import EmergencyContactInfo from '../components/EmergencyContactInfo';
 import StudentCommentForm from '../components/StudentCommentForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
@@ -10,13 +12,27 @@ import { Container, Button, Row, Col } from 'react-bootstrap';
 const StudentCommentPage = () => {
   const { userId } = useContext(UserContext);
 
+  const [serverError, setServerError] = useState('');
+
+  const [loadedData, setLoadedData] = useState(false);
+
   var studentComment;
 
   const studentCommentFormRef = useRef(null);
 
+  const loadExistingData = async () => {
+    setLoadedData({
+      studentComment: 'Test Comment',
+    });
+  }
+
+  useEffect(() => {
+    loadExistingData();
+  }, [])
+
   const handleClick = () => {
     studentCommentFormRef.current.submitForm().then(() => {
-        const studentCommentErrors = studentCommentFormRef.current.errors;
+        let studentCommentErrors = studentCommentFormRef.current.errors;
     
         if (Object.keys(studentCommentErrors).length === 0)
         {
@@ -49,7 +65,7 @@ const StudentCommentPage = () => {
               <StudentCommentForm
                 innerRef={studentCommentFormRef}
                 onSubmit={handleStudentCommentSubmit}
-                userId={userId}
+                loadedData={loadedData}
               />
               <hr/>
               <Button variant="primary" onClick={handleClick} className="pretty-box-button">

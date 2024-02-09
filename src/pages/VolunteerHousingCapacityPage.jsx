@@ -1,6 +1,6 @@
 import React, { useRef, useContext } from 'react';
 import EmergencyContactInfo from '../components/EmergencyContactInfo';
-import HousingCapacityForm from '../components/HousingCapacityForm';
+import VolunteerHousingCapacityForm from '../components/VolunteerHousingCapacityForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import VolunteerNavbar from '../components/VolunteerNavbar';
 import { UserContext } from '../auth/UserSession';
@@ -12,11 +12,11 @@ const VolunteerHousingCapacityPage = () => {
 
   var volunteerHousingCapacity;
 
-  const volunteerHousingCapacityFormRef = useRef(null);
+  const volunteerVolunteerHousingCapacityFormRef = useRef(null);
 
   const handleClick = () => {
-    volunteerHousingCapacityFormRef.current.submitForm().then(() => {
-        const volunteerHousingCapacityErrors = volunteerHousingCapacityFormRef.current.errors;
+    volunteerVolunteerHousingCapacityFormRef.current.submitForm().then(() => {
+        const volunteerHousingCapacityErrors = volunteerVolunteerHousingCapacityFormRef.current.errors;
     
         if (Object.keys(volunteerHousingCapacityErrors).length === 0)
         {
@@ -46,8 +46,8 @@ const VolunteerHousingCapacityPage = () => {
               <h2 className="pretty-box-heading">Temporary Housing</h2> 
               <RequiredFieldInfo />
               <hr/>
-              <HousingCapacityForm
-                innerRef={volunteerHousingCapacityFormRef}
+              <VolunteerHousingCapacityForm
+                innerRef={volunteerVolunteerHousingCapacityFormRef}
                 onSubmit={handleVolunteerHousingCapacitySubmit}
                 userId={userId}
               />

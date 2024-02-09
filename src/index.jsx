@@ -5,6 +5,7 @@ import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 import './assets/styles/App.scss'
 import { UserSession } from './auth/UserSession';
 
+
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);
 root.render(
