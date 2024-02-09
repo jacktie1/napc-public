@@ -62,7 +62,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
     needsAirportPickup: requiredSelectTest,
     hasFlightInfo: yup.string().when('needsAirportPickup', {is: 'yes', then: () => requiredSelectTest}),
     arrivalFlightNumber: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredAlphaNumTest}),
-    arrivalAirlineReferenceId: requiredSelectTest,
+    arrivalAirlineReferenceId: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredSelectTest}),
     customArrivalAirline: yup.string()
         .when(
             ['hasFlightInfo','arrivalAirlineReferenceId'], 
@@ -72,7 +72,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
             }),
     arrivalDate: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredDateTest}),
     arrivalTime: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredTimeTest}),
-    departureAirlineReferenceId: requiredSelectTest,
+    departureAirlineReferenceId: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredSelectTest}),
     departureFlightNumber: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredAlphaNumTest}),
     customDepartureAirline: yup.string()
         .when(

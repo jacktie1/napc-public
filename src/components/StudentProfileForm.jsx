@@ -72,7 +72,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
   const genderOptions = [
     { value: '', label: "Select an option" },
     { value: 'male', label: "Male" },
-    { value: 'femail', label: "Female" },
+    { value: 'female', label: "Female" },
   ];
 
   const yesOrNoOptions = [

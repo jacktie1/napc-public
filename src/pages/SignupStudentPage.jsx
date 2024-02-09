@@ -152,8 +152,11 @@ const SignupStudentPage = () => {
       let preparedTempHousing = {
         needsTempHousing: fromYesOrNoOptionValue(tempHousing.needsTempHousing),
         apartmentReferenceId: fromReferenceIdOptionValue(tempHousing.apartmentReferenceId),
-        customDestinationAddress: fromCustomOptionValue(tempHousing.customDestinationAddress, tempHousing.apartmentReferenceId),
-      }
+        customDestinationAddress: fromCustomOptionValue(tempHousing.customDestinationAddress, tempHousing.apartmentReferenceId, true),
+      };
+
+      console.log(preparedFlightInfo);
+      console.log(tempHousing);
 
       if(preparedTempHousing.needsTempHousing)
       {

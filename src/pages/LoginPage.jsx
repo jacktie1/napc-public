@@ -63,11 +63,11 @@ const LoginPage = () => {
 
         startSession(jwtToken, profile);
 
-        if (role === 'student') {
+        if (role === 'Student') {
           navigate('/student/announcement');
-        } else if (role === 'volunteer') {  
+        } else if (role === 'Volunteer') {  
           navigate('/volunteer/agreement');
-        } else if (role === 'admin') {  
+        } else if (role === 'Admin') {  
           navigate('/admin/home');
         }
       } catch (axiosError) {

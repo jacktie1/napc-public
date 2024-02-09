@@ -97,12 +97,18 @@ export const toStudentTypeValue = (dbValue) => {
     }
 }
 
-export const fromCustomOptionValue = (optionValue, dependency) => {
-    if(dependency !== 'other') {
-        return null;
-    } else {
+export const fromCustomOptionValue = (optionValue, dependency, returnOnEmptyDependency) => {
+    // 'other' selected, custom value will be used
+    if(dependency === 'other') {
         return optionValue;
     }
+
+    // if we want to return the option value even if the dependency is empty and the dependency is empty
+    if(returnOnEmptyDependency && dependency === '') {
+        return optionValue;
+    }
+
+    return null;
 };
 
 export const fromOptionalTextValue = (textValue) => {
