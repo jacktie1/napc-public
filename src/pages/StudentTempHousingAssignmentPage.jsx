@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import StudentNavbar from '../components/StudentNavbar';
+import ApathNavbar from '../components/ApathNavbar';
 import EmergencyContactInfo from '../components/EmergencyContactInfo';
 import VolunteerHelpInfo from '../components/VolunteerHelpInfo';
 import { Container, Row, Col, Modal, Button } from 'react-bootstrap';
@@ -63,7 +63,7 @@ const StudentTempHousingAssignmentPage = () => {
 
   return (
     <div>
-      <StudentNavbar />
+      <ApathNavbar />
       <Container>
         <Row className="mt-5">
           <EmergencyContactInfo targetGroup={'student'}/>

@@ -4,8 +4,9 @@ import parseAxiosError from '../utils/parseAxiosError';
 import EmergencyContactInfo from '../components/EmergencyContactInfo';
 import StudentCommentForm from '../components/StudentCommentForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
-import StudentNavbar from '../components/StudentNavbar';
+import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
+import { fromOptionalTextValue } from '../utils/formUtils';
 
 import { Container, Button, Row, Col, Alert } from 'react-bootstrap';
 
@@ -40,13 +41,36 @@ const StudentCommentPage = () => {
     loadExistingData();
   }, [userId])
 
+  const sendUpdateStudentCommentRequest = async () => {
+    try {
+      let preparedStudentComment = {
+        studentComment: fromOptionalTextValue(studentComment.studentComment),
+      };
+
+      await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateComment/${userId}`,
+        {
+          studentComment: preparedStudentComment
+        });
+
+      alert('Comment updated successfully');
+
+      setServerError('');
+    }
+    catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  }
+
   const handleClick = () => {
     studentCommentFormRef.current.submitForm().then(() => {
         let studentCommentErrors = studentCommentFormRef.current.errors;
     
         if (Object.keys(studentCommentErrors).length === 0)
         {
-          alert('success');
+          sendUpdateStudentCommentRequest();
         }
     });
   };
@@ -58,7 +82,7 @@ const StudentCommentPage = () => {
 
   return (
     <div>
-      <StudentNavbar />
+      <ApathNavbar />
 
       <Container>
           <Row className="mt-5">

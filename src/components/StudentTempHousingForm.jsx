@@ -288,7 +288,7 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
       onSubmit={onSubmit}
       initialValues={initialValues}
     >
-      {({ handleSubmit, handleChange, resetForm, setFieldValue, setTouched, values, touched, errors }) => (
+      {({ handleSubmit, handleChange, resetForm, setFieldValue, values, touched, errors }) => (
         <Form noValidate onSubmit={handleSubmit}>
           <Row className="mb-3">
             <Form.Group as={Col} controlId="StudentTempHousingFormNeedsTempHousing">
@@ -374,7 +374,7 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
                 <Form.Label>Please choose the dorm/apartment from the list</Form.Label>
                 <Form.Select
                     name='apartmentReferenceId'
-                    onChange={(e) => {handleChange(e); setFieldValue('customDestinationAddress', ''); setTouched('customDestinationAddress');}}
+                    onChange={(e) => {setFieldValue('customDestinationAddress', ''); handleChange(e);}}
                     value={values.apartmentReferenceId}
                     disabled={formReadOnly}
                   >
@@ -391,7 +391,7 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
                     <Form.Control
                     name='customDestinationAddress'
                     value={values.customDestinationAddress}
-                    onChange={(e) => {handleChange(e); setFieldValue('apartmentReferenceId', '');}}
+                    onChange={(e) => {setFieldValue('apartmentReferenceId', ''); handleChange(e);}}
                     isValid={touched.customDestinationAddress && !errors.customDestinationAddress}
                     isInvalid={touched.customDestinationAddress && !!errors.customDestinationAddress}
                     readOnly={formReadOnly}

@@ -4,8 +4,10 @@ import parseAxiosError from '../utils/parseAxiosError';
 import EmergencyContactInfo from '../components/EmergencyContactInfo';
 import StudentFlightInfoForm from '../components/StudentFlightInfoForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
-import StudentNavbar from '../components/StudentNavbar';
+import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
+import { fromYesOrNoOptionValue, fromReferenceIdOptionValue, fromCustomOptionValue } from '../utils/formUtils';
+
 
 import { Container, Button, Row, Col, Alert } from 'react-bootstrap';
 
@@ -61,13 +63,60 @@ const StudentFlightInfoPage = () => {
     fetchOptions();
   }, [userId])
 
+  const sendUpdateStudentFlightInfoRequest = async () => {
+    try {
+      let preparedFlightInfo = {
+        needsAirportPickup: fromYesOrNoOptionValue(studentFlightInfo.needsAirportPickup),
+      };
+
+      if(preparedFlightInfo.needsAirportPickup)
+      {
+        preparedFlightInfo = {
+          ...preparedFlightInfo,
+          hasFlightInfo: fromYesOrNoOptionValue(studentFlightInfo.hasFlightInfo),
+        };
+      }
+
+      if(preparedFlightInfo.hasFlightInfo)
+      {
+        preparedFlightInfo = {
+          ...preparedFlightInfo,
+          arrivalFlightNumber: studentFlightInfo.arrivalFlightNumber,
+          arrivalAirlineReferenceId: fromReferenceIdOptionValue(studentFlightInfo.arrivalAirlineReferenceId),
+          customArrivalAirline: fromCustomOptionValue(studentFlightInfo.customArrivalAirline, studentFlightInfo.arrivalAirlineReferenceId),
+          arrivalDatetime: studentFlightInfo.arrivalDate + ' ' + studentFlightInfo.arrivalTime,
+          departureFlightNumber: studentFlightInfo.departureFlightNumber,
+          departureAirlineReferenceId: fromReferenceIdOptionValue(studentFlightInfo.departureAirlineReferenceId),
+          customDepartureAirline: fromCustomOptionValue(studentFlightInfo.customDepartureAirline, studentFlightInfo.departureAirlineReferenceId),
+          departureDatetime: studentFlightInfo.departureDate + ' ' + studentFlightInfo.departureTime,
+          numLgLuggages: studentFlightInfo.numLgLuggages,
+          numSmLuggages: studentFlightInfo.numSmLuggages,
+        };
+      }
+
+      await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateFlightInfo/${userId}`,
+        {
+          studentFlightInfo: preparedFlightInfo,
+        });
+
+      setServerError('');
+
+      alert('Flight information updated successully!');
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  }
+
   const handleClick = () => {
     studentStudentFlightInfoFormRef.current.submitForm().then(() => {
         const studentFlightInfoErrors = studentStudentFlightInfoFormRef.current.errors;
     
         if (Object.keys(studentFlightInfoErrors).length === 0)
         {
-          alert('success');
+          sendUpdateStudentFlightInfoRequest();
         }
     });
   };
@@ -79,7 +128,7 @@ const StudentFlightInfoPage = () => {
 
   return (
     <div>
-      <StudentNavbar />
+      <ApathNavbar />
 
       <Container>
           <Row className="mt-5">

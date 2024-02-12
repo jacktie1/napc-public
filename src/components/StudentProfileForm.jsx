@@ -61,6 +61,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
   const requiredAlphaTest = yup.string().required('Required!').matches(/^[a-zA-Z]+$/, { message: 'Can only contain English letters!', excludeEmptyString: true });
   const requireNoSpaceTest = yup.string().required('Required!').matches(/^[^ ]+$/, { message: 'Cannot contain any space!', excludeEmptyString: true });
   const optionalAlphaSpaceTest = yup.string().matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
+  const requiredAlphaSpaceTest = yup.string().required('Required!').matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
   const requiredSelectTest = yup.string().required('Required!');
   const emailAddressTest = yup.string().email('Must be a valid email address').required('Required!');
   const phoneNumberTest = yup.string()
@@ -81,7 +82,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
           'majorReferenceId', 
           {
               is: 'other',
-              then: () => requiredAlphaTest.required('Required if no provided major is selected!'),
+              then: () => requiredAlphaSpaceTest.required('Required if no provided major is selected!'),
           }),
       hasCompanion: requiredSelectTest,
       emailAddress: emailAddressTest,
@@ -118,7 +119,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
       enableReinitialize={true}
       initialValues={initialValues}
     >
-      {({ handleSubmit, handleChange, values, touched, errors }) => (
+      {({ handleSubmit, handleChange, setFieldValue, values, touched, errors }) => (
         <Form noValidate onSubmit={handleSubmit}>
           <Row className="mb-3">
             <Form.Group as={Col} md="6" controlId="studentProfileFormFirstName">
@@ -255,7 +256,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
               <RequiredFieldFormLabel>Major (Select 'Other' if not present)</RequiredFieldFormLabel>
               <Form.Select
                 name='majorReferenceId'
-                onChange={handleChange}
+                onChange={(e) => {setFieldValue('customMajor', ''); handleChange(e);}}
                 value={values.majorReferenceId}
                 isValid={touched.majorReferenceId && !errors.majorReferenceId}
                 isInvalid={touched.majorReferenceId && !!errors.majorReferenceId}
@@ -276,7 +277,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
               <Form.Control
                     name='customMajor'
                     value={values.customMajor}
-                    onChange={handleChange}
+                    onChange={(e) => {setFieldValue('majorReferenceId', 'other'); handleChange(e);}}
                     isValid={touched.customMajor && !errors.customMajor}
                     isInvalid={touched.customMajor && !!errors.customMajor}
                     readOnly={formReadOnly}

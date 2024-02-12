@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../utils/axiosInstance';
 import parseAxiosError from '../utils/parseAxiosError';
-import { Container, Button, Row, Col, Accordion, Alert } from 'react-bootstrap';
+import { Container, Button, Row, Col, Accordion, Alert, Spinner } from 'react-bootstrap';
 
 import AppTitle from '../components/AppTitle';
 import StudentProfileForm from '../components/StudentProfileForm';
@@ -118,7 +118,7 @@ const SignupStudentPage = () => {
           ...preparedTempHousing,
           contactName: fromOptionalTextValue(tempHousing.contactName),
           contactPhoneNumber: fromOptionalTextValue(tempHousing.contactPhoneNumber),
-          contactEmail: fromOptionalTextValue(tempHousing.contactEmail),
+          contactEmailAddress: fromOptionalTextValue(tempHousing.contactEmailAddress),
         };
       }
 
@@ -173,6 +173,8 @@ const SignupStudentPage = () => {
         fetchOptions();
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
+        setStudentRegisterationStartDate('1900-01-01');
+        setStudentRegisterationEndDate('1900-01-01');
   
         setServerError(errorMessage);
       }
@@ -274,8 +276,15 @@ const SignupStudentPage = () => {
     setActiveCard(eventKey);
   }
 
-
-  if(currentDate >= new Date(studentRegisterationStartDate) && currentDate <= new Date(studentRegisterationEndDate))
+  if(!studentRegisterationStartDate || !studentRegisterationEndDate)
+  {
+    return (
+      <div className="spinner-div">
+        <Spinner animation="border"/>
+      </div>
+    );
+  }
+  if((currentDate >= new Date(studentRegisterationStartDate) && currentDate <= new Date(studentRegisterationEndDate)))
   {
     return (
       <Container className="mt-5">
@@ -362,6 +371,11 @@ const SignupStudentPage = () => {
         <AppTitle />
           <Row className="mt-5 nrw-pretty-box-layout">
             <Col className="pretty-box">
+            {serverError && (
+                <Alert variant='danger'>
+                  {serverError}
+                </Alert>
+              )}
             <Alert variant='warning'>
                 Student registation is only available between {studentRegisterationStartDate} and {studentRegisterationEndDate} (GMT).<br/><br/>
                 If you have any special need, Please contact the system admin at jasonchenatlanta@gmail.com.

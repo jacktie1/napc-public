@@ -20,36 +20,36 @@ const UserAccountForm = ({ innerRef, onSubmit, optionReferences }) => {
 
       for (let i = 0; i < securityQuestionOptionReferences.length; i++) {
         if (i % 3 === 0) {
-            securityQuestionOptions1.push({ key: securityQuestionOptionReferences[i].id, value: securityQuestionOptionReferences[i].value });
+            securityQuestionOptions1.push({ key: securityQuestionOptionReferences[i].referenceId, value: securityQuestionOptionReferences[i].value });
         }
       }
 
       return securityQuestionOptions1;
-    }, [optionReferences]);
+    }, [securityQuestionOptionReferences]);
 
     const securityQuestionOptions2 = useMemo(() => {
       let securityQuestionOptions2 = [{ key: '', value: "Select an option" }];
 
       for (let i = 0; i < securityQuestionOptionReferences.length; i++) {
         if (i % 3 === 1) {
-            securityQuestionOptions2.push({ key: securityQuestionOptionReferences[i].id, value: securityQuestionOptionReferences[i].value });
+            securityQuestionOptions2.push({ key: securityQuestionOptionReferences[i].referenceId, value: securityQuestionOptionReferences[i].value });
         }
       }
 
       return securityQuestionOptions2;
-    }, [optionReferences]);
+    }, [securityQuestionOptionReferences]);
 
     const securityQuestionOptions3 = useMemo(() => {
       let securityQuestionOptions3 = [{ key: '', value: "Select an option" }];
 
       for (let i = 0; i < securityQuestionOptionReferences.length; i++) {
         if (i % 3 === 2) {
-            securityQuestionOptions3.push({ key: securityQuestionOptionReferences[i].id, value: securityQuestionOptionReferences[i].value });
+            securityQuestionOptions3.push({ key: securityQuestionOptionReferences[i].referenceId, value: securityQuestionOptionReferences[i].value });
         }
       }
 
       return securityQuestionOptions3;
-    }, [optionReferences]);
+    }, [securityQuestionOptionReferences]);
 
     const requiredSelectTest = yup.string().required('Required!');
 

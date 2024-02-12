@@ -2,7 +2,7 @@ import React, { useRef, useContext } from 'react';
 import EmergencyContactInfo from '../components/EmergencyContactInfo';
 import VolunteerHousingCapacityForm from '../components/VolunteerHousingCapacityForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
-import VolunteerNavbar from '../components/VolunteerNavbar';
+import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
 
 import { Container, Button, Row, Col } from 'react-bootstrap';
@@ -32,7 +32,7 @@ const VolunteerHousingCapacityPage = () => {
 
   return (
     <div>
-      <VolunteerNavbar />
+      <ApathNavbar />
 
       <Container>
           <Row className="mt-5">

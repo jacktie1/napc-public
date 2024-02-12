@@ -4,45 +4,29 @@ import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
 
-const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly }) => {
+const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, loadedData, formReadOnly }) => {
   const { Formik } = formik;
 
   const [showCapacityDetails, setShowCapacityDetails] = useState(false);
 
   useEffect(() => {
-    if (
-      userId !== undefined &&
-      userId !== null &&
-      ((lazyLoadToggle === undefined || lazyLoadToggle === null) || lazyLoadToggle) // either not passed in or true
-      ) {
-      innerRef.current.setValues({
-        doesHousing: 'yes',
-        homeAddress: '131 Mars St, Atlanta, GA, 30332',
-        numStudents: '2',
-        startDate: '2024-08-17',
-        endDate: '2024-08-19',
-        numDoubleBeds: '2',
-        numSingleBeds: '2',
-        studentGenderPreference: 'male',
-        providesRide: 'yes',
-        comment: 'Nothing special',
-      });
-
-      setShowCapacityDetails(true);
+    if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
+    {
+      // Set the form values to the loaded data
     }
-  }, [lazyLoadToggle]);
+  }, [innerRef, loadedData]);
 
   const initialValues = {
-    doesHousing: '',
+    providesTempHousing: '',
     homeAddress: '',
-    numStudents: '',
-    startDate: '',
-    endDate: '',
+    numMaxStudentsHosted: '',
+    tempHousingStartDate: '',
+    tempHousingEndDate: '',
     numDoubleBeds: '',
     numSingleBeds: '',
-    studentGenderPreference: '',
+    genderPreference: '',
     providesRide: '',
-    comment: '',
+    tempHousingComment: '',
   };
 
   const requiredAlphaNumSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z0-9][a-zA-Z0-9, ]*$/, { message: 'Can only contain English letters, numbers, comma(,) and spaces!', excludeEmptyString: true });
@@ -54,15 +38,15 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, user
   const requiredSelectTest = yup.string().required('Required!');
 
   const schema = yup.object().shape({
-    doesHousing: requiredSelectTest,
-    homeAddress: yup.string().when('doesHousing', { is: 'yes', then: () => requiredAlphaNumSpaceTest}),
-    numStudents: capacityNumTest,
-    startDate: optionalDateTest,
-    endDate: optionalDateTest.min(yup.ref('startDate'), "End time cannot be before start time"),
+    providesTempHousing: requiredSelectTest,
+    homeAddress: yup.string().when('providesTempHousing', { is: 'yes', then: () => requiredAlphaNumSpaceTest}),
+    numMaxStudentsHosted: capacityNumTest,
+    tempHousingStartDate: optionalDateTest,
+    tempHousingEndDate: optionalDateTest.min(yup.ref('tempHousingStartDate'), "End time cannot be before start time"),
     numDoubleBeds: capacityNumTest,
     numSingleBeds: capacityNumTest,
-    studentGenderPreference: '',
-    comment: yup.string().max(500),
+    genderPreference: '',
+    tempHousingComment: yup.string().max(500),
   });
 
   const yesOrNoOptions = [
@@ -79,9 +63,9 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, user
 
   ];
 
-  const handleDoesHousingChange = (e, action) => {
+  const handleProvidesTempHousingChange = (e, action) => {
     setShowCapacityDetails(e.target.value === 'yes');
-    action({values: { ...initialValues, doesHousing: e.target.value}}); 
+    action({values: { ...initialValues, providesTempHousing: e.target.value}}); 
   }; 
 
   return (
@@ -95,14 +79,14 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, user
 
         <Form noValidate onSubmit={handleSubmit}>
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="VolunteerHousingCapacityFormDoesHousing">
+            <Form.Group as={Col} controlId="VolunteerHousingCapacityFormProvidesTempHousing">
               <RequiredFieldFormLabel>Are you willing to provide temporary housing?</RequiredFieldFormLabel>
               <Form.Select
-                name='doesHousing'
-                onChange={(e) => {handleChange(e); handleDoesHousingChange(e, resetForm);}}
-                value={values.doesHousing}
-                isValid={touched.doesHousing && !errors.doesHousing}
-                isInvalid={touched.doesHousing && !!errors.doesHousing}
+                name='providesTempHousing'
+                onChange={(e) => {handleChange(e); handleProvidesTempHousingChange(e, resetForm);}}
+                value={values.providesTempHousing}
+                isValid={touched.providesTempHousing && !errors.providesTempHousing}
+                isInvalid={touched.providesTempHousing && !!errors.providesTempHousing}
                 disabled={formReadOnly}
               >
                 {yesOrNoOptions.map((option) => (
@@ -110,7 +94,7 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, user
                 ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">
-                {errors.doesHousing}
+                {errors.providesTempHousing}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
@@ -133,56 +117,56 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, user
               </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="VolunteerHousingCapacityFormNumStudents">
+                <Form.Group as={Col} controlId="VolunteerHousingCapacityFormNumMaxStudentsHosted">
                     <Form.Label>How many students could you host at the same time?</Form.Label>
                     <Form.Control
                     type="number"
-                    name='numStudents'
-                    value={values.numStudents}
+                    name='numMaxStudentsHosted'
+                    value={values.numMaxStudentsHosted}
                     onChange={handleChange}
-                    isValid={touched.numStudents && !errors.numStudents}
-                    isInvalid={touched.numStudents && !!errors.numStudents}
+                    isValid={touched.numMaxStudentsHosted && !errors.numMaxStudentsHosted}
+                    isInvalid={touched.numMaxStudentsHosted && !!errors.numMaxStudentsHosted}
                     readOnly={formReadOnly}
                     disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
-                    {errors.numStudents}
+                    {errors.numMaxStudentsHosted}
                     </Form.Control.Feedback>
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="VolunteerHousingCapacityFormStartDate">
+                <Form.Group as={Col} controlId="VolunteerHousingCapacityFormTempHousingStartDate">
                     <Form.Label>Temp housing is available from date</Form.Label>
                     <Form.Control
                     type="date"
-                    name='startDate'
-                    value={values.startDate}
+                    name='tempHousingStartDate'
+                    value={values.tempHousingStartDate}
                     onChange={handleChange}
-                    isValid={touched.startDate && !errors.startDate}
-                    isInvalid={touched.startDate && !!errors.startDate}
+                    isValid={touched.tempHousingStartDate && !errors.tempHousingStartDate}
+                    isInvalid={touched.tempHousingStartDate && !!errors.tempHousingStartDate}
                     readOnly={formReadOnly}
                     disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
-                    {errors.startDate}
+                    {errors.tempHousingStartDate}
                     </Form.Control.Feedback>
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="VolunteerHousingCapacityFormEndDate">
+                <Form.Group as={Col} controlId="VolunteerHousingCapacityFormtempHousingEndDate">
                     <Form.Label>Temp housing is available to date</Form.Label>
                     <Form.Control
                     type="date"
-                    name='endDate'
-                    value={values.endDate}
+                    name='tempHousingEndDate'
+                    value={values.tempHousingEndDate}
                     onChange={handleChange}
-                    isValid={touched.endDate && !errors.endDate}
-                    isInvalid={touched.endDate && !!errors.endDate}
+                    isValid={touched.tempHousingEndDate && !errors.tempHousingEndDate}
+                    isInvalid={touched.tempHousingEndDate && !!errors.tempHousingEndDate}
                     readOnly={formReadOnly}
                     disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
-                    {errors.endDate}
+                    {errors.tempHousingEndDate}
                     </Form.Control.Feedback>
                 </Form.Group>
             </Row>
@@ -223,14 +207,14 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, user
               </Form.Group>
             </Row>
             <Row className="mb-3">
-              <Form.Group as={Col} controlId="VolunteerHousingCapacityFormStudentGenderPreference">
+              <Form.Group as={Col} controlId="VolunteerHousingCapacityFormGenderPreference">
                 <Form.Label>Preference of male or female student</Form.Label>
                 <Form.Select
-                  name='studentGenderPreference'
+                  name='genderPreference'
                   onChange={handleChange}
-                  value={values.studentGenderPreference}
-                  isValid={touched.studentGenderPreference && !errors.studentGenderPreference}
-                  isInvalid={touched.studentGenderPreference && !!errors.studentGenderPreference}
+                  value={values.genderPreference}
+                  isValid={touched.genderPreference && !errors.genderPreference}
+                  isInvalid={touched.genderPreference && !!errors.genderPreference}
                   readOnly={formReadOnly}
                   disabled={formReadOnly}
                 >
@@ -239,7 +223,7 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, user
                   ))}
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">
-                  {errors.studentGenderPreference}
+                  {errors.genderPreference}
                 </Form.Control.Feedback>
               </Form.Group>
             </Row>
@@ -265,21 +249,21 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, user
             </Row>
           </>: null}
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="VolunteerHousingCapacityFormComment">
-              <Form.Label>Do you have any comment or special needs (Maximum 500 characters):</Form.Label>
+            <Form.Group as={Col} controlId="VolunteerHousingCapacityFormTempHousingComment">
+              <Form.Label>Do you have any tempHousingComment or special needs (Maximum 500 characters):</Form.Label>
               <Form.Control
                  as="textarea"
                  rows={3}
-                name='comment'
-                value={values.comment}
+                name='tempHousingComment'
+                value={values.tempHousingComment}
                 onChange={handleChange}
-                isValid={touched.comment && !errors.comment}
-                isInvalid={touched.comment && !!errors.comment}
+                isValid={touched.tempHousingComment && !errors.tempHousingComment}
+                isInvalid={touched.tempHousingComment && !!errors.tempHousingComment}
                 readOnly={formReadOnly}
                 disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
-                {errors.comment}
+                {errors.tempHousingComment}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>

@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import VolunteerNavbar from '../components/VolunteerNavbar';
+import ApathNavbar from '../components/ApathNavbar';
 import EmergencyContactInfo from '../components/EmergencyContactInfo';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import { Container, Row, Col, Alert } from 'react-bootstrap';
@@ -88,7 +88,7 @@ const VolunteerAirportPickupAssignmentPage = () => {
 
   return (
     <div>
-      <VolunteerNavbar />
+      <ApathNavbar />
       <Container>
         <Row className="mt-5">
           <EmergencyContactInfo targetGroup={'volunteer'}/>

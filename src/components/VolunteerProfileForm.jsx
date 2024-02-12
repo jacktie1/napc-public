@@ -1,84 +1,49 @@
 import React, { useEffect } from 'react';
-import { Row, Form, Col} from 'react-bootstrap';
+import { Row, Form, Col } from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
+import * as formUtils from '../utils/formUtils';
 
-const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly, adminView }) => {
+const VolunteerProfileForm = ({ innerRef, onSubmit, loadedData, formReadOnly, adminView }) => {
   const { Formik } = formik;
 
   useEffect(() => {
-    if (
-      userId !== undefined &&
-      userId !== null &&
-      ((lazyLoadToggle === undefined || lazyLoadToggle === null) || lazyLoadToggle) // either not passed in or true
-      ) {
-      if(adminView)
-      {
-        innerRef.current.setValues({
-          firstName: 'Jason',
-          lastName: 'Chen',
-          gender: 'male',
-          affiliation: 'Neal Hightower',
-          emailAddress: 'test@gmail.com',
-          weChatId: 'aaqqq1111',
-          primaryPhoneNumber: '2212221233',
-          secondaryPhoneNumber: '',
-          username: 'volunteer',
-          password: 'testPassword!123',
-          confirmPassword: 'testPassword!123',
-          enabled: 'enabled',
-        });
+    if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
+    {
+      let formData = {
+        firstName: loadedData.firstName,
+        lastName: loadedData.lastName,
+        gender: formUtils.toGenderOptionValue( loadedData.gender ),
+        affiliation: loadedData.affiliation,
+        emailAddress: loadedData.emailAddress,
+        wechatId: formUtils.toOptionalTextValue( loadedData.wechatId ),
+        primaryPhoneNumber: loadedData.primaryPhoneNumber,
+        secondaryPhoneNumber: formUtils.toOptionalTextValue( loadedData.secondaryPhoneNumber ),
       }
-      else
-      {
-        innerRef.current.setValues({
-          firstName: 'Jason',
-          lastName: 'Chen',
-          gender: 'male',
-          affiliation: 'Neal Hightower',
-          emailAddress: 'test@gmail.com',
-          weChatId: 'aaqqq1111',
-          primaryPhoneNumber: '2212221233',
-          secondaryPhoneNumber: '',
-          username: 'volunteer',
-          password: 'testPassword!123',
-          confirmPassword: 'testPassword!123',
-        });
-      }
+
+      innerRef.current.setValues(formData);
     }
-  }, [lazyLoadToggle]);
+  }, [innerRef, loadedData]);
 
 
-  const initialValues = adminView ? {
+  const initialValues = {
     firstName: '',
     lastName: '',
     gender: '',
     affiliation: '',
     emailAddress: '',
-    weChatId: '',
+    wechatId: '',
     primaryPhoneNumber: '',
     secondaryPhoneNumber: '',
-    username: '',
-    password: '',
-    confirmPassword: '',
-  } : {
-    firstName: '',
-    lastName: '',
-    gender: '',
-    affiliation: '',
-    emailAddress: '',
-    weChatId: '',
-    primaryPhoneNumber: '',
-    secondaryPhoneNumber: '',
-    username: '',
-    password: '',
-    confirmPassword: '',
-    enabled: '',
   };
 
+  if(adminView)
+  {
+    initialValues.enabled = '';
+  }
+  
   const requiredAlphaTest = yup.string().required('Required!').matches(/^[a-zA-Z]+$/, { message: 'Can only contain English letters!', excludeEmptyString: true });
-  const requiredAlphaNumTest = yup.string().required('Required!').matches(/^[a-zA-Z0-9]+$/, { message: 'Can only contain English letters and numbers!', excludeEmptyString: true });
   const requiredAlphaSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
   const optionalNoSpaceTest = yup.string().matches(/^[^ ]+$/, { message: 'Cannot contain any space!', excludeEmptyString: true });
   const requiredSelectTest = yup.string().required('Required!');
@@ -86,52 +51,29 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
   const phoneNumberTest = yup.string()
     .min(8, 'Too Short!')
     .matches( /^[0-9\+\-\(\) ]*$/, 'Must be a valid phone number' );
-  const strongPasswordTest = yup.string()
-    .required('Required!')
-    .matches(
-      /^[0-9a-zA-Z\!\@\#\$\%\^\&\*\(\)\+]+$/,
-      "Cannot contain special symbols other than !@#$%^&*()+"
-    )
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-      "Must contain at least 8 characters, which includes at least one Uppercase letter, one Lowercase letter, and one Number"
-    );
 
-  const confirmPasswordTest = yup.string()
-    .required('Required!')
-    .oneOf([yup.ref('password')], 'Your passwords do not match!');
-
-  const schema = adminView ? yup.object().shape({
-      firstName: requiredAlphaTest,
-      lastName: requiredAlphaTest,
-      gender: requiredSelectTest,
-      affiliation: requiredAlphaSpaceTest,
-      emailAddress: emailAddressTest,
-      weChatId: optionalNoSpaceTest,
-      primaryPhoneNumber: phoneNumberTest.required('Required!'),
-      secondaryPhoneNumber: phoneNumberTest,
-      username: requiredAlphaNumTest,
-      password: strongPasswordTest,
-      confirmPassword: confirmPasswordTest,
-  }) : yup.object().shape({
+  const schemaObject = {
     firstName: requiredAlphaTest,
     lastName: requiredAlphaTest,
     gender: requiredSelectTest,
     affiliation: requiredAlphaSpaceTest,
     emailAddress: emailAddressTest,
-    weChatId: optionalNoSpaceTest,
+    wechatId: optionalNoSpaceTest,
     primaryPhoneNumber: phoneNumberTest.required('Required!'),
     secondaryPhoneNumber: phoneNumberTest,
-    username: requiredAlphaNumTest,
-    password: strongPasswordTest,
-    confirmPassword: confirmPasswordTest,
-    enabled: requiredSelectTest,
-});
+  }
+
+  if(adminView)
+  {
+    schemaObject.enabled = requiredSelectTest;
+  }
+
+  const schema = yup.object().shape(schemaObject);
 
   const genderOptions = [
     { value: '', label: "Select an option" },
     { value: 'male', label: "Male" },
-    { value: 'Female', label: "Female" },
+    { value: 'female', label: "Female" },
   ];
 
   const userStatusOptions = [
@@ -272,72 +214,19 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, form
             </Form.Group>
           </Row>
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormWeChatId">
+            <Form.Group as={Col} controlId="studentProfileFormWechatId">
               <Form.Label>WeChat ID</Form.Label>
               <Form.Control
-                name='weChatId'
-                value={values.weChatId}
+                name='wechatId'
+                value={values.wechatId}
                 onChange={handleChange}
-                isValid={touched.weChatId && !errors.weChatId}
-                isInvalid={touched.weChatId && !!errors.weChatId}
+                isValid={touched.wechatId && !errors.wechatId}
+                isInvalid={touched.wechatId && !!errors.wechatId}
                 readOnly={formReadOnly}
                 disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
-                {errors.weChatId}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormUsername">
-              <RequiredFieldFormLabel>Username</RequiredFieldFormLabel>
-              <Form.Control
-                name='username'
-                value={values.username}
-                onChange={handleChange}
-                isValid={touched.username && !errors.username}
-                isInvalid={touched.username && !!errors.username}
-                readOnly={formReadOnly}
-                disabled={formReadOnly}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.username}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormPassword">
-              <RequiredFieldFormLabel>Password</RequiredFieldFormLabel>
-              <Form.Control
-                name='password'
-                type='password'
-                value={values.password}
-                onChange={handleChange}
-                isValid={touched.password && !errors.password}
-                isInvalid={touched.password && !!errors.password}
-                readOnly={formReadOnly}
-                disabled={formReadOnly}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.password}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormConfirmPassword">
-              <RequiredFieldFormLabel>Confirm Password</RequiredFieldFormLabel>
-              <Form.Control
-                name='confirmPassword'
-                type='password'
-                value={values.confirmPassword}
-                onChange={handleChange}
-                isValid={touched.confirmPassword && !errors.confirmPassword}
-                isInvalid={touched.confirmPassword && !!errors.confirmPassword}
-                readOnly={formReadOnly}
-                disabled={formReadOnly}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.confirmPassword}
+                {errors.wechatId}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>

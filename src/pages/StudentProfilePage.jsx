@@ -5,8 +5,10 @@ import parseAxiosError from '../utils/parseAxiosError';
 import EmergencyContactInfo from '../components/EmergencyContactInfo';
 import StudentProfileForm from '../components/StudentProfileForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
-import StudentNavbar from '../components/StudentNavbar';
+import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
+import { fromYesOrNoOptionValue, fromReferenceIdOptionValue, fromGenderOptionValue, fromCustomOptionValue, fromOptionalTextValue, fromStudentTypeValue } from '../utils/formUtils';
+
 
 
 const StudentProfilePage = () => {
@@ -59,14 +61,50 @@ const StudentProfilePage = () => {
     fetchOptions();
   }, [userId])
 
+  const sendUpdateStudentProfileRequest = async () => {
+    try {
+      let preparedStudentProfile = {
+        firstName: studentProfile.firstName,
+        lastName: studentProfile.lastName,
+        englishName: fromOptionalTextValue(studentProfile.englishName),
+        gender: fromGenderOptionValue(studentProfile.gender),
+        isNewStudent: fromYesOrNoOptionValue(studentProfile.isNewStudent),
+        graduatesFrom: fromOptionalTextValue(studentProfile.graduatesFrom),
+        studentType: fromStudentTypeValue(studentProfile.studentType),
+        majorReferenceId: fromReferenceIdOptionValue(studentProfile.majorReferenceId),
+        customMajor: fromCustomOptionValue(studentProfile.customMajor, studentProfile.majorReferenceId),
+        hasCompanion: fromYesOrNoOptionValue(studentProfile.hasCompanion),
+        emailAddress: studentProfile.emailAddress,
+        wechatId: studentProfile.wechatId,
+        cnPhoneNumber: fromOptionalTextValue(studentProfile.cnPhoneNumber),
+        usPhoneNumber: fromOptionalTextValue(studentProfile.usPhoneNumber),
+      };
+
+      await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateProfile/${userId}`,
+        {
+          studentProfile: preparedStudentProfile,
+        });
+
+      setServerError('');
+
+      updateSession({firstName: studentProfile.firstName, lastName: studentProfile.lastName});
+
+      alert('Profile updated successully!');
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  };
+
   const handleClick = () => {
     studentProfileFormRef.current.submitForm().then(() => {
       let studentProfileErrors = studentProfileFormRef.current.errors;
     
         if (Object.keys(studentProfileErrors).length === 0)
         {
-          updateSession({firstName: studentProfile.firstName, lastName: studentProfile.lastName});
-          alert('Your profile has been updated!');
+          sendUpdateStudentProfileRequest();
         }
     });
   };
@@ -78,7 +116,7 @@ const StudentProfilePage = () => {
 
   return (
     <div>
-      <StudentNavbar />
+      <ApathNavbar />
 
       <Container>
           <Row className="mt-5">

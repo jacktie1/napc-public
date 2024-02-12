@@ -1,7 +1,7 @@
 import React, { useRef, useContext } from 'react';
 import EmergencyContactInfo from '../components/EmergencyContactInfo';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
-import AdminNavbar from '../components/AdminNavbar';
+import ApathNavbar from '../components/ApathNavbar';
 import AnnouncementForm from '../components/AnnouncementForm';
 
 import { Container, Button, Row, Col } from 'react-bootstrap';
@@ -29,7 +29,7 @@ const AdminProfilePage = () => {
 
   return (
     <div>
-      <AdminNavbar />
+      <ApathNavbar />
 
       <Container>
           <Row className="mt-5">

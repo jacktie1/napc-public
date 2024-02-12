@@ -144,7 +144,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
       onSubmit={onSubmit}
       initialValues={initialValues}
     >
-      {({ handleSubmit, handleChange, resetForm, values, touched, errors }) => (
+      {({ handleSubmit, handleChange, resetForm, setFieldValue, values, touched, errors }) => (
         <Form noValidate onSubmit={handleSubmit}>
           <Row className="mb-3">
             <Form.Group as={Col} controlId="StudentFlightInfoFormNeedsAirportPickup">
@@ -217,7 +217,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
                 <RequiredFieldFormLabel>Arriving Atlanta - Airline Name (Select 'Other' if not present)</RequiredFieldFormLabel>
                 <Form.Select
                     name='arrivalAirlineReferenceId'
-                    onChange={handleChange}
+                    onChange={(e) => {setFieldValue('customArrivalAirline', ''); handleChange(e);}}
                     value={values.arrivalAirlineReferenceId}
                     isValid={touched.arrivalAirlineReferenceId && !errors.arrivalAirlineReferenceId}
                     isInvalid={touched.arrivalAirlineReferenceId && !!errors.arrivalAirlineReferenceId}
@@ -238,7 +238,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
                 <Form.Control
                     name='customArrivalAirline'
                     value={values.customArrivalAirline}
-                    onChange={handleChange}
+                    onChange={(e) => {setFieldValue('arrivalAirlineReferenceId', 'other'); handleChange(e);}}
                     isValid={touched.customArrivalAirline && !errors.customArrivalAirline}
                     isInvalid={touched.customArrivalAirline && !!errors.customArrivalAirline}
                     readOnly={formReadOnly}
@@ -307,7 +307,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
                 <RequiredFieldFormLabel>Leaving China - Airline Name (Select 'Other' if not present)</RequiredFieldFormLabel>
                 <Form.Select
                     name='departureAirlineReferenceId'
-                    onChange={handleChange}
+                    onChange={(e) => {setFieldValue('customDepartureAirline', ''); handleChange(e);}}
                     value={values.departureAirlineReferenceId}
                     isValid={touched.departureAirlineReferenceId && !errors.departureAirlineReferenceId}
                     isInvalid={touched.departureAirlineReferenceId && !!errors.departureAirlineReferenceId}
@@ -328,7 +328,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
                 <Form.Control
                     name='customDepartureAirline'
                     value={values.customDepartureAirline}
-                    onChange={handleChange}
+                    onChange={(e) => {setFieldValue('departureAirlineReferenceId', 'other'); handleChange(e);}}
                     isValid={touched.customDepartureAirline && !errors.customDepartureAirline}
                     isInvalid={touched.customDepartureAirline && !!errors.customDepartureAirline}
                     readOnly={formReadOnly}

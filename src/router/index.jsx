@@ -11,6 +11,8 @@ import SignupOptionPage from '../pages/SignupOptionPage'
 import SignupStudentPage from '../pages/SignupStudentPage'
 import SignupVolunteerPage from '../pages/SignupVolunteerPage'
 
+import UserAccountPage from "../pages/UserAccountPage";
+
 import AnnouncementPage from './../pages/AnnouncementPage'
 import StudentAirportPickupAssignmentPage from '../pages/StudentAirportPickupAssignmentPage'
 import StudentTempHousingAssignmentPage from '../pages/StudentTempHousingAssignmentPage'
@@ -55,6 +57,7 @@ const CustomRouter = () => {
                         <Route path="/volunteer/temp-housing-assignment" element={<VolunteerTempHousingAssignmentPage />} />
                         <Route path="/volunteer/airport-pickup-needs" element={<VolunteerPickupNeedsPage />} />
                         <Route path="/volunteer/profile" element={<VolunteerProfilePage />} />
+                        <Route path="/volunteer/account" element={<UserAccountPage />} />
                         <Route path="/volunteer/airport-pickup" element={<VolunteerPickupCapacityPage />} />
                         <Route path="/volunteer/temp-housing" element={<VolunteerHousingCapacityPage />} />
                         <Route path="/login" element={<VolunteerPickupNeedsPage />} />
@@ -74,6 +77,7 @@ const CustomRouter = () => {
                         <Route path="/student/airport-pickup-assignment" element={<StudentAirportPickupAssignmentPage />} />
                         <Route path="/student/temp-housing-assignment" element={<StudentTempHousingAssignmentPage />} />
                         <Route path="/student/profile" element={<StudentProfilePage />} />
+                        <Route path="/student/account" element={<UserAccountPage />} />
                         <Route path="/student/flight-info" element={<StudentFlightInfoPage />} />
                         <Route path="/student/temp-housing" element={<StudentTempHousingPage />} />
                         <Route path="/student/comment" element={<StudentCommentPage />} />
@@ -100,6 +104,7 @@ const CustomRouter = () => {
                         <Route path="/admin/export-students" element={<ExportStudentsPage />} />
                         <Route path="/admin/export-volunteers" element={<ExportVolunteers />} />
                         <Route path="/admin/profile" element={<AdminProfilePage />} />
+                        <Route path="/admin/account" element={<UserAccountPage />} />
                         <Route path="/login" element={<ManageAnnouncementPage />} />
                         <Route path="*"  element={<NoFoundPage />}/>
                     </Routes>

@@ -79,11 +79,30 @@ const UserSession = ({ children }) => {
     return userId;
   }
 
+  const getRole = () => {
+    if(isAdmin)
+    {
+      return 'Admin';
+    }
+    else if(isStudent)
+    {
+      return 'Student';
+    }
+    else if(isVolunteer)
+    {
+      return 'Volunteer';
+    }
+    else
+    {
+      return 'Unknown';
+    }
+  }
+
   // If the session data is still being fetched, display a loading indicator
   if(isLoading)
   {
     return (
-      <UserContext.Provider value={{ isAuthenticated, isAdmin, isStudent, isVolunteer, fullName, userId, getUserId, setFullName, startSession, updateSession, endSession }}>
+      <UserContext.Provider value={{ isAuthenticated, isAdmin, isStudent, isVolunteer, fullName, userId, getUserId, getRole, setFullName, startSession, updateSession, endSession }}>
         <div className="spinner-div">
           <Spinner animation="border"/>
         </div>
@@ -93,7 +112,7 @@ const UserSession = ({ children }) => {
   else
   {
     return (
-      <UserContext.Provider value={{ isAuthenticated, isAdmin, isStudent, isVolunteer, fullName, userId, getUserId, setFullName, startSession, updateSession, endSession }}>
+      <UserContext.Provider value={{ isAuthenticated, isAdmin, isStudent, isVolunteer, fullName, userId, getUserId, getRole, setFullName, startSession, updateSession, endSession }}>
         {children}
       </UserContext.Provider>
     );

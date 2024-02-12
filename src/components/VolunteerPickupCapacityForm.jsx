@@ -1,42 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Form, Col, Alert } from 'react-bootstrap';
+import { Row, Form, Col } from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
 
-const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userId, formReadOnly }) => {
+const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, loadedData, formReadOnly }) => {
   const { Formik } = formik;
 
   const [showCapacityDetails, setShowCapacityDetails] = useState(false);
 
   useEffect(() => {
-    if (
-      userId !== undefined &&
-      userId !== null &&
-      ((lazyLoadToggle === undefined || lazyLoadToggle === null) || lazyLoadToggle) // either not passed in or true
-      ) {
-      innerRef.current.setValues({
-        doesPickup: 'yes',
-        carManufacturer: 'Honda',
-        carModel: 'Civic',
-        numSeats: '4',
-        numLgLuggages: '2',
-        numTrips: '9',
-        comment: 'Nothing'
-      });
-
-      setShowCapacityDetails(true);
+    if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
+    {
+      // Set the form values to the loaded data
     }
-  }, [lazyLoadToggle]);
+  }, [innerRef, loadedData]);
 
   const initialValues = {
-    doesPickup: '',
+    providesAirportPickup: '',
     carManufacturer: '',
     carModel: '',
-    numSeats: '',
-    numLgLuggages: '',
-    numTrips: '',
-    comment: ''
+    numCarSeats: '',
+    numMaxLgLuggages: '',
+    numMaxTrips: '',
+    airportPickupComment: ''
   };
 
   const optionalAlphaSpaceTest =  yup.string().matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
@@ -49,13 +36,13 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userI
   const requiredSelectTest = yup.string().required('Required!');
 
   const schema = yup.object().shape({
-    doesPickup: requiredSelectTest,
+    providesAirportPickup: requiredSelectTest,
     carManufacturer: optionalAlphaSpaceTest,
     carModel: optionalAlphaNumSpaceTest,
-    numSeats: capacityNumTest,
-    numLgLuggages: capacityNumTest,
-    numTrips: capacityNumTest,
-    comment: yup.string().max(500),
+    numCarSeats: capacityNumTest,
+    numMaxLgLuggages: capacityNumTest,
+    numMaxTrips: capacityNumTest,
+    airportPickupComment: yup.string().max(500),
   });
 
   const yesOrNoOptions = [
@@ -64,9 +51,9 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userI
     { value: 'no', label: "No" },
   ];
 
-  const handleDoesPickupChange = (e, action) => {
-    setShowCapacityDetails(e.target.value == 'yes');
-    action({values: { ...initialValues, doesPickup: e.target.value}}); 
+  const handleProvidesAirportPickupChange = (e, action) => {
+    setShowCapacityDetails(e.target.value === 'yes');
+    action({values: { ...initialValues, providesAirportPickup: e.target.value}}); 
   }; 
 
   return (
@@ -80,14 +67,14 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userI
 
         <Form noValidate onSubmit={handleSubmit}>
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="VolunteerPickupCapacityFormDoesPickup">
+            <Form.Group as={Col} controlId="VolunteerPickupCapacityFormProvidesAirportPickup">
               <RequiredFieldFormLabel>Are you willing to pick up students from the airport?</RequiredFieldFormLabel>
               <Form.Select
-                name='doesPickup'
-                onChange={(e) => {handleChange(e); handleDoesPickupChange(e, resetForm);}}
-                value={values.doesPickup}
-                isValid={touched.doesPickup && !errors.doesPickup}
-                isInvalid={touched.doesPickup && !!errors.doesPickup}
+                name='providesAirportPickup'
+                onChange={(e) => {handleChange(e); handleProvidesAirportPickupChange(e, resetForm);}}
+                value={values.providesAirportPickup}
+                isValid={touched.providesAirportPickup && !errors.providesAirportPickup}
+                isInvalid={touched.providesAirportPickup && !!errors.providesAirportPickup}
                 disabled={formReadOnly}
               >
                 {yesOrNoOptions.map((option) => (
@@ -95,7 +82,7 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userI
                 ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">
-                {errors.doesPickup}
+                {errors.providesAirportPickup}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
@@ -133,76 +120,76 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, lazyLoadToggle, userI
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="VolunteerPickupCapacityFormNumSeats">
+                <Form.Group as={Col} controlId="VolunteerPickupCapacityFormNumCarSeats">
                     <Form.Label>How many seats your car has (use a number from 0 - 9)</Form.Label>
                     <Form.Control
                     type="number"
-                    name='numSeats'
-                    value={values.numSeats}
+                    name='numCarSeats'
+                    value={values.numCarSeats}
                     onChange={handleChange}
-                    isValid={touched.numSeats && !errors.numSeats}
-                    isInvalid={touched.numSeats && !!errors.numSeats}
+                    isValid={touched.numCarSeats && !errors.numCarSeats}
+                    isInvalid={touched.numCarSeats && !!errors.numCarSeats}
                     readOnly={formReadOnly}
                     disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
-                    {errors.numSeats}
+                    {errors.numCarSeats}
                     </Form.Control.Feedback>
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="VolunteerPickupCapacityFormNumLgLuggages">
+                <Form.Group as={Col} controlId="VolunteerPickupCapacityFormNumMaxLgLuggages">
                     <Form.Label>How many piece of big luggage your vehicle could handle (use a number from 0 - 9)</Form.Label>
                     <Form.Control
                     type="number"
-                    name='numLgLuggages'
-                    value={values.numLgLuggages}
+                    name='numMaxLgLuggages'
+                    value={values.numMaxLgLuggages}
                     onChange={handleChange}
-                    isValid={touched.numLgLuggages && !errors.numLgLuggages}
-                    isInvalid={touched.numLgLuggages && !!errors.numLgLuggages}
+                    isValid={touched.numMaxLgLuggages && !errors.numMaxLgLuggages}
+                    isInvalid={touched.numMaxLgLuggages && !!errors.numMaxLgLuggages}
                     readOnly={formReadOnly}
                     disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
-                    {errors.numLgLuggages}
+                    {errors.numMaxLgLuggages}
                     </Form.Control.Feedback>
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="VolunteerPickupCapacityFormNumTrips">
+                <Form.Group as={Col} controlId="VolunteerPickupCapacityFormNumMaxTrips">
                     <Form.Label>How many trips to the airport you are willing to go (use a number from 0 - 9)</Form.Label>
                     <Form.Control
                     type="number"
-                    name='numTrips'
-                    value={values.numTrips}
+                    name='numMaxTrips'
+                    value={values.numMaxTrips}
                     onChange={handleChange}
-                    isValid={touched.numTrips && !errors.numTrips}
-                    isInvalid={touched.numTrips && !!errors.numTrips}
+                    isValid={touched.numMaxTrips && !errors.numMaxTrips}
+                    isInvalid={touched.numMaxTrips && !!errors.numMaxTrips}
                     readOnly={formReadOnly}
                     disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
-                    {errors.numTrips}
+                    {errors.numMaxTrips}
                     </Form.Control.Feedback>
                 </Form.Group>
             </Row>
           </>: null}
           <Row className="mb-3">
-            <Form.Group as={Col} controlId="VolunteerPickupCapacityFormComment">
-              <Form.Label>Do you have any comment or special needs (Maximum 500 characters):</Form.Label>
+            <Form.Group as={Col} controlId="VolunteerPickupCapacityFormAirportPickupComment">
+              <Form.Label>Do you have any airportPickupComment or special needs (Maximum 500 characters):</Form.Label>
               <Form.Control
                  as="textarea"
                  rows={3}
-                name='comment'
-                value={values.comment}
+                name='airportPickupComment'
+                value={values.airportPickupComment}
                 onChange={handleChange}
-                isValid={touched.comment && !errors.comment}
-                isInvalid={touched.comment && !!errors.comment}
+                isValid={touched.airportPickupComment && !errors.airportPickupComment}
+                isInvalid={touched.airportPickupComment && !!errors.airportPickupComment}
                 readOnly={formReadOnly}
                 disabled={formReadOnly}
               />
               <Form.Control.Feedback type="invalid">
-                {errors.comment}
+                {errors.airportPickupComment}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>

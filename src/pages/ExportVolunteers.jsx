@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import AdminNavbar from '../components/AdminNavbar';
+import ApathNavbar from '../components/ApathNavbar';
 import { Container, Row, Col, Alert, Button } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
@@ -184,7 +184,7 @@ const ExportVolunteersPage = () => {
 
     return (
         <div>
-          <AdminNavbar />
+          <ApathNavbar />
     
           <Container className="mt-5" fluid>
             <Row className="mt-5 admin-pretty-box-layout">

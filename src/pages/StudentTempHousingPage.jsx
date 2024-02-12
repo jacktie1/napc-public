@@ -4,8 +4,10 @@ import parseAxiosError from '../utils/parseAxiosError';
 import EmergencyContactInfo from '../components/EmergencyContactInfo';
 import StudentTempHousingForm from '../components/StudentTempHousingForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
-import StudentNavbar from '../components/StudentNavbar';
+import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
+import { fromYesOrNoOptionValue, fromReferenceIdOptionValue, fromCustomOptionValue, fromOptionalTextValue } from '../utils/formUtils';
+
 
 import { Container, Button, Row, Col, Alert } from 'react-bootstrap';
 
@@ -22,7 +24,6 @@ const StudentTempHousingPage = () => {
 
   const studentTempHousingFormRef = useRef(null);
 
-  
   useEffect(() => {
     const fetchOptions = async () => {
       try {
@@ -61,13 +62,59 @@ const StudentTempHousingPage = () => {
     fetchOptions();
   }, [userId])
 
+  const sendUpdateStudentTempHousingRequest = async () => {
+    try {
+      let preparedTempHousing = {
+        needsTempHousing: fromYesOrNoOptionValue(studentTempHousing.needsTempHousing),
+        apartmentReferenceId: fromReferenceIdOptionValue(studentTempHousing.apartmentReferenceId),
+        customDestinationAddress: fromCustomOptionValue(studentTempHousing.customDestinationAddress, studentTempHousing.apartmentReferenceId, true),
+      };
+
+      if(preparedTempHousing.needsTempHousing)
+      {
+        preparedTempHousing = {
+          ...preparedTempHousing,
+          numNights: fromReferenceIdOptionValue(studentTempHousing.numNights),
+        };
+      }
+      else
+      {
+        preparedTempHousing = {
+          ...preparedTempHousing,
+          contactName: fromOptionalTextValue(studentTempHousing.contactName),
+          contactPhoneNumber: fromOptionalTextValue(studentTempHousing.contactPhoneNumber),
+          contactEmailAddress: fromOptionalTextValue(studentTempHousing.contactEmailAddress),
+        };
+      }
+
+      console.log(studentTempHousing);
+      console.log(preparedTempHousing);
+
+      await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateTempHousing/${userId}`,
+        {
+          studentTempHousing: preparedTempHousing
+        });
+
+      window.scrollTo(0, 0);
+
+      setServerError('');
+
+      alert('Temporary housing information updated successully!');
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  }
+
   const handleClick = () => {
     studentTempHousingFormRef.current.submitForm().then(() => {
       let studentTempHousingErrors = studentTempHousingFormRef.current.errors;
     
         if (Object.keys(studentTempHousingErrors).length === 0)
         {
-          alert('success');
+          sendUpdateStudentTempHousingRequest();
         }
     });
   };
@@ -79,7 +126,7 @@ const StudentTempHousingPage = () => {
 
   return (
     <div>
-      <StudentNavbar />
+      <ApathNavbar />
 
       <Container>
           <Row className="mt-5">

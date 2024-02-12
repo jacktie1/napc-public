@@ -48,6 +48,9 @@ export const fromGenderOptionValue = (optionValue) => {
     else if (optionValue === 'female') {
         return 'Female';
     }
+    else if (optionValue === 'noPref') {
+        return 'No Preference';
+    }
     else {
         return null;
     }
@@ -59,6 +62,9 @@ export const toGenderOptionValue = (dbValue) => {
     }
     else if (dbValue === 'Female' ) {
         return 'female';
+    }
+    else if (dbValue === 'No Preference') {
+        return 'noPref';
     }
     else {
         return '';
