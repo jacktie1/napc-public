@@ -1,41 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Row, Form, Col, Alert } from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
+import * as formUtils from '../utils/formUtils';
 
-const AnnouncementForm = ({ innerRef, onSubmit }) => {
+
+const AnnouncementForm = ({ innerRef, onSubmit, loadedData }) => {
   const { Formik } = formik;
 
   useEffect(() => {
-      innerRef.current.setValues({
-        startsAssignment: 'yes',
-        studentRegisterStartDate: '2024-01-01',
-        studentRegisterEndDate: '2024-01-15',
-        announcementText: 'This is the annoucement for the website',
-      });
-  }, [])
+    if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
+    {
+      let formData = {
+        doesAssignmentStart: formUtils.toYesOrNoOptionValue(loadedData.doesAssignmentStart),
+        studentRegistrationStartDate: loadedData.studentRegistrationStartDate,
+        studentRegistrationEndDate: loadedData.studentRegistrationEndDate,
+        announcement: loadedData.announcement,
+      }
+
+      innerRef.current.setValues(formData);
+    }
+  }, [innerRef, loadedData]);
 
   const initialValues = {
-    startsAssignment: '',
-    studentRegisterStartDate: '',
-    studentRegisterEndDate: '',
-    announcementText: '',
+    doesAssignmentStart: '',
+    studentRegistrationStartDate: '',
+    studentRegistrationEndDate: '',
+    announcement: '',
   };
 
   const requiredSelectTest = yup.string().required('Required!');
   const requiredDateTest = yup.date().typeError('Must be a valid date!').required('Required!');
+  const requiredNonEmptyTest = yup.string().required('Required!').test(
+    'is-non-empty',
+    'Cannot be empty!',
+    (value) => value.trim() !== '',
+)
 
   const schema = yup.object().shape({
-    startsAssignment: requiredSelectTest,
-    studentRegisterStartDate: requiredDateTest,
-    studentRegisterEndDate: requiredDateTest.min(yup.ref('studentRegisterStartDate'), "End time cannot be before start time"),
-    announcementText: yup.string().required('Required!'),
+    doesAssignmentStart: requiredSelectTest,
+    studentRegistrationStartDate: requiredDateTest,
+    studentRegistrationEndDate: requiredDateTest.min(yup.ref('studentRegistrationStartDate'), "End time cannot be before start time"),
+    announcement: requiredNonEmptyTest,
   });
 
 
   const yesOrNoOptions = [
-    { value: '', label: "Select an option" },
     { value: 'yes', label: "Yes - Start to assign" },
     { value: 'no', label: "No - Stop Assign" },
   ];
@@ -50,7 +61,7 @@ const AnnouncementForm = ({ innerRef, onSubmit }) => {
       {({ handleSubmit, handleChange, values, touched, errors }) => (
         <Form noValidate onSubmit={handleSubmit}>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="annoucementFormStartsAssignment">
+                <Form.Group as={Col} controlId="annoucementFormDoesAssignmentStart">
                     <Alert variant='warning'>
                         Note: After the Admin has decided which ones will be picked by WCF, 
                         Select "Start to Assign", and then "Submit" will make the rest of the pickup requests available for pick up volunteers to choose from.
@@ -59,11 +70,11 @@ const AnnouncementForm = ({ innerRef, onSubmit }) => {
                         Start to Assign?
                     </RequiredFieldFormLabel>
                     <Form.Select
-                    name='startsAssignment'
+                    name='doesAssignmentStart'
                     onChange={handleChange}
-                    value={values.startsAssignment}
-                    isValid={touched.startsAssignment && !errors.startsAssignment}
-                    isInvalid={touched.startsAssignment && !!errors.startsAssignment}
+                    value={values.doesAssignmentStart}
+                    isValid={touched.doesAssignmentStart && !errors.doesAssignmentStart}
+                    isInvalid={touched.doesAssignmentStart && !!errors.doesAssignmentStart}
                     >
                     {yesOrNoOptions.map((option) => (
                         <option key={option.value} value={option.value} label={option.label} />
@@ -75,51 +86,51 @@ const AnnouncementForm = ({ innerRef, onSubmit }) => {
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="annoucementFormStudentRegisterStartDate">
-                    <RequiredFieldFormLabel>Student Register Start Date</RequiredFieldFormLabel>
+                <Form.Group as={Col} controlId="annoucementFormStudentRegistrationStartDate">
+                    <RequiredFieldFormLabel>Student Registration Start Date</RequiredFieldFormLabel>
                     <Form.Control
                     type="date"
-                    name='studentRegisterStartDate'
-                    value={values.studentRegisterStartDate}
+                    name='studentRegistrationStartDate'
+                    value={values.studentRegistrationStartDate}
                     onChange={handleChange}
-                    isValid={touched.studentRegisterStartDate && !errors.studentRegisterStartDate}
-                    isInvalid={touched.studentRegisterStartDate && !!errors.studentRegisterStartDate}
+                    isValid={touched.studentRegistrationStartDate && !errors.studentRegistrationStartDate}
+                    isInvalid={touched.studentRegistrationStartDate && !!errors.studentRegistrationStartDate}
                     />
                     <Form.Control.Feedback type="invalid">
-                    {errors.studentRegisterStartDate}
+                    {errors.studentRegistrationStartDate}
                     </Form.Control.Feedback>
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="annoucementFormStudentRegisterEndDate">
-                    <RequiredFieldFormLabel>Student Register End Date</RequiredFieldFormLabel>
+                <Form.Group as={Col} controlId="annoucementFormStudentRegistrationEndDate">
+                    <RequiredFieldFormLabel>Student Registration End Date</RequiredFieldFormLabel>
                     <Form.Control
                     type="date"
-                    name='studentRegisterEndDate'
-                    value={values.studentRegisterEndDate}
+                    name='studentRegistrationEndDate'
+                    value={values.studentRegistrationEndDate}
                     onChange={handleChange}
-                    isValid={touched.studentRegisterEndDate && !errors.studentRegisterEndDate}
-                    isInvalid={touched.studentRegisterEndDate && !!errors.studentRegisterEndDate}
+                    isValid={touched.studentRegistrationEndDate && !errors.studentRegistrationEndDate}
+                    isInvalid={touched.studentRegistrationEndDate && !!errors.studentRegistrationEndDate}
                     />
                     <Form.Control.Feedback type="invalid">
-                    {errors.studentRegisterEndDate}
+                    {errors.studentRegistrationEndDate}
                     </Form.Control.Feedback>
                 </Form.Group>
             </Row>
             <Row className="mb-3">
-            <Form.Group as={Col} controlId="annoucementFormAnnouncementText">
-              <Form.Label>Announcement Text</Form.Label>
+            <Form.Group as={Col} controlId="annoucementFormAnnouncement">
+              <RequiredFieldFormLabel>Announcement Text</RequiredFieldFormLabel>
               <Form.Control
-                 as="textarea"
-                 rows={3}
-                name='announcementText'
-                value={values.announcementText}
+                as="textarea"
+                rows={8}
+                name='announcement'
+                value={values.announcement}
                 onChange={handleChange}
-                isValid={touched.announcementText && !errors.announcementText}
-                isInvalid={touched.announcementText && !!errors.announcementText}
+                isValid={touched.announcement && !errors.announcement}
+                isInvalid={touched.announcement && !!errors.announcement}
               />
               <Form.Control.Feedback type="invalid">
-                {errors.announcementText}
+                {errors.announcement}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>

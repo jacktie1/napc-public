@@ -42,7 +42,6 @@ const VolunteerProfilePage = () => {
 
   const sendUpdateVolunteerProfileRequest = async () => {
     try {
-      console.log(volunteerProfile);
       let preparedVolunteerProfile = {
         firstName: volunteerProfile.firstName,
         lastName: volunteerProfile.lastName,

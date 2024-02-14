@@ -89,7 +89,7 @@ const UserAccountForm = ({ innerRef, onSubmit, optionReferences }) => {
     };
 
     const schema = yup.object().shape({
-        username: requiredAlphaNumTest,
+        username: requiredAlphaNumTest.min(8, 'Username must be at least 8 characters long!'),
         password: strongPasswordTest,
         confirmPassword: confirmPasswordTest,
         securityQuestionReferenceId1: requiredSelectTest,

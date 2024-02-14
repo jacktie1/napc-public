@@ -144,7 +144,6 @@ const ManageVolunteersPage = () => {
   };
 
   const handleDeleteVolunteers = () => {
-    console.log(selectedVolunteers)
     handleCloseConfirmModal();
     setVolunteerData(volunteerData => volunteerData.filter(
       (volunteerRow) => !(selectedVolunteers.includes(volunteerRow.id))

@@ -3,25 +3,27 @@ import { Row, Form, Col} from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
+import * as formUtils from '../utils/formUtils';
 
-const AdminProfileForm = ({ innerRef, onSubmit, userId }) => {
+
+const AdminProfileForm = ({ innerRef, onSubmit, loadedData }) => {
   const { Formik } = formik;
 
   useEffect(() => {
-    if (userId !== undefined && userId !== null) {
-      innerRef.current.setValues({
-        firstName: 'Jason',
-        lastName: 'Chen',
-        gender: 'male',
-        affiliation: 'Neal Hightower',
-        emailAddress: 'test@gmail.com',
-        primaryPhoneNumber: '2212221233',
-        username: 'admin',
-        password: 'testPassword!123',
-        confirmPassword: 'testPassword!123',
-      });
+    if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
+    {
+      let formData = {
+        firstName: loadedData.firstName,
+        lastName: loadedData.lastName,
+        gender: formUtils.toGenderOptionValue( loadedData.gender ),
+        affiliation: loadedData.affiliation,
+        emailAddress: loadedData.emailAddress,
+        primaryPhoneNumber: loadedData.primaryPhoneNumber,
+      }
+
+      innerRef.current.setValues(formData);
     }
-  }, []);
+  }, [innerRef, loadedData]);
 
   const initialValues = {
     firstName: '',
@@ -30,34 +32,15 @@ const AdminProfileForm = ({ innerRef, onSubmit, userId }) => {
     affiliation: '',
     emailAddress: '',
     primaryPhoneNumber: '',
-    username: '',
-    password: '',
-    confirmPassword: '',
   }
 
   const requiredAlphaTest = yup.string().required('Required!').matches(/^[a-zA-Z]+$/, { message: 'Can only contain English letters!', excludeEmptyString: true });
-  const requiredAlphaNumTest = yup.string().required('Required!').matches(/^[a-zA-Z0-9]+$/, { message: 'Can only contain English letters and numbers!', excludeEmptyString: true });
   const requiredAlphaSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
-  const optionalNoSpaceTest = yup.string().matches(/^[^ ]+$/, { message: 'Cannot contain any space!', excludeEmptyString: true });
   const requiredSelectTest = yup.string().required('Required!');
   const emailAddressTest = yup.string().email('Must be a valid email address').required('Required!');
   const phoneNumberTest = yup.string()
     .min(8, 'Too Short!')
     .matches( /^[0-9\+\-\(\) ]*$/, 'Must be a valid phone number' );
-  const strongPasswordTest = yup.string()
-    .required('Required!')
-    .matches(
-      /^[0-9a-zA-Z\!\@\#\$\%\^\&\*\(\)\+]+$/,
-      "Cannot contain special symbols other than !@#$%^&*()+"
-    )
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-      "Must contain at least 8 characters, which includes at least one Uppercase letter, one Lowercase letter, and one Number"
-    );
-
-  const confirmPasswordTest = yup.string()
-    .required('Required!')
-    .oneOf([yup.ref('password')], 'Your passwords do not match!');
 
   const schema = yup.object().shape({
       firstName: requiredAlphaTest,
@@ -66,15 +49,12 @@ const AdminProfileForm = ({ innerRef, onSubmit, userId }) => {
       affiliation: requiredAlphaSpaceTest,
       emailAddress: emailAddressTest,
       primaryPhoneNumber: phoneNumberTest.required('Required!'),
-      username: requiredAlphaNumTest,
-      password: strongPasswordTest,
-      confirmPassword: confirmPasswordTest,
   });
 
   const genderOptions = [
     { value: '', label: "Select an option" },
     { value: 'male', label: "Male" },
-    { value: 'Female', label: "Female" },
+    { value: 'female', label: "Female" },
   ];
 
   return (
@@ -178,53 +158,6 @@ const AdminProfileForm = ({ innerRef, onSubmit, userId }) => {
               />
               <Form.Control.Feedback type="invalid">
                 {errors.primaryPhoneNumber}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormUsername">
-              <RequiredFieldFormLabel>Username</RequiredFieldFormLabel>
-              <Form.Control
-                name='username'
-                value={values.username}
-                onChange={handleChange}
-                isValid={touched.username && !errors.username}
-                isInvalid={touched.username && !!errors.username}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.username}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormPassword">
-              <RequiredFieldFormLabel>Password</RequiredFieldFormLabel>
-              <Form.Control
-                name='password'
-                type='password'
-                value={values.password}
-                onChange={handleChange}
-                isValid={touched.password && !errors.password}
-                isInvalid={touched.password && !!errors.password}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.password}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormConfirmPassword">
-              <RequiredFieldFormLabel>Confirm Password</RequiredFieldFormLabel>
-              <Form.Control
-                name='confirmPassword'
-                type='password'
-                value={values.confirmPassword}
-                onChange={handleChange}
-                isValid={touched.confirmPassword && !errors.confirmPassword}
-                isInvalid={touched.confirmPassword && !!errors.confirmPassword}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.confirmPassword}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>

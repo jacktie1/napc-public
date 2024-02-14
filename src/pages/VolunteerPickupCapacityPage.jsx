@@ -1,18 +1,82 @@
-import React, { useRef, useContext } from 'react';
+import React, { useRef, useContext, useState, useEffect } from 'react';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
 import EmergencyContactInfo from '../components/EmergencyContactInfo';
 import VolunteerPickupCapacityForm from '../components/VolunteerPickupCapacityForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
+import { fromOptionalTextValue, fromYesOrNoOptionValue } from '../utils/formUtils';
 
-import { Container, Button, Row, Col } from 'react-bootstrap';
+
+import { Container, Button, Row, Col, Alert } from 'react-bootstrap';
 
 const VolunteerPickupCapacityPage = () => {
   const { userId } = useContext(UserContext);
 
+  const [loadedData, setLoadedData] = useState({});
+
+  const [serverError, setServerError] = useState('');
+
   var volunteerPickupCapacity;
 
   const volunteerVolunteerPickupCapacityFormRef = useRef(null);
+  
+  useEffect(() => {
+    const loadExistingData = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/getAirportPickup/${userId}`);
+  
+        let volunteerAirportPickup = axiosResponse.data.result.volunteer.volunteerAirportPickup;
+  
+        setLoadedData(volunteerAirportPickup);
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    }
+  
+    loadExistingData();
+  }, [userId])
+
+  const sendUpdateVolunteerAirportPickupRequest = async () => {
+    try {
+      let preparedVolunteerAirportPickup = {
+        providesAirportPickup: fromYesOrNoOptionValue(volunteerPickupCapacity.providesAirportPickup),
+        airportPickupComment: fromOptionalTextValue(volunteerPickupCapacity.airportPickupComment),
+        carManufacturer: null,
+        carModel: null,
+        numCarSeats: null,
+        numMaxLgLuggages: null,
+        numMaxTrips: null,
+      };
+
+      if(preparedVolunteerAirportPickup.providesAirportPickup) {
+        preparedVolunteerAirportPickup.carManufacturer = fromOptionalTextValue(volunteerPickupCapacity.carManufacturer);
+        preparedVolunteerAirportPickup.carModel = fromOptionalTextValue(volunteerPickupCapacity.carModel);
+        preparedVolunteerAirportPickup.numCarSeats = fromOptionalTextValue(volunteerPickupCapacity.numCarSeats);
+        preparedVolunteerAirportPickup.numMaxLgLuggages = fromOptionalTextValue(volunteerPickupCapacity.numMaxLgLuggages);
+        preparedVolunteerAirportPickup.numMaxTrips = fromOptionalTextValue(volunteerPickupCapacity.numMaxTrips);
+      }
+
+      await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/updateAirportPickup/${userId}`,
+        {
+          volunteerAirportPickup: preparedVolunteerAirportPickup,
+        });
+
+      setServerError('');
+
+      alert('Airport pickup information updated successully!');
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  };
+
 
   const handleClick = () => {
     volunteerVolunteerPickupCapacityFormRef.current.submitForm().then(() => {
@@ -20,7 +84,7 @@ const VolunteerPickupCapacityPage = () => {
     
         if (Object.keys(volunteerPickupCapacityErrors).length === 0)
         {
-          alert('success');
+          sendUpdateVolunteerAirportPickupRequest();
         }
     });
   };
@@ -46,10 +110,15 @@ const VolunteerPickupCapacityPage = () => {
               <h2 className="pretty-box-heading">Airport Pickup</h2> 
               <RequiredFieldInfo />
               <hr/>
+              {serverError && (
+                <Alert variant='danger'>
+                  {serverError}
+                </Alert>
+              )}
               <VolunteerPickupCapacityForm
                 innerRef={volunteerVolunteerPickupCapacityFormRef}
                 onSubmit={handleVolunteerPickupCapacitySubmit}
-                userId={userId}
+                loadedData={loadedData}
               />
               <hr/>
               <Button variant="primary" onClick={handleClick} className="pretty-box-button">

@@ -23,6 +23,7 @@ const SignupStudentPage = () => {
 
   const [studentRegisterationStartDate, setStudentRegisterationStartDate] = useState('');
   const [studentRegisterationEndDate, setStudentRegisterationEndDate] = useState('');
+  const [studentRegisterationEndDateForDisplay, setStudentRegisterationEndDateForDisplay] = useState('');
 
   const [optionReferences, setOptionReferences] = useState({});
 
@@ -72,54 +73,57 @@ const SignupStudentPage = () => {
 
       let preparedFlightInfo = {
         needsAirportPickup: fromYesOrNoOptionValue(flightInfo.needsAirportPickup),
+        hasFlightInfo: null,
+        arrivalFlightNumber: null,
+        arrivalAirlineReferenceId: null,
+        customArrivalAirline: null,
+        arrivalDatetime: null,
+        departureFlightNumber: null,
+        departureAirlineReferenceId: null,
+        customDepartureAirline: null,
+        departureDatetime: null,
+        numLgLuggages: null,
+        numSmLuggages: null,
       };
 
       if(preparedFlightInfo.needsAirportPickup)
       {
-        preparedFlightInfo = {
-          ...preparedFlightInfo,
-          hasFlightInfo: fromYesOrNoOptionValue(flightInfo.hasFlightInfo),
-        };
+        preparedFlightInfo.hasFlightInfo = fromYesOrNoOptionValue(flightInfo.hasFlightInfo);
       }
 
       if(preparedFlightInfo.hasFlightInfo)
       {
-        preparedFlightInfo = {
-          ...preparedFlightInfo,
-          arrivalFlightNumber: flightInfo.arrivalFlightNumber,
-          arrivalAirlineReferenceId: fromReferenceIdOptionValue(flightInfo.arrivalAirlineReferenceId),
-          customArrivalAirline: fromCustomOptionValue(flightInfo.customArrivalAirline, flightInfo.arrivalAirlineReferenceId),
-          arrivalDatetime: flightInfo.arrivalDate + ' ' + flightInfo.arrivalTime,
-          departureFlightNumber: flightInfo.departureFlightNumber,
-          departureAirlineReferenceId: fromReferenceIdOptionValue(flightInfo.departureAirlineReferenceId),
-          customDepartureAirline: fromCustomOptionValue(flightInfo.customDepartureAirline, flightInfo.departureAirlineReferenceId),
-          departureDatetime: flightInfo.departureDate + ' ' + flightInfo.departureTime,
-          numLgLuggages: flightInfo.numLgLuggages,
-          numSmLuggages: flightInfo.numSmLuggages,
-        };
+        preparedFlightInfo.arrivalFlightNumber = flightInfo.arrivalFlightNumber;
+        preparedFlightInfo.arrivalAirlineReferenceId = fromReferenceIdOptionValue(flightInfo.arrivalAirlineReferenceId);
+        preparedFlightInfo.customArrivalAirline = fromCustomOptionValue(flightInfo.customArrivalAirline, flightInfo.arrivalAirlineReferenceId);
+        preparedFlightInfo.arrivalDatetime = flightInfo.arrivalDate + ' ' + flightInfo.arrivalTime;
+        preparedFlightInfo.departureFlightNumber = flightInfo.departureFlightNumber;
+        preparedFlightInfo.departureAirlineReferenceId = fromReferenceIdOptionValue(flightInfo.departureAirlineReferenceId);
+        preparedFlightInfo.customDepartureAirline = fromCustomOptionValue(flightInfo.customDepartureAirline, flightInfo.departureAirlineReferenceId);
+        preparedFlightInfo.departureDatetime = flightInfo.departureDate + ' ' + flightInfo.departureTime;
+        preparedFlightInfo.numLgLuggages = flightInfo.numLgLuggages;
+        preparedFlightInfo.numSmLuggages = flightInfo.numSmLuggages;
       }
 
       let preparedTempHousing = {
         needsTempHousing: fromYesOrNoOptionValue(tempHousing.needsTempHousing),
         apartmentReferenceId: fromReferenceIdOptionValue(tempHousing.apartmentReferenceId),
         customDestinationAddress: fromCustomOptionValue(tempHousing.customDestinationAddress, tempHousing.apartmentReferenceId, true),
+        numNights: null,
+        contactName: null,
+        contactPhoneNumber: null,
+        contactEmailAddress: null,
       };
 
       if(preparedTempHousing.needsTempHousing)
       {
-        preparedTempHousing = {
-          ...preparedTempHousing,
-          numNights: fromReferenceIdOptionValue(tempHousing.numNights),
-        };
+        preparedTempHousing.numNights = fromReferenceIdOptionValue(tempHousing.numNights);
       }
       else
       {
-        preparedTempHousing = {
-          ...preparedTempHousing,
-          contactName: fromOptionalTextValue(tempHousing.contactName),
-          contactPhoneNumber: fromOptionalTextValue(tempHousing.contactPhoneNumber),
-          contactEmailAddress: fromOptionalTextValue(tempHousing.contactEmailAddress),
-        };
+        preparedTempHousing.contactName = fromOptionalTextValue(tempHousing.contactName);
+        preparedTempHousing.contactPhoneNumber = fromOptionalTextValue(tempHousing.contactPhoneNumber);
+        preparedTempHousing.contactEmailAddress = fromOptionalTextValue(tempHousing.contactEmailAddress);
       }
 
       let preparedStudentComment = {
@@ -156,13 +160,17 @@ const SignupStudentPage = () => {
         {
           setStudentRegisterationStartDate('1900-01-01');
           setStudentRegisterationEndDate('1900-01-01');
+          setStudentRegisterationEndDateForDisplay('1900-01-01');
+
           throw new Error('No management data found');
         }
         
         let startDate = managent.studentRegistrationStartDate;
         let endDate = managent.studentRegistrationEndDate;
-  
-        // Add one day to the end date for comparison purpose
+
+        setStudentRegisterationEndDateForDisplay(endDate);
+
+        // Add one day to the actual end date for comparison purpose (boundary)
         let endDateObject = new Date(endDate);
         endDateObject.setDate(endDateObject.getDate() + 1);
         endDate = endDateObject.toISOString().split('T')[0];
@@ -175,6 +183,8 @@ const SignupStudentPage = () => {
         let { errorMessage } = parseAxiosError(axiosError);
         setStudentRegisterationStartDate('1900-01-01');
         setStudentRegisterationEndDate('1900-01-01');
+        setStudentRegisterationEndDateForDisplay('1900-01-01');
+
   
         setServerError(errorMessage);
       }
@@ -377,7 +387,7 @@ const SignupStudentPage = () => {
                 </Alert>
               )}
             <Alert variant='warning'>
-                Student registation is only available between {studentRegisterationStartDate} and {studentRegisterationEndDate} (GMT).<br/><br/>
+                Student registation is only available between {studentRegisterationStartDate} and {studentRegisterationEndDateForDisplay} (GMT).<br/><br/>
                 If you have any special need, Please contact the system admin at jasonchenatlanta@gmail.com.
             </Alert>
             <Button variant="secondary" href='/login' className="pretty-box-button">

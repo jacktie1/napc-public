@@ -3,6 +3,8 @@ import { Row, Form, Col } from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
+import * as formUtils from '../utils/formUtils';
+
 
 const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, loadedData, formReadOnly }) => {
   const { Formik } = formik;
@@ -12,7 +14,33 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, loadedData, formRead
   useEffect(() => {
     if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
     {
-      // Set the form values to the loaded data
+      let formData = {
+        providesTempHousing: formUtils.toYesOrNoOptionValue(loadedData.providesTempHousing),
+        homeAddress: '',
+        numMaxStudentsHosted: '',
+        tempHousingStartDate: '',
+        tempHousingEndDate: '',
+        numDoubleBeds: '',
+        numSingleBeds: '',
+        genderPreference: '',
+        providesRide: '',
+        tempHousingComment: formUtils.toOptionalTextValue(loadedData.tempHousingComment),
+      }
+
+      if(formData.providesTempHousing === 'yes') {
+        formData.homeAddress = loadedData.homeAddress;
+        formData.numMaxStudentsHosted = formUtils.toOptionalTextValue(loadedData.numMaxStudentsHosted);
+        formData.tempHousingStartDate = formUtils.toOptionalTextValue(loadedData.tempHousingStartDate);
+        formData.tempHousingEndDate = formUtils.toOptionalTextValue(loadedData.tempHousingEndDate);
+        formData.numDoubleBeds = formUtils.toOptionalTextValue(loadedData.numDoubleBeds);
+        formData.numSingleBeds = formUtils.toOptionalTextValue(loadedData.numSingleBeds);
+        formData.genderPreference = formUtils.toGenderOptionValue(loadedData.genderPreference);
+        formData.providesRide = formUtils.toYesOrNoOptionValue(loadedData.providesRide);
+
+        setShowCapacityDetails(true);
+      }
+
+      innerRef.current.setValues(formData);
     }
   }, [innerRef, loadedData]);
 
@@ -58,7 +86,7 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, loadedData, formRead
   const genderOptions = [
     { value: '', label: "Select an option" },
     { value: 'male', label: "Male" },
-    { value: 'Female', label: "Female" },
+    { value: 'female', label: "Female" },
     { value: 'noPref', label: "I don't have any preference" },
 
   ];

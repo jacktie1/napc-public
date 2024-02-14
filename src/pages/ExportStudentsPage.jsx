@@ -203,7 +203,6 @@ const ExportStudentsPage = () => {
       {
         header: true,
         complete: function(parsed_csv) {
-          console.log(parsed_csv.data);
           const ws = XLSX.utils.json_to_sheet(parsed_csv.data);
           const wb = XLSX.utils.book_new();
           XLSX.utils.book_append_sheet(wb, ws, "sheet");

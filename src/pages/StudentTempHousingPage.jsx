@@ -68,27 +68,22 @@ const StudentTempHousingPage = () => {
         needsTempHousing: fromYesOrNoOptionValue(studentTempHousing.needsTempHousing),
         apartmentReferenceId: fromReferenceIdOptionValue(studentTempHousing.apartmentReferenceId),
         customDestinationAddress: fromCustomOptionValue(studentTempHousing.customDestinationAddress, studentTempHousing.apartmentReferenceId, true),
+        numNights: null,
+        contactName: null,
+        contactPhoneNumber: null,
+        contactEmailAddress: null,
       };
 
       if(preparedTempHousing.needsTempHousing)
       {
-        preparedTempHousing = {
-          ...preparedTempHousing,
-          numNights: fromReferenceIdOptionValue(studentTempHousing.numNights),
-        };
+        preparedTempHousing.numNights = fromReferenceIdOptionValue(studentTempHousing.numNights);
       }
       else
       {
-        preparedTempHousing = {
-          ...preparedTempHousing,
-          contactName: fromOptionalTextValue(studentTempHousing.contactName),
-          contactPhoneNumber: fromOptionalTextValue(studentTempHousing.contactPhoneNumber),
-          contactEmailAddress: fromOptionalTextValue(studentTempHousing.contactEmailAddress),
-        };
+        preparedTempHousing.contactName = fromOptionalTextValue(studentTempHousing.contactName);
+        preparedTempHousing.contactPhoneNumber = fromOptionalTextValue(studentTempHousing.contactPhoneNumber);
+        preparedTempHousing.contactEmailAddress = fromOptionalTextValue(studentTempHousing.contactEmailAddress);
       }
-
-      console.log(studentTempHousing);
-      console.log(preparedTempHousing);
 
       await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateTempHousing/${userId}`,
         {

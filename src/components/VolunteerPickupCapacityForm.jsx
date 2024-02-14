@@ -3,6 +3,7 @@ import { Row, Form, Col } from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
+import * as formUtils from '../utils/formUtils';
 
 const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, loadedData, formReadOnly }) => {
   const { Formik } = formik;
@@ -12,7 +13,27 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, loadedData, formReadO
   useEffect(() => {
     if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
     {
-      // Set the form values to the loaded data
+      let formData = {
+        providesAirportPickup: formUtils.toYesOrNoOptionValue(loadedData.providesAirportPickup),
+        carManufacturer: '',
+        carModel: '',
+        numCarSeats: '',
+        numMaxLgLuggages: '',
+        numMaxTrips: '',
+        airportPickupComment: formUtils.toOptionalTextValue(loadedData.airportPickupComment)
+      }
+
+      if(formData.providesAirportPickup === 'yes') {
+        formData.carManufacturer = formUtils.toOptionalTextValue(loadedData.carManufacturer);
+        formData.carModel = formUtils.toOptionalTextValue(loadedData.carModel);
+        formData.numCarSeats = formUtils.toOptionalTextValue(loadedData.numCarSeats);
+        formData.numMaxLgLuggages = formUtils.toOptionalTextValue(loadedData.numMaxLgLuggages);
+        formData.numMaxTrips = formUtils.toOptionalTextValue(loadedData.numMaxTrips);
+
+        setShowCapacityDetails(true);
+      }
+
+      innerRef.current.setValues(formData);
     }
   }, [innerRef, loadedData]);
 
@@ -30,8 +51,8 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, loadedData, formReadO
   const optionalAlphaNumSpaceTest =  yup.string().matches(/^[a-zA-Z0-9][a-zA-Z0-9 ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
   const capacityNumTest = yup.number().typeError('Must be a whole number!')
     .integer('Must be a whole number!')
-    .min(0, 'Must be from 0-9')
-    .max(9, 'Must be from 0-9');
+    .min(0, 'Must be from 0-99')
+    .max(99, 'Must be from 0-99');
 
   const requiredSelectTest = yup.string().required('Required!');
 
@@ -121,7 +142,7 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, loadedData, formReadO
             </Row>
             <Row className="mb-3">
                 <Form.Group as={Col} controlId="VolunteerPickupCapacityFormNumCarSeats">
-                    <Form.Label>How many seats your car has (use a number from 0 - 9)</Form.Label>
+                    <Form.Label>How many seats your car has (use a number from 0 - 99)</Form.Label>
                     <Form.Control
                     type="number"
                     name='numCarSeats'
@@ -139,7 +160,7 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, loadedData, formReadO
             </Row>
             <Row className="mb-3">
                 <Form.Group as={Col} controlId="VolunteerPickupCapacityFormNumMaxLgLuggages">
-                    <Form.Label>How many piece of big luggage your vehicle could handle (use a number from 0 - 9)</Form.Label>
+                    <Form.Label>How many piece of big luggage your vehicle could handle (use a number from 0 - 99)</Form.Label>
                     <Form.Control
                     type="number"
                     name='numMaxLgLuggages'
@@ -157,7 +178,7 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, loadedData, formReadO
             </Row>
             <Row className="mb-3">
                 <Form.Group as={Col} controlId="VolunteerPickupCapacityFormNumMaxTrips">
-                    <Form.Label>How many trips to the airport you are willing to go (use a number from 0 - 9)</Form.Label>
+                    <Form.Label>How many trips to the airport you are willing to go (use a number from 0 - 99)</Form.Label>
                     <Form.Control
                     type="number"
                     name='numMaxTrips'
@@ -176,7 +197,7 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, loadedData, formReadO
           </>: null}
           <Row className="mb-3">
             <Form.Group as={Col} controlId="VolunteerPickupCapacityFormAirportPickupComment">
-              <Form.Label>Do you have any airportPickupComment or special needs (Maximum 500 characters):</Form.Label>
+              <Form.Label>Do you have any comment or special needs (Maximum 500 characters):</Form.Label>
               <Form.Control
                  as="textarea"
                  rows={3}

@@ -1,18 +1,87 @@
-import React, { useRef, useContext } from 'react';
+import React, { useRef, useContext, useState, useEffect } from 'react';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
 import EmergencyContactInfo from '../components/EmergencyContactInfo';
 import VolunteerHousingCapacityForm from '../components/VolunteerHousingCapacityForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
+import { fromOptionalTextValue, fromYesOrNoOptionValue, fromGenderOptionValue } from '../utils/formUtils';
 
-import { Container, Button, Row, Col } from 'react-bootstrap';
+import { Container, Button, Row, Col, Alert } from 'react-bootstrap';
 
 const VolunteerHousingCapacityPage = () => {
   const { userId } = useContext(UserContext);
 
+  const [loadedData, setLoadedData] = useState({});
+
+  const [serverError, setServerError] = useState('');
+
   var volunteerHousingCapacity;
 
   const volunteerVolunteerHousingCapacityFormRef = useRef(null);
+
+  useEffect(() => {
+    const loadExistingData = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/getTempHousing/${userId}`);
+  
+        let volunteerTempHousing = axiosResponse.data.result.volunteer.volunteerTempHousing;
+  
+        setLoadedData(volunteerTempHousing);
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    }
+  
+    loadExistingData();
+  }, [userId])
+
+  const sendUpdateVolunteerTempHousingRequest = async () => {
+    try {
+      let preparedVolunteerTempHousing = {
+        providesTempHousing: fromYesOrNoOptionValue(volunteerHousingCapacity.providesTempHousing),
+        homeAddress: null,
+        numMaxStudentsHosted: null,
+        tempHousingStartDate: null,
+        tempHousingEndDate: null,
+        numDoubleBeds: null,
+        numSingleBeds: null,
+        genderPreference: null,
+        providesRide: null,
+        tempHousingComment: fromOptionalTextValue(volunteerHousingCapacity.tempHousingComment),
+      };
+
+      if(preparedVolunteerTempHousing.providesTempHousing) {
+        preparedVolunteerTempHousing.homeAddress = volunteerHousingCapacity.homeAddress;
+        preparedVolunteerTempHousing.numMaxStudentsHosted = fromOptionalTextValue(volunteerHousingCapacity.numMaxStudentsHosted);
+        preparedVolunteerTempHousing.tempHousingStartDate = fromOptionalTextValue(volunteerHousingCapacity.tempHousingStartDate);
+        preparedVolunteerTempHousing.tempHousingEndDate = fromOptionalTextValue(volunteerHousingCapacity.tempHousingEndDate);
+        preparedVolunteerTempHousing.numDoubleBeds = fromOptionalTextValue(volunteerHousingCapacity.numDoubleBeds);
+        preparedVolunteerTempHousing.numSingleBeds = fromOptionalTextValue(volunteerHousingCapacity.numSingleBeds);
+        preparedVolunteerTempHousing.genderPreference = fromGenderOptionValue(volunteerHousingCapacity.genderPreference);
+        preparedVolunteerTempHousing.providesRide = fromYesOrNoOptionValue(volunteerHousingCapacity.providesRide);
+      }
+
+      await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/updateTempHousing/${userId}`,
+        {
+          volunteerTempHousing: preparedVolunteerTempHousing,
+        });
+
+      setServerError('');
+
+      alert('Airport pickup information updated successully!');
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  };
+
 
   const handleClick = () => {
     volunteerVolunteerHousingCapacityFormRef.current.submitForm().then(() => {
@@ -20,7 +89,7 @@ const VolunteerHousingCapacityPage = () => {
     
         if (Object.keys(volunteerHousingCapacityErrors).length === 0)
         {
-          alert('success');
+          sendUpdateVolunteerTempHousingRequest();
         }
     });
   };
@@ -46,10 +115,15 @@ const VolunteerHousingCapacityPage = () => {
               <h2 className="pretty-box-heading">Temporary Housing</h2> 
               <RequiredFieldInfo />
               <hr/>
+              {serverError && (
+                <Alert variant='danger'>
+                  {serverError}
+                </Alert>
+              )}
               <VolunteerHousingCapacityForm
                 innerRef={volunteerVolunteerHousingCapacityFormRef}
                 onSubmit={handleVolunteerHousingCapacitySubmit}
-                userId={userId}
+                loadedData={loadedData}
               />
               <hr/>
               <Button variant="primary" onClick={handleClick} className="pretty-box-button">

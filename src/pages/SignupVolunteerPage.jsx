@@ -78,35 +78,54 @@ const SignupVolunteerPage = () => {
         securityQuestionReferenceId3: fromReferenceIdOptionValue(userAccount.securityQuestionReferenceId3),
         securityAnswer3: userAccount.securityAnswer3,
       };
-  
+
       let preparedVolunteerAirportPickup = {
         providesAirportPickup: fromYesOrNoOptionValue(pickupCapacity.providesAirportPickup),
-        carManufacturer: fromOptionalTextValue(pickupCapacity.carManufacturer),
-        carModel: fromOptionalTextValue(pickupCapacity.carModel),
-        numCarSeats: fromOptionalTextValue(pickupCapacity.numCarSeats),
-        numMaxLgLuggages: fromOptionalTextValue(pickupCapacity.numMaxLgLuggages),
-        numMaxTrips: fromOptionalTextValue(pickupCapacity.numMaxTrips),
         airportPickupComment: fromOptionalTextValue(pickupCapacity.airportPickupComment),
+        carManufacturer: null,
+        carModel: null,
+        numCarSeats: null,
+        numMaxLgLuggages: null,
+        numMaxTrips: null,
       };
 
-      let preparedVolunteerHousingCapacity = {
+      if(preparedVolunteerAirportPickup.providesAirportPickup) {
+        preparedVolunteerAirportPickup.carManufacturer = fromOptionalTextValue(pickupCapacity.carManufacturer);
+        preparedVolunteerAirportPickup.carModel = fromOptionalTextValue(pickupCapacity.carModel);
+        preparedVolunteerAirportPickup.numCarSeats = fromOptionalTextValue(pickupCapacity.numCarSeats);
+        preparedVolunteerAirportPickup.numMaxLgLuggages = fromOptionalTextValue(pickupCapacity.numMaxLgLuggages);
+        preparedVolunteerAirportPickup.numMaxTrips = fromOptionalTextValue(pickupCapacity.numMaxTrips);
+      }
+
+      let preparedVolunteerTempHousing = {
         providesTempHousing: fromYesOrNoOptionValue(housingCapacity.providesTempHousing),
-        homeAddress: housingCapacity.homeAddress,
-        numMaxStudentsHosted: fromOptionalTextValue(housingCapacity.numMaxStudentsHosted),
-        tempHousingStartDate: fromOptionalTextValue(housingCapacity.tempHousingStartDate),
-        tempHousingEndDate: fromOptionalTextValue(housingCapacity.tempHousingEndDate),
-        numDoubleBeds: fromOptionalTextValue(housingCapacity.numDoubleBeds),
-        numSingleBeds: fromOptionalTextValue(housingCapacity.numSingleBeds),
-        genderPreference: fromGenderOptionValue(housingCapacity.genderPreference),
-        providesRide: fromYesOrNoOptionValue(housingCapacity.providesRide),
+        homeAddress: null,
+        numMaxStudentsHosted: null,
+        tempHousingStartDate: null,
+        tempHousingEndDate: null,
+        numDoubleBeds: null,
+        numSingleBeds: null,
+        genderPreference: null,
+        providesRide: null,
         tempHousingComment: fromOptionalTextValue(housingCapacity.tempHousingComment),
       };
+
+      if(preparedVolunteerTempHousing.providesTempHousing) {
+        preparedVolunteerTempHousing.homeAddress = housingCapacity.homeAddress;
+        preparedVolunteerTempHousing.numMaxStudentsHosted = fromOptionalTextValue(housingCapacity.numMaxStudentsHosted);
+        preparedVolunteerTempHousing.tempHousingStartDate = fromOptionalTextValue(housingCapacity.tempHousingStartDate);
+        preparedVolunteerTempHousing.tempHousingEndDate = fromOptionalTextValue(housingCapacity.tempHousingEndDate);
+        preparedVolunteerTempHousing.numDoubleBeds = fromOptionalTextValue(housingCapacity.numDoubleBeds);
+        preparedVolunteerTempHousing.numSingleBeds = fromOptionalTextValue(housingCapacity.numSingleBeds);
+        preparedVolunteerTempHousing.genderPreference = fromGenderOptionValue(housingCapacity.genderPreference);
+        preparedVolunteerTempHousing.providesRide = fromYesOrNoOptionValue(housingCapacity.providesRide);
+      }
 
       await axiosInstance.post(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/register`, {
         volunteerProfile: preparedVolunteerProfile,
         userAccount: preparedUserAccount,
         volunteerAirportPickup: preparedVolunteerAirportPickup,
-        volunteerTempHousing: preparedVolunteerHousingCapacity
+        volunteerTempHousing: preparedVolunteerTempHousing
       });
 
       alert('Volunteer registration is successful!');

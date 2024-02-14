@@ -67,31 +67,36 @@ const StudentFlightInfoPage = () => {
     try {
       let preparedFlightInfo = {
         needsAirportPickup: fromYesOrNoOptionValue(studentFlightInfo.needsAirportPickup),
+        hasFlightInfo: null,
+        arrivalFlightNumber: null,
+        arrivalAirlineReferenceId: null,
+        customArrivalAirline: null,
+        arrivalDatetime: null,
+        departureFlightNumber: null,
+        departureAirlineReferenceId: null,
+        customDepartureAirline: null,
+        departureDatetime: null,
+        numLgLuggages: null,
+        numSmLuggages: null,
       };
 
       if(preparedFlightInfo.needsAirportPickup)
       {
-        preparedFlightInfo = {
-          ...preparedFlightInfo,
-          hasFlightInfo: fromYesOrNoOptionValue(studentFlightInfo.hasFlightInfo),
-        };
+        preparedFlightInfo.hasFlightInfo = fromYesOrNoOptionValue(studentFlightInfo.hasFlightInfo);
       }
 
       if(preparedFlightInfo.hasFlightInfo)
       {
-        preparedFlightInfo = {
-          ...preparedFlightInfo,
-          arrivalFlightNumber: studentFlightInfo.arrivalFlightNumber,
-          arrivalAirlineReferenceId: fromReferenceIdOptionValue(studentFlightInfo.arrivalAirlineReferenceId),
-          customArrivalAirline: fromCustomOptionValue(studentFlightInfo.customArrivalAirline, studentFlightInfo.arrivalAirlineReferenceId),
-          arrivalDatetime: studentFlightInfo.arrivalDate + ' ' + studentFlightInfo.arrivalTime,
-          departureFlightNumber: studentFlightInfo.departureFlightNumber,
-          departureAirlineReferenceId: fromReferenceIdOptionValue(studentFlightInfo.departureAirlineReferenceId),
-          customDepartureAirline: fromCustomOptionValue(studentFlightInfo.customDepartureAirline, studentFlightInfo.departureAirlineReferenceId),
-          departureDatetime: studentFlightInfo.departureDate + ' ' + studentFlightInfo.departureTime,
-          numLgLuggages: studentFlightInfo.numLgLuggages,
-          numSmLuggages: studentFlightInfo.numSmLuggages,
-        };
+        preparedFlightInfo.arrivalFlightNumber = studentFlightInfo.arrivalFlightNumber;
+        preparedFlightInfo.arrivalAirlineReferenceId = fromReferenceIdOptionValue(studentFlightInfo.arrivalAirlineReferenceId);
+        preparedFlightInfo.customArrivalAirline = fromCustomOptionValue(studentFlightInfo.customArrivalAirline, studentFlightInfo.arrivalAirlineReferenceId);
+        preparedFlightInfo.arrivalDatetime = studentFlightInfo.arrivalDate + ' ' + studentFlightInfo.arrivalTime;
+        preparedFlightInfo.departureFlightNumber = studentFlightInfo.departureFlightNumber;
+        preparedFlightInfo.departureAirlineReferenceId = fromReferenceIdOptionValue(studentFlightInfo.departureAirlineReferenceId);
+        preparedFlightInfo.customDepartureAirline = fromCustomOptionValue(studentFlightInfo.customDepartureAirline, studentFlightInfo.departureAirlineReferenceId);
+        preparedFlightInfo.departureDatetime = studentFlightInfo.departureDate + ' ' + studentFlightInfo.departureTime;
+        preparedFlightInfo.numLgLuggages = studentFlightInfo.numLgLuggages;
+        preparedFlightInfo.numSmLuggages = studentFlightInfo.numSmLuggages;
       }
 
       await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateFlightInfo/${userId}`,
