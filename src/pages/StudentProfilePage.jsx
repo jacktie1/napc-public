@@ -7,8 +7,7 @@ import StudentProfileForm from '../components/StudentProfileForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
-import { fromYesOrNoOptionValue, fromReferenceIdOptionValue, fromGenderOptionValue, fromCustomOptionValue, fromOptionalTextValue, fromStudentTypeValue } from '../utils/formUtils';
-
+import * as formUtils from '../utils/formUtils';
 
 
 const StudentProfilePage = () => {
@@ -63,22 +62,7 @@ const StudentProfilePage = () => {
 
   const sendUpdateStudentProfileRequest = async () => {
     try {
-      let preparedStudentProfile = {
-        firstName: studentProfile.firstName,
-        lastName: studentProfile.lastName,
-        englishName: fromOptionalTextValue(studentProfile.englishName),
-        gender: fromGenderOptionValue(studentProfile.gender),
-        isNewStudent: fromYesOrNoOptionValue(studentProfile.isNewStudent),
-        graduatesFrom: fromOptionalTextValue(studentProfile.graduatesFrom),
-        studentType: fromStudentTypeValue(studentProfile.studentType),
-        majorReferenceId: fromReferenceIdOptionValue(studentProfile.majorReferenceId),
-        customMajor: fromCustomOptionValue(studentProfile.customMajor, studentProfile.majorReferenceId),
-        hasCompanion: fromYesOrNoOptionValue(studentProfile.hasCompanion),
-        emailAddress: studentProfile.emailAddress,
-        wechatId: studentProfile.wechatId,
-        cnPhoneNumber: fromOptionalTextValue(studentProfile.cnPhoneNumber),
-        usPhoneNumber: fromOptionalTextValue(studentProfile.usPhoneNumber),
-      };
+      let preparedStudentProfile = formUtils.fromStudentProfileForm(studentProfile);
 
       await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateProfile/${userId}`,
         {

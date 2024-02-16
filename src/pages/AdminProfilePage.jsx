@@ -71,13 +71,11 @@ const AdminProfilePage = () => {
   };
 
   const handleClick = () => {
-    console.log('Submit button clicked');
     adminProfileFormRef.current.submitForm().then(() => {
         const adminProfileErrors = adminProfileFormRef.current.errors;
     
         if (Object.keys(adminProfileErrors).length === 0)
         {
-          console.log('No errors, ready to submit');
           sendUpdateAdminProfileRequest();
         }
     });

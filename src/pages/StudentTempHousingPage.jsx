@@ -6,7 +6,7 @@ import StudentTempHousingForm from '../components/StudentTempHousingForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
-import { fromYesOrNoOptionValue, fromReferenceIdOptionValue, fromCustomOptionValue, fromOptionalTextValue } from '../utils/formUtils';
+import * as formUtils from '../utils/formUtils';
 
 
 import { Container, Button, Row, Col, Alert } from 'react-bootstrap';
@@ -64,26 +64,7 @@ const StudentTempHousingPage = () => {
 
   const sendUpdateStudentTempHousingRequest = async () => {
     try {
-      let preparedTempHousing = {
-        needsTempHousing: fromYesOrNoOptionValue(studentTempHousing.needsTempHousing),
-        apartmentReferenceId: fromReferenceIdOptionValue(studentTempHousing.apartmentReferenceId),
-        customDestinationAddress: fromCustomOptionValue(studentTempHousing.customDestinationAddress, studentTempHousing.apartmentReferenceId, true),
-        numNights: null,
-        contactName: null,
-        contactPhoneNumber: null,
-        contactEmailAddress: null,
-      };
-
-      if(preparedTempHousing.needsTempHousing)
-      {
-        preparedTempHousing.numNights = fromReferenceIdOptionValue(studentTempHousing.numNights);
-      }
-      else
-      {
-        preparedTempHousing.contactName = fromOptionalTextValue(studentTempHousing.contactName);
-        preparedTempHousing.contactPhoneNumber = fromOptionalTextValue(studentTempHousing.contactPhoneNumber);
-        preparedTempHousing.contactEmailAddress = fromOptionalTextValue(studentTempHousing.contactEmailAddress);
-      }
+      let preparedTempHousing = formUtils.fromStudentTempHousingForm(studentTempHousing)
 
       await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateTempHousing/${userId}`,
         {

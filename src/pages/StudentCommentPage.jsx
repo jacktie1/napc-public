@@ -6,7 +6,7 @@ import StudentCommentForm from '../components/StudentCommentForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
-import { fromOptionalTextValue } from '../utils/formUtils';
+import * as formUtils from '../utils/formUtils';
 
 import { Container, Button, Row, Col, Alert } from 'react-bootstrap';
 
@@ -43,9 +43,7 @@ const StudentCommentPage = () => {
 
   const sendUpdateStudentCommentRequest = async () => {
     try {
-      let preparedStudentComment = {
-        studentComment: fromOptionalTextValue(studentComment.studentComment),
-      };
+      let preparedStudentComment = formUtils.fromStudentCommentForm(studentComment);
 
       await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateComment/${userId}`,
         {

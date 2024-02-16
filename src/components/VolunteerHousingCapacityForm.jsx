@@ -14,29 +14,9 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, loadedData, formRead
   useEffect(() => {
     if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
     {
-      let formData = {
-        providesTempHousing: formUtils.toYesOrNoOptionValue(loadedData.providesTempHousing),
-        homeAddress: '',
-        numMaxStudentsHosted: '',
-        tempHousingStartDate: '',
-        tempHousingEndDate: '',
-        numDoubleBeds: '',
-        numSingleBeds: '',
-        genderPreference: '',
-        providesRide: '',
-        tempHousingComment: formUtils.toOptionalTextValue(loadedData.tempHousingComment),
-      }
+      let formData = formUtils.toVolunteerTempHousingForm(loadedData);
 
       if(formData.providesTempHousing === 'yes') {
-        formData.homeAddress = loadedData.homeAddress;
-        formData.numMaxStudentsHosted = formUtils.toOptionalTextValue(loadedData.numMaxStudentsHosted);
-        formData.tempHousingStartDate = formUtils.toOptionalTextValue(loadedData.tempHousingStartDate);
-        formData.tempHousingEndDate = formUtils.toOptionalTextValue(loadedData.tempHousingEndDate);
-        formData.numDoubleBeds = formUtils.toOptionalTextValue(loadedData.numDoubleBeds);
-        formData.numSingleBeds = formUtils.toOptionalTextValue(loadedData.numSingleBeds);
-        formData.genderPreference = formUtils.toGenderOptionValue(loadedData.genderPreference);
-        formData.providesRide = formUtils.toYesOrNoOptionValue(loadedData.providesRide);
-
         setShowCapacityDetails(true);
       }
 

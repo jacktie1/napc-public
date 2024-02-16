@@ -11,16 +11,7 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, loadedData, formReadOnly, ad
   useEffect(() => {
     if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
     {
-      let formData = {
-        firstName: loadedData.firstName,
-        lastName: loadedData.lastName,
-        gender: formUtils.toGenderOptionValue( loadedData.gender ),
-        affiliation: loadedData.affiliation,
-        emailAddress: loadedData.emailAddress,
-        wechatId: formUtils.toOptionalTextValue( loadedData.wechatId ),
-        primaryPhoneNumber: loadedData.primaryPhoneNumber,
-        secondaryPhoneNumber: formUtils.toOptionalTextValue( loadedData.secondaryPhoneNumber ),
-      }
+      let formData = formUtils.toVolunteerProfileForm(loadedData);
 
       innerRef.current.setValues(formData);
     }

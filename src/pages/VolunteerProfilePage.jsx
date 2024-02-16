@@ -6,7 +6,8 @@ import VolunteerProfileForm from '../components/VolunteerProfileForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
-import { fromGenderOptionValue, fromOptionalTextValue } from '../utils/formUtils';
+import * as formUtils from '../utils/formUtils';
+
 
 import { Container, Button, Row, Col, Alert } from 'react-bootstrap';
 
@@ -42,16 +43,7 @@ const VolunteerProfilePage = () => {
 
   const sendUpdateVolunteerProfileRequest = async () => {
     try {
-      let preparedVolunteerProfile = {
-        firstName: volunteerProfile.firstName,
-        lastName: volunteerProfile.lastName,
-        gender: fromGenderOptionValue(volunteerProfile.gender),
-        affiliation: volunteerProfile.affiliation,
-        emailAddress: volunteerProfile.emailAddress,
-        wechatId: fromOptionalTextValue(volunteerProfile.wechatId),
-        primaryPhoneNumber: volunteerProfile.primaryPhoneNumber,
-        secondaryPhoneNumber: fromOptionalTextValue(volunteerProfile.secondaryPhoneNumber),
-      };
+      let preparedVolunteerProfile = formUtils.fromVolunteerProfileForm(volunteerProfile);
 
       await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/updateProfile/${userId}`,
         {

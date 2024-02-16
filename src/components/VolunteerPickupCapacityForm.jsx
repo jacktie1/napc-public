@@ -13,23 +13,9 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, loadedData, formReadO
   useEffect(() => {
     if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
     {
-      let formData = {
-        providesAirportPickup: formUtils.toYesOrNoOptionValue(loadedData.providesAirportPickup),
-        carManufacturer: '',
-        carModel: '',
-        numCarSeats: '',
-        numMaxLgLuggages: '',
-        numMaxTrips: '',
-        airportPickupComment: formUtils.toOptionalTextValue(loadedData.airportPickupComment)
-      }
+      let formData = formUtils.toVolunteerAirportPickupForm(loadedData);
 
       if(formData.providesAirportPickup === 'yes') {
-        formData.carManufacturer = formUtils.toOptionalTextValue(loadedData.carManufacturer);
-        formData.carModel = formUtils.toOptionalTextValue(loadedData.carModel);
-        formData.numCarSeats = formUtils.toOptionalTextValue(loadedData.numCarSeats);
-        formData.numMaxLgLuggages = formUtils.toOptionalTextValue(loadedData.numMaxLgLuggages);
-        formData.numMaxTrips = formUtils.toOptionalTextValue(loadedData.numMaxTrips);
-
         setShowCapacityDetails(true);
       }
 

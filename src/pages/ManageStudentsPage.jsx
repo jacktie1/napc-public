@@ -1,75 +1,108 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
 import ApathNavbar from '../components/ApathNavbar';
 import { Container, Row, Col, Alert, Button, Modal } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import StudentDetailsModal from '../components/StudentDetailsModal';
+import * as magicGridUtils from '../utils/magicGridUtils';
 
 const ManageStudentsPage = () => {
-  const [studentData, setStudentData] = useState([]);
+  const [serverError, setServerError] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedStudents, setSelectedStudents] = useState([]);
+
+  const [studentData, setStudentData] = useState([]);
+  const [optionReferences, setOptionReferences] = useState({});
+  const [loadedData, setLoadedData] = useState({});
+
   const gridRef = useRef();
+
   useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
+          params: {
+            referenceTypes: ['Major', 'Airline', 'Area', 'Location', 'Apartment'].join(','),
+          }
+        });
+  
+        setOptionReferences(axiosResponse.data.result.referencesByType);
+
+        fetchData();
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        setServerError(errorMessage);
+      }
+    };
     // Fetch data from API and set it in the state
     // For demonstration purposes, assuming you have a function fetchDataFromApi
     // Replace this with your actual API fetching logic
-    const fetchData = () => {
-      setStudentData([
-        {
-          "id": '1024',
-          "lastName": 'Zhao',
-          'firstName': 'Siming',
-          'gender': 'F',
-          'arrivalDate': new Date('2024/08/18'),
-          'arrivalTime': '00:01',
-          'flightNumber': 'DL772',
-          'numBigLuggages': '4',
-          'requiresPickup': 'Yes',
-          'requiresTempHousing': 'No',
-          'modified': '07/18/2023 07:07:06'
-        },
-        {
-          "id": '1066',
-          "lastName": 'Zhiming',
-          'firstName': 'Qi',
-          'gender': 'M',
-          'arrivalDate': new Date('2024/09/12'),
-          'arrivalTime': '15:01',
-          'flightNumber': 'AA312',
-          'numBigLuggages': '2',
-          'requiresPickup': 'Yes',
-          'requiresTempHousing': 'Yes',
-          'modified': '05/18/2023 07:07:06'
-        },
-        {
-          "id": '1078',
-          "lastName": 'Zhou',
-          'firstName': 'Fang',
-          'gender': 'M',
-          'arrivalDate': new Date('2024/09/02'),
-          'arrivalTime': '12:01',
-          'flightNumber': 'UA031',
-          'numBigLuggages': '2',
-          'requiresPickup': 'Yes',
-          'requiresTempHousing': 'Yes',
-          'modified': '01/18/2023 07:07:06'
-        },
-      ])
+    const fetchData = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getStudents`);
+        let fetechedStudents = axiosResponse.data.result.students;
+
+        let fetchedStudentsById = fetechedStudents.reduce((acc, student) => {
+          acc[student.userAccount.userId] = student;
+          return acc;
+        }, {});
+
+        setLoadedData(fetchedStudentsById);
+
+        let formattedStudents = fetechedStudents.map(function(student) {
+          let retRow = {
+            userId: student.userAccount.userId,
+            lastName: student.studentProfile.lastName,
+            firstName: student.studentProfile.firstName,
+            gender: magicGridUtils.toGenderValue(student.studentProfile.gender),
+            needsAirportPickup: magicGridUtils.toYesOrNoValue(student.studentFlightInfo.needsAirportPickup),
+            needsTempHousing: magicGridUtils.toYesOrNoValue(student.studentTempHousing.needsTempHousing),
+            modifiedAt: new Date(student.modifiedAt),
+            arrivalDate: null,
+            arrivalTime: null,
+            arrivalFlightNumber: null,
+            numLgLuggages: null,
+          }
+
+          if(student.studentFlightInfo.needsAirportPickup && student.studentFlightInfo.hasFlightInfo)
+          {
+            let arrivalDatetime = student.studentFlightInfo.arrivalDatetime;
+
+            retRow.arrivalDate = magicGridUtils.getDate(arrivalDatetime);
+            retRow.arrivalTime = magicGridUtils.getTime(arrivalDatetime);
+            retRow.arrivalFlightNumber = student.studentFlightInfo.arrivalFlightNumber;
+            retRow.numLgLuggages = student.studentFlightInfo.numLgLuggages;
+          }
+
+          return retRow
+        });
+
+        setStudentData(formattedStudents);
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
     };
 
-    fetchData();
+    fetchOptions();
   }, []);
 
   const columns = [
     {
       headerName: 'Student Id',
-      field: 'id',
+      field: 'userId',
       checkboxSelection: true,
       cellRenderer: StudentDetailsModal,
       cellRendererParams: {
         readOnly: false,
         adminView: true,
+        optionReferences: optionReferences,
+        loadedData: loadedData,
       },
       textFilter: true,
     },
@@ -99,26 +132,28 @@ const ManageStudentsPage = () => {
     },
     {
       headerName: 'FN',
-      field: 'flightNumber',
+      field: 'arrivalFlightNumber',
       textFilter: true,
     },
     {
       headerName: 'BigLug',
-      field: 'numBigLuggages',
+      field: 'numLgLuggages',
     },
     {
       headerName: 'PK Req',
-      field: 'requiresPickup',
+      field: 'needsAirportPickup',
       booleanFilter: true,
     },
     {
       headerName: 'Hous Req',
-      field: 'requiresTempHousing',
+      field: 'needsTempHousing',
       booleanFilter: true,
     },
     {
       headerName: 'Modified',
-      field: 'modified',
+      field: 'modifiedAt',
+      isTimestamp: true,
+      sort: 'desc',
     },
   ];
 
@@ -126,7 +161,7 @@ const ManageStudentsPage = () => {
   const handleShowConfirmModal = () => setShowConfirmModal(true);
 
   const handleRowSelected = (event) => {
-    const studentId = event.node.data.id;
+    let studentId = event.node.data.userId;
 
     if(event.node.isSelected())
     {
@@ -140,13 +175,35 @@ const ManageStudentsPage = () => {
     }
   };
 
+  const sendDeleteStudentsRequest = async () => {
+    try {
+      console.log('selectedStudents', selectedStudents);
+      await axiosInstance.delete(`${process.env.REACT_APP_API_BASE_URL}/api/userAccount/deleteUsers`, {
+        data: {
+         userIds: selectedStudents,
+        }
+      });
+
+      setStudentData(studentData => studentData.filter(
+        (studentRow) => !(selectedStudents.includes(studentRow.userId))
+      ));
+  
+      setSelectedStudents([]);
+
+      gridRef.current?.api.deselectAll();
+
+      alert('Students deleted successfully!');
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  };
+
   const handleDeleteStudents = () => {
     handleCloseConfirmModal();
-    setStudentData(studentData => studentData.filter(
-      (studentRow) => !(selectedStudents.includes(studentRow.id))
-    ));
-    setSelectedStudents([]);
-    gridRef.current?.api.deselectAll();
+    sendDeleteStudentsRequest();
   }
 
   return (
@@ -164,6 +221,12 @@ const ManageStudentsPage = () => {
               This table below displays all students. Click the ID to edit a student.
             </Alert>
             <MultipleSortingInfo/>
+            <hr/>
+              {serverError && (
+                <Alert variant='danger'>
+                  {serverError}
+                </Alert>
+              )}
             <div className='py-3'>
               <Button variant="danger" onClick={handleShowConfirmModal} disabled={selectedStudents.length===0}>
                   Delete Selected Students

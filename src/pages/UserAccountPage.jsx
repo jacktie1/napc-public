@@ -6,6 +6,7 @@ import UserEditableAccountForm from '../components/UserEditableAccountForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
+import * as formUtils from '../utils/formUtils';
 
 
 const UserAccountPage = () => {
@@ -40,13 +41,7 @@ const UserAccountPage = () => {
 
   const sendUpdateUserAccountRequest = async () => {
     try {
-      let preparedUserAccount = {
-        username: userAccount.username,
-      };
-
-      if(userAccount.password !== '') {
-        preparedUserAccount.password = userAccount.password;
-      }
+      let preparedUserAccount = formUtils.fromUserAccountForm(userAccount);
 
       await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/userAccount/updateAccount/${userId}`,
         {

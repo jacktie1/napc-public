@@ -1,20 +1,32 @@
 import React, { useState, useRef } from 'react';
-import { Modal, Button, Tabs, Tab } from 'react-bootstrap';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
+import { Modal, Button, Tabs, Tab, Alert } from 'react-bootstrap';
 import StudentProfileForm from './StudentProfileForm';
 import StudentFlightInfoForm from './StudentFlightInfoForm';
 import StudentTempHousingForm from './StudentTempHousingForm';
 import StudentCommentForm from './StudentCommentForm';
+import UserEditableAccountForm from './UserEditableAccountForm';
+import * as formUtils from '../utils/formUtils';
+import * as magicGridUtils from '../utils/magicGridUtils';
 
-const StudentDetailsModal = ({ value, readOnly, adminView }) => {
+
+const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReferences, loadedData }) => {
     const [showModal, setShowModal] = useState(false);
+    const [serverError, setServerError] = useState('');
     const [currentTab, setCurrentTab] = useState('profile');
 
+    const userId = value;
+
     var studentProfile;
+    var userAccount;
     var flightInfo;
     var tempHousing;
     var studentComment;
 
     const studentProfileFormRef = useRef(null);
+    const userAccountFormRef = useRef(null);
+
     const StudentFlightInfoFormRef = useRef(null);
     const StudentTempHousingFormRef = useRef(null);
     const studentCommentFormRef = useRef(null);
@@ -34,6 +46,163 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
     const handleTabSelect = (key) => {
       setCurrentTab(key);
     }
+    
+    const sendUpdateStudentProfileRequest = async () => {
+      try {
+        let preparedStudentProfile = formUtils.fromStudentProfileForm(studentProfile);
+
+        await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateProfile/${userId}`,
+          {
+            studentProfile: preparedStudentProfile,
+          });
+
+        node.updateData(
+          {
+            ...node.data,
+            firstName: preparedStudentProfile.firstName,
+            lastName: preparedStudentProfile.lastName,
+            gender: magicGridUtils.toGenderValue(preparedStudentProfile.gender),
+            modifiedAt: new Date(),
+          });
+
+        loadedData[userId].studentProfile = preparedStudentProfile;
+
+        setServerError('');
+
+        alert('Student Profile updated successully!');
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    };
+
+    const sendUpdateUserAccountRequest = async () => {
+      try {
+        let preparedUserAccount = formUtils.fromUserAccountForm(userAccount);
+
+        await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/userAccount/updateAccount/${userId}`,
+          {
+            userAccount: preparedUserAccount,
+          });
+
+        loadedData[userId].userAccount = {
+          'username': preparedUserAccount.username,
+          'password': '',
+          'confirmPassword': '',
+        };
+
+        setServerError('');
+
+        alert('User account updated successully!');
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    };
+
+    const sendUpdateStudentFlightInfoRequest = async () => {
+      try {
+        let preparedFlightInfo = formUtils.fromStudentFlightInfoForm(flightInfo);
+
+        await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateFlightInfo/${userId}`,
+          {
+            studentFlightInfo: preparedFlightInfo,
+          });
+
+        let newArrivalDate = null;
+        let newArrivalTime = null;
+        let newArrivalFlightNumber = null;
+        let newNumLgLuggages = null;
+
+        if(preparedFlightInfo.needsAirportPickup && preparedFlightInfo.hasFlightInfo)
+        {
+          let arrivalDatetime = preparedFlightInfo.arrivalDatetime;
+
+          newArrivalDate = magicGridUtils.getDate(arrivalDatetime);
+          newArrivalTime = magicGridUtils.getTime(arrivalDatetime);
+          newArrivalFlightNumber = preparedFlightInfo.arrivalFlightNumber;
+          newNumLgLuggages = preparedFlightInfo.numLgLuggages;
+        }
+
+        node.updateData(
+          {
+            ...node.data,
+            needsAirportPickup: magicGridUtils.toYesOrNoValue(preparedFlightInfo.needsAirportPickup),
+            arrivalDate: newArrivalDate,
+            arrivalTime: newArrivalTime,
+            arrivalFlightNumber: newArrivalFlightNumber,
+            numLgLuggages: newNumLgLuggages,
+            modifiedAt: new Date(),
+          });
+
+        loadedData[userId].studentFlightInfo = preparedFlightInfo;
+
+        setServerError('');
+
+        alert('Student Flight Info updated successully!');
+
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    };
+
+    const sendUpdateStudentTempHousingRequest = async () => {
+      try {
+        let preparedTempHousing = formUtils.fromStudentTempHousingForm(tempHousing);
+
+        await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateTempHousing/${userId}`,
+          {
+            studentTempHousing: preparedTempHousing,
+          });
+
+        node.updateData(
+          {
+            ...node.data,
+            needsTempHousing: magicGridUtils.toYesOrNoValue(preparedTempHousing.needsTempHousing),
+            modifiedAt: new Date(),
+          });
+
+        loadedData[userId].studentTempHousing = preparedTempHousing;
+
+        setServerError('');
+
+        alert('Student Temp Housing updated successully!');
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    };
+
+    const sendUpdateStudentCommentRequest = async () => {
+      try {
+        let preparedStudentComment = formUtils.fromStudentCommentForm(studentComment);
+
+        await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateComment/${userId}`,
+          {
+            studentComment: preparedStudentComment,
+          });
+
+        loadedData[userId].studentComment = preparedStudentComment;
+
+        setServerError('');
+
+        alert('Student Comment updated successully!');
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    };
 
     const handleSubmit = () => {
       if (currentTab === 'profile')
@@ -43,9 +212,19 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
         
             if (Object.keys(studentProfileErrors).length === 0)
             {
-              alert('success');
-              handleClose();
+              sendUpdateStudentProfileRequest();
             }
+        });
+      }
+      else if (currentTab === 'userAccount')
+      {
+        userAccountFormRef.current.submitForm().then(() => {
+          let userAccountErrors = userAccountFormRef.current.errors;
+
+          if (Object.keys(userAccountErrors).length === 0)
+          {
+            sendUpdateUserAccountRequest();
+          }
         });
       }
       else if (currentTab === 'flightInfo')
@@ -55,8 +234,7 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
         
             if (Object.keys(StudentFlightInfoFormErros).length === 0)
             {
-              alert('success');
-              handleClose();
+              sendUpdateStudentFlightInfoRequest();
             }
         });
       }
@@ -67,8 +245,7 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
         
             if (Object.keys(StudentTempHousingFormErros).length === 0)
             {
-              alert('success');
-              handleClose();
+              sendUpdateStudentTempHousingRequest();
             }
         });
       }
@@ -79,8 +256,7 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
         
             if (Object.keys(studentCommentFormErros).length === 0)
             {
-              alert('success');
-              handleClose();
+              sendUpdateStudentCommentRequest();
             }
         });
       }
@@ -88,6 +264,11 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
 
     const handleStudentProfileSubmit = (values, { setSubmitting }) => {
       studentProfile = values;
+      setSubmitting(false);
+    };
+
+    const handleUserAccountSubmit = (values, { setSubmitting }) => {
+      userAccount = values;
       setSubmitting(false);
     };
   
@@ -109,7 +290,7 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
     return (
       <>
         <div onClick={handleShow} className='hyperlink'>
-          {value}
+          {userId}
         </div>
 
         <Modal show={showModal} onHide={handleClose} centered size={modalSize}>
@@ -117,6 +298,11 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
             <Modal.Title>Student Details</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            {serverError && (
+                  <Alert variant='danger'>
+                    {serverError}
+                  </Alert>
+                )}
             <Tabs
               defaultActiveKey="profile"
               id="student-details-modal-tabs"
@@ -125,40 +311,47 @@ const StudentDetailsModal = ({ value, readOnly, adminView }) => {
             >
               <Tab eventKey="profile" title="Student Profile">
                 <StudentProfileForm
-                  userId={value}
                   innerRef={studentProfileFormRef}
                   onSubmit={handleStudentProfileSubmit}
                   formReadOnly={readOnly}
-                  lazyLoadToggle={currentTab==='profile'}
+                  optionReferences={optionReferences}
+                  loadedData={loadedData[userId].studentProfile}
+                />
+              </Tab>
+              <Tab eventKey="userAccount" title="User Account">
+                <UserEditableAccountForm
+                  innerRef={userAccountFormRef}
+                  onSubmit={handleUserAccountSubmit}
+                  formReadOnly={readOnly}
+                  loadedData={loadedData[userId].userAccount}
                 />
               </Tab>
               <Tab eventKey="flightInfo" title="Airport Pickup">
                 <StudentFlightInfoForm
-                  userId={value}
                   innerRef={StudentFlightInfoFormRef}
                   onSubmit={handleStudentFlightInfoFormSubmit}
                   formReadOnly={readOnly}
-                  lazyLoadToggle={currentTab==='flightInfo'}
+                  optionReferences={optionReferences}
+                  loadedData={loadedData[userId].studentFlightInfo}
                 />
               </Tab>
               <Tab eventKey="tempHousing" title="Temporary Housing">
                 <StudentTempHousingForm
-                  userId={value}
                   innerRef={StudentTempHousingFormRef}
                   onSubmit={handleStudentTempHousingFormSubmit}
                   formReadOnly={readOnly}
-                  lazyLoadToggle={currentTab==='tempHousing'}
+                  optionReferences={optionReferences}
+                  loadedData={loadedData[userId].studentTempHousing}
                 />
               </Tab>
               { adminView ?
                 <Tab eventKey="comment" title="Comment">
                   <StudentCommentForm
-                    userId={value}
                     innerRef={studentCommentFormRef}
-                    onSubmit={handleStudentTempHousingFormSubmit}
+                    onSubmit={handleStudentCommentFormSubmit}
                     formReadOnly={readOnly}
                     adminView={true}
-                    lazyLoadToggle={currentTab==='comment'}
+                    loadedData={loadedData[userId].studentComment}
                   />
                 </Tab>
               : null }

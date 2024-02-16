@@ -12,7 +12,7 @@ import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import { useNavigate } from 'react-router-dom';
 
 import { Container, Button, Row, Col, Accordion, Alert } from 'react-bootstrap';
-import { fromYesOrNoOptionValue, fromReferenceIdOptionValue, fromGenderOptionValue, fromOptionalTextValue } from '../utils/formUtils';
+import * as formUtils from '../utils/formUtils';
 
 
 const SignupVolunteerPage = () => {
@@ -57,69 +57,13 @@ const SignupVolunteerPage = () => {
 
   const sendSignupVolunteerRequest = async () => {
     try {
-      let preparedVolunteerProfile = {
-        firstName: volunteerProfile.firstName,
-        lastName: volunteerProfile.lastName,
-        gender: fromGenderOptionValue(volunteerProfile.gender),
-        affiliation: volunteerProfile.affiliation,
-        emailAddress: volunteerProfile.emailAddress,
-        wechatId: fromOptionalTextValue(volunteerProfile.wechatId),
-        primaryPhoneNumber: volunteerProfile.primaryPhoneNumber,
-        secondaryPhoneNumber: fromOptionalTextValue(volunteerProfile.secondaryPhoneNumber),
-      };
+      let preparedVolunteerProfile = formUtils.fromVolunteerProfileForm(volunteerProfile);
   
-      let preparedUserAccount = {
-        username: userAccount.username,
-        password: userAccount.password,
-        securityQuestionReferenceId1: fromReferenceIdOptionValue(userAccount.securityQuestionReferenceId1),
-        securityAnswer1: userAccount.securityAnswer1,
-        securityQuestionReferenceId2: fromReferenceIdOptionValue(userAccount.securityQuestionReferenceId2),
-        securityAnswer2: userAccount.securityAnswer2,
-        securityQuestionReferenceId3: fromReferenceIdOptionValue(userAccount.securityQuestionReferenceId3),
-        securityAnswer3: userAccount.securityAnswer3,
-      };
+      let preparedUserAccount = formUtils.fromUserAccountForm(userAccount);
 
-      let preparedVolunteerAirportPickup = {
-        providesAirportPickup: fromYesOrNoOptionValue(pickupCapacity.providesAirportPickup),
-        airportPickupComment: fromOptionalTextValue(pickupCapacity.airportPickupComment),
-        carManufacturer: null,
-        carModel: null,
-        numCarSeats: null,
-        numMaxLgLuggages: null,
-        numMaxTrips: null,
-      };
+      let preparedVolunteerAirportPickup = formUtils.fromVolunteerAirportPickupForm(pickupCapacity);
 
-      if(preparedVolunteerAirportPickup.providesAirportPickup) {
-        preparedVolunteerAirportPickup.carManufacturer = fromOptionalTextValue(pickupCapacity.carManufacturer);
-        preparedVolunteerAirportPickup.carModel = fromOptionalTextValue(pickupCapacity.carModel);
-        preparedVolunteerAirportPickup.numCarSeats = fromOptionalTextValue(pickupCapacity.numCarSeats);
-        preparedVolunteerAirportPickup.numMaxLgLuggages = fromOptionalTextValue(pickupCapacity.numMaxLgLuggages);
-        preparedVolunteerAirportPickup.numMaxTrips = fromOptionalTextValue(pickupCapacity.numMaxTrips);
-      }
-
-      let preparedVolunteerTempHousing = {
-        providesTempHousing: fromYesOrNoOptionValue(housingCapacity.providesTempHousing),
-        homeAddress: null,
-        numMaxStudentsHosted: null,
-        tempHousingStartDate: null,
-        tempHousingEndDate: null,
-        numDoubleBeds: null,
-        numSingleBeds: null,
-        genderPreference: null,
-        providesRide: null,
-        tempHousingComment: fromOptionalTextValue(housingCapacity.tempHousingComment),
-      };
-
-      if(preparedVolunteerTempHousing.providesTempHousing) {
-        preparedVolunteerTempHousing.homeAddress = housingCapacity.homeAddress;
-        preparedVolunteerTempHousing.numMaxStudentsHosted = fromOptionalTextValue(housingCapacity.numMaxStudentsHosted);
-        preparedVolunteerTempHousing.tempHousingStartDate = fromOptionalTextValue(housingCapacity.tempHousingStartDate);
-        preparedVolunteerTempHousing.tempHousingEndDate = fromOptionalTextValue(housingCapacity.tempHousingEndDate);
-        preparedVolunteerTempHousing.numDoubleBeds = fromOptionalTextValue(housingCapacity.numDoubleBeds);
-        preparedVolunteerTempHousing.numSingleBeds = fromOptionalTextValue(housingCapacity.numSingleBeds);
-        preparedVolunteerTempHousing.genderPreference = fromGenderOptionValue(housingCapacity.genderPreference);
-        preparedVolunteerTempHousing.providesRide = fromYesOrNoOptionValue(housingCapacity.providesRide);
-      }
+      let preparedVolunteerTempHousing = formUtils.fromVolunteerTempHousingForm(housingCapacity);
 
       await axiosInstance.post(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/register`, {
         volunteerProfile: preparedVolunteerProfile,

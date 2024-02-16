@@ -79,27 +79,12 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
   useEffect(() => {
     if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
     {
-      let formData = {
-        needsTempHousing: formUtils.toYesOrNoOptionValue(loadedData.needsTempHousing),
-        numNights: '',
-        area: '',
-        location: '',
-        apartmentReferenceId: formUtils.toReferenceIdOptionValue(loadedData.apartmentReferenceId, true),
-        customDestinationAddress: formUtils.toOptionalTextValue(loadedData.customDestinationAddress),
-        contactName: '',
-        contactEmailAddress: '',
-        contactPhoneNumber: '',
-      }
+      let formData = formUtils.toStudentTempHousingForm(loadedData);
   
       if (formData.needsTempHousing === 'yes') {
-        formData.numNights = loadedData.numNights;
-
         setShowNumNights(true);
         setAddressText('Where should we send you to after this period? Address');
       } else if (formData.needsTempHousing === 'no') {
-        formData.contactName = formUtils.toOptionalTextValue(loadedData.contactName);
-        formData.contactEmailAddress = formUtils.toOptionalTextValue(loadedData.contactEmailAddress);
-        formData.contactPhoneNumber = formUtils.toOptionalTextValue(loadedData.contactPhoneNumber);
         setShowContact(true);
         setAddressText('If not, where should we drive you to from the airport? Address');
       }

@@ -21,49 +21,15 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
 
   useEffect(() => {
     if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0) {
-      let formData = {
-        needsAirportPickup: formUtils.toYesOrNoOptionValue(loadedData.needsAirportPickup),
-        hasFlightInfo: '',
-        arrivalFlightNumber: '',
-        arrivalAirlineReferenceId: '',
-        customArrivalAirline: '',
-        arrivalDate: '',
-        arrivalTime: '',
-        departureFlightNumber: '',
-        departureAirlineReferenceId: '',
-        customDepartureAirline: '',
-        departureDate: '',
-        departureTime: '',
-        numLgLuggages: '',
-        numSmLuggages: '',
-      };
+      let formData = formUtils.toStudentFlightInfoForm(loadedData);
 
       innerRef.current.setValues(formData);
 
       if (formData.needsAirportPickup === 'yes') {
-        formData.hasFlightInfo = formUtils.toYesOrNoOptionValue(loadedData.hasFlightInfo);
         setShowHasFlightInfoQ(true);
       }
 
       if (formData.hasFlightInfo === 'yes') {
-        formData.arrivalFlightNumber = loadedData.arrivalFlightNumber;
-        formData.arrivalAirlineReferenceId = formUtils.toReferenceIdOptionValue(loadedData.arrivalAirlineReferenceId);
-        formData.customArrivalAirline = formUtils.toOptionalTextValue(loadedData.customArrivalAirline);
-        formData.departureFlightNumber = loadedData.departureFlightNumber;
-        formData.departureAirlineReferenceId = formUtils.toReferenceIdOptionValue(loadedData.departureAirlineReferenceId);
-        formData.customDepartureAirline = formUtils.toOptionalTextValue(loadedData.customDepartureAirline);
-        formData.numLgLuggages = loadedData.numLgLuggages;
-        formData.numSmLuggages = loadedData.numSmLuggages;
-
-        //split date and time in form of 'yyyy-MM-DD HH:mm'
-        let arrivalDateTime = loadedData.arrivalDatetime.split(' ');
-        formData.arrivalDate = arrivalDateTime[0];
-        formData.arrivalTime = arrivalDateTime[1];
-
-        let departureDateTime = loadedData.departureDatetime.split(' ');
-        formData.departureDate = departureDateTime[0];
-        formData.departureTime = departureDateTime[1];
-
         setShowFlightDetails(true);
       } else if (formData.hasFlightInfo === 'no') {
         setShowUpdateFlightInfoAlert(true);

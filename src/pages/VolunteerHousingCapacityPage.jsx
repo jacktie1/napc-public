@@ -6,7 +6,7 @@ import VolunteerHousingCapacityForm from '../components/VolunteerHousingCapacity
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
-import { fromOptionalTextValue, fromYesOrNoOptionValue, fromGenderOptionValue } from '../utils/formUtils';
+import * as formUtils from '../utils/formUtils';
 
 import { Container, Button, Row, Col, Alert } from 'react-bootstrap';
 
@@ -42,29 +42,7 @@ const VolunteerHousingCapacityPage = () => {
 
   const sendUpdateVolunteerTempHousingRequest = async () => {
     try {
-      let preparedVolunteerTempHousing = {
-        providesTempHousing: fromYesOrNoOptionValue(volunteerHousingCapacity.providesTempHousing),
-        homeAddress: null,
-        numMaxStudentsHosted: null,
-        tempHousingStartDate: null,
-        tempHousingEndDate: null,
-        numDoubleBeds: null,
-        numSingleBeds: null,
-        genderPreference: null,
-        providesRide: null,
-        tempHousingComment: fromOptionalTextValue(volunteerHousingCapacity.tempHousingComment),
-      };
-
-      if(preparedVolunteerTempHousing.providesTempHousing) {
-        preparedVolunteerTempHousing.homeAddress = volunteerHousingCapacity.homeAddress;
-        preparedVolunteerTempHousing.numMaxStudentsHosted = fromOptionalTextValue(volunteerHousingCapacity.numMaxStudentsHosted);
-        preparedVolunteerTempHousing.tempHousingStartDate = fromOptionalTextValue(volunteerHousingCapacity.tempHousingStartDate);
-        preparedVolunteerTempHousing.tempHousingEndDate = fromOptionalTextValue(volunteerHousingCapacity.tempHousingEndDate);
-        preparedVolunteerTempHousing.numDoubleBeds = fromOptionalTextValue(volunteerHousingCapacity.numDoubleBeds);
-        preparedVolunteerTempHousing.numSingleBeds = fromOptionalTextValue(volunteerHousingCapacity.numSingleBeds);
-        preparedVolunteerTempHousing.genderPreference = fromGenderOptionValue(volunteerHousingCapacity.genderPreference);
-        preparedVolunteerTempHousing.providesRide = fromYesOrNoOptionValue(volunteerHousingCapacity.providesRide);
-      }
+      let preparedVolunteerTempHousing = formUtils.fromVolunteerTempHousingForm(volunteerHousingCapacity);
 
       await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/updateTempHousing/${userId}`,
         {

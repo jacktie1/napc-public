@@ -6,7 +6,7 @@ import VolunteerPickupCapacityForm from '../components/VolunteerPickupCapacityFo
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
-import { fromOptionalTextValue, fromYesOrNoOptionValue } from '../utils/formUtils';
+import * as formUtils from '../utils/formUtils';
 
 
 import { Container, Button, Row, Col, Alert } from 'react-bootstrap';
@@ -43,23 +43,7 @@ const VolunteerPickupCapacityPage = () => {
 
   const sendUpdateVolunteerAirportPickupRequest = async () => {
     try {
-      let preparedVolunteerAirportPickup = {
-        providesAirportPickup: fromYesOrNoOptionValue(volunteerPickupCapacity.providesAirportPickup),
-        airportPickupComment: fromOptionalTextValue(volunteerPickupCapacity.airportPickupComment),
-        carManufacturer: null,
-        carModel: null,
-        numCarSeats: null,
-        numMaxLgLuggages: null,
-        numMaxTrips: null,
-      };
-
-      if(preparedVolunteerAirportPickup.providesAirportPickup) {
-        preparedVolunteerAirportPickup.carManufacturer = fromOptionalTextValue(volunteerPickupCapacity.carManufacturer);
-        preparedVolunteerAirportPickup.carModel = fromOptionalTextValue(volunteerPickupCapacity.carModel);
-        preparedVolunteerAirportPickup.numCarSeats = fromOptionalTextValue(volunteerPickupCapacity.numCarSeats);
-        preparedVolunteerAirportPickup.numMaxLgLuggages = fromOptionalTextValue(volunteerPickupCapacity.numMaxLgLuggages);
-        preparedVolunteerAirportPickup.numMaxTrips = fromOptionalTextValue(volunteerPickupCapacity.numMaxTrips);
-      }
+      let preparedVolunteerAirportPickup = formUtils.fromVolunteerAirportPickupForm(volunteerPickupCapacity);
 
       await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/updateAirportPickup/${userId}`,
         {

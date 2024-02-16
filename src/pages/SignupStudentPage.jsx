@@ -13,7 +13,7 @@ import StudentCommentForm from '../components/StudentCommentForm';
 import PrivacyStatement from '../components/PrivacyStatement';
 import PatienceInfo from '../components/PatienceInfo';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
-import { fromYesOrNoOptionValue, fromReferenceIdOptionValue, fromGenderOptionValue, fromCustomOptionValue, fromOptionalTextValue, fromStudentTypeValue } from '../utils/formUtils';
+import * as formUtils from '../utils/formUtils';
 
 const SignupStudentPage = () => {
   const navigate = useNavigate();
@@ -43,92 +43,15 @@ const SignupStudentPage = () => {
 
   const sendSignupStudentRequest = async () => {
     try {
-      let preparedStudentProfile = {
-        firstName: studentProfile.firstName,
-        lastName: studentProfile.lastName,
-        englishName: fromOptionalTextValue(studentProfile.englishName),
-        gender: fromGenderOptionValue(studentProfile.gender),
-        isNewStudent: fromYesOrNoOptionValue(studentProfile.isNewStudent),
-        graduatesFrom: fromOptionalTextValue(studentProfile.graduatesFrom),
-        studentType: fromStudentTypeValue(studentProfile.studentType),
-        majorReferenceId: fromReferenceIdOptionValue(studentProfile.majorReferenceId),
-        customMajor: fromCustomOptionValue(studentProfile.customMajor, studentProfile.majorReferenceId),
-        hasCompanion: fromYesOrNoOptionValue(studentProfile.hasCompanion),
-        emailAddress: studentProfile.emailAddress,
-        wechatId: studentProfile.wechatId,
-        cnPhoneNumber: fromOptionalTextValue(studentProfile.cnPhoneNumber),
-        usPhoneNumber: fromOptionalTextValue(studentProfile.usPhoneNumber),
-      };
+      let preparedStudentProfile = formUtils.fromStudentProfileForm(studentProfile);
 
-      let preparedUserAccount = {
-        username: userAccount.username,
-        password: userAccount.password,
-        securityQuestionReferenceId1: fromReferenceIdOptionValue(userAccount.securityQuestionReferenceId1),
-        securityAnswer1: userAccount.securityAnswer1,
-        securityQuestionReferenceId2: fromReferenceIdOptionValue(userAccount.securityQuestionReferenceId2),
-        securityAnswer2: userAccount.securityAnswer2,
-        securityQuestionReferenceId3: fromReferenceIdOptionValue(userAccount.securityQuestionReferenceId3),
-        securityAnswer3: userAccount.securityAnswer3,
-      };
+      let preparedUserAccount = formUtils.fromUserAccountForm(userAccount);
 
-      let preparedFlightInfo = {
-        needsAirportPickup: fromYesOrNoOptionValue(flightInfo.needsAirportPickup),
-        hasFlightInfo: null,
-        arrivalFlightNumber: null,
-        arrivalAirlineReferenceId: null,
-        customArrivalAirline: null,
-        arrivalDatetime: null,
-        departureFlightNumber: null,
-        departureAirlineReferenceId: null,
-        customDepartureAirline: null,
-        departureDatetime: null,
-        numLgLuggages: null,
-        numSmLuggages: null,
-      };
+      let preparedFlightInfo = formUtils.fromStudentFlightInfoForm(flightInfo);
 
-      if(preparedFlightInfo.needsAirportPickup)
-      {
-        preparedFlightInfo.hasFlightInfo = fromYesOrNoOptionValue(flightInfo.hasFlightInfo);
-      }
+      let preparedTempHousing = formUtils.fromStudentTempHousingForm(tempHousing);
 
-      if(preparedFlightInfo.hasFlightInfo)
-      {
-        preparedFlightInfo.arrivalFlightNumber = flightInfo.arrivalFlightNumber;
-        preparedFlightInfo.arrivalAirlineReferenceId = fromReferenceIdOptionValue(flightInfo.arrivalAirlineReferenceId);
-        preparedFlightInfo.customArrivalAirline = fromCustomOptionValue(flightInfo.customArrivalAirline, flightInfo.arrivalAirlineReferenceId);
-        preparedFlightInfo.arrivalDatetime = flightInfo.arrivalDate + ' ' + flightInfo.arrivalTime;
-        preparedFlightInfo.departureFlightNumber = flightInfo.departureFlightNumber;
-        preparedFlightInfo.departureAirlineReferenceId = fromReferenceIdOptionValue(flightInfo.departureAirlineReferenceId);
-        preparedFlightInfo.customDepartureAirline = fromCustomOptionValue(flightInfo.customDepartureAirline, flightInfo.departureAirlineReferenceId);
-        preparedFlightInfo.departureDatetime = flightInfo.departureDate + ' ' + flightInfo.departureTime;
-        preparedFlightInfo.numLgLuggages = flightInfo.numLgLuggages;
-        preparedFlightInfo.numSmLuggages = flightInfo.numSmLuggages;
-      }
-
-      let preparedTempHousing = {
-        needsTempHousing: fromYesOrNoOptionValue(tempHousing.needsTempHousing),
-        apartmentReferenceId: fromReferenceIdOptionValue(tempHousing.apartmentReferenceId),
-        customDestinationAddress: fromCustomOptionValue(tempHousing.customDestinationAddress, tempHousing.apartmentReferenceId, true),
-        numNights: null,
-        contactName: null,
-        contactPhoneNumber: null,
-        contactEmailAddress: null,
-      };
-
-      if(preparedTempHousing.needsTempHousing)
-      {
-        preparedTempHousing.numNights = fromReferenceIdOptionValue(tempHousing.numNights);
-      }
-      else
-      {
-        preparedTempHousing.contactName = fromOptionalTextValue(tempHousing.contactName);
-        preparedTempHousing.contactPhoneNumber = fromOptionalTextValue(tempHousing.contactPhoneNumber);
-        preparedTempHousing.contactEmailAddress = fromOptionalTextValue(tempHousing.contactEmailAddress);
-      }
-
-      let preparedStudentComment = {
-        studentComment: fromOptionalTextValue(studentComment.studentComment),
-      };
+      let preparedStudentComment = formUtils.fromStudentCommentForm(studentComment);
 
       await axiosInstance.post(`${process.env.REACT_APP_API_BASE_URL}/api/student/register`, {
         userAccount: preparedUserAccount,

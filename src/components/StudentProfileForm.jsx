@@ -20,23 +20,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
   useEffect(() => {
     if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
     {
-      let formData = {
-        firstName: loadedData.firstName,
-        lastName: loadedData.lastName,
-        englishName: formUtils.toOptionalTextValue( loadedData.englishName ),
-        gender: formUtils.toGenderOptionValue( loadedData.gender ),
-        isNewStudent: formUtils.toYesOrNoOptionValue( loadedData.isNewStudent ),
-        studentType: formUtils.toStudentTypeValue( loadedData.studentType ),
-        graduatesFrom: formUtils.toOptionalTextValue( loadedData.graduatesFrom ),
-        majorReferenceId: formUtils.toReferenceIdOptionValue( loadedData.majorReferenceId ),
-        customMajor: formUtils.toOptionalTextValue( loadedData.customMajor ),
-        hasCompanion: formUtils.toYesOrNoOptionValue( loadedData.hasCompanion ),
-        emailAddress: loadedData.emailAddress,
-        wechatId: loadedData.wechatId,
-        cnPhoneNumber: formUtils.toOptionalTextValue( loadedData.cnPhoneNumber ),
-        usPhoneNumber: formUtils.toOptionalTextValue( loadedData.usPhoneNumber ),
-      }
-
+      let formData = formUtils.toStudentProfileForm(loadedData);
       innerRef.current.setValues(formData);
     }
   }, [loadedData, innerRef]);

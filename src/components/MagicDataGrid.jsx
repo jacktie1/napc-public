@@ -42,6 +42,20 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
             delete columnDef['isArray'];
         }
 
+        if(columnDef['isTimestamp'])
+        {
+            columnDef['valueFormatter'] = (params) => {
+                if (params.value)
+                {
+                  return params.value.toLocaleString();
+                }
+  
+                return;
+            };
+
+            delete columnDef['isTimestamp'];
+        }
+
         if(columnDef['textFilter'])
         {
             columnDef['filter'] = 'agTextColumnFilter';
@@ -148,6 +162,32 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
 
         columnDef['cellStyle'] = {'wordBreak': 'break-word'};
 
+        columnDef['comparator'] = function (valueA, valueB, nodeA, nodeB, isInverted) {
+            if (valueA === valueB) {
+                return 0;
+            }
+
+            if (valueA === null || valueA === undefined || valueA === '') {
+                if(isInverted)
+                {
+                    return -1;
+                }
+
+                return 1;
+            }
+
+            if (valueB === null || valueB === undefined || valueB === '') {
+                if(isInverted)
+                {
+                    return 1;
+                }
+
+                return -1;
+            }
+
+            return valueA < valueB ? -1 : 1;
+        };
+
         return columnDef;
     });
 
@@ -175,10 +215,6 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
 
     const paginationPageSizeSelector = [30, 60, 90, 120, 10000];
     const paginationPageSize = paginationPageSizeSelector[0];
-
-
-    //const paginationPageSize = 2;
-    //const paginationPageSizeSelector = [2, 3];
   
     return (
         <div>

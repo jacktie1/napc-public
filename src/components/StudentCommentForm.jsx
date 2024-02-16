@@ -17,15 +17,14 @@ const StudentCommentForm = ({ innerRef, onSubmit, adminView, loadedData }) => {
   useEffect(() => {
     if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
     {
-      let formData = {
-        studentComment: formUtils.toOptionalTextValue(loadedData.studentComment),
-      };
+      let formData = formUtils.toStudentCommentForm(loadedData);
 
-      if(adminView)
+      // Remove adminComment if not adminView
+      if(!adminView)
       {
-        formData = {
-          ...formData,
-          adminComment: formUtils.toOptionalTextValue(loadedData.adminComment),
+        if('adminComment' in formData)
+        {
+          delete formData.adminComment;
         }
       }
 

@@ -3,6 +3,8 @@ import { Row, Form, Col} from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
 import * as yup from 'yup';
+import * as formUtils from '../utils/formUtils';
+
 
 const UserEditableAccountForm = ({ innerRef, onSubmit, loadedData }) => {
     const { Formik } = formik;
@@ -10,7 +12,8 @@ const UserEditableAccountForm = ({ innerRef, onSubmit, loadedData }) => {
     useEffect(() => {
       if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
       {
-        innerRef.current.setFieldValue('username', loadedData.username);
+        let formData = formUtils.toUserAccountForm(loadedData);
+        innerRef.current.setValues(formData);
       }
     }, [loadedData, innerRef]);
 

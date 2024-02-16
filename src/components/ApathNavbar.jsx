@@ -100,7 +100,7 @@ function ApathNavbar() {
     );
   } else if (isAdmin) {
     return (
-      <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary" bg="light" data-bs-theme="light">
+      <Navbar collapseOnSelect expand="xl" className="bg-body-tertiary" bg="light" data-bs-theme="light">
         <Container>
           <Navbar.Brand href="/admin/home">APATH - International</Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />

@@ -6,7 +6,7 @@ import StudentFlightInfoForm from '../components/StudentFlightInfoForm';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
-import { fromYesOrNoOptionValue, fromReferenceIdOptionValue, fromCustomOptionValue } from '../utils/formUtils';
+import * as formUtils from '../utils/formUtils';
 
 
 import { Container, Button, Row, Col, Alert } from 'react-bootstrap';
@@ -65,39 +65,7 @@ const StudentFlightInfoPage = () => {
 
   const sendUpdateStudentFlightInfoRequest = async () => {
     try {
-      let preparedFlightInfo = {
-        needsAirportPickup: fromYesOrNoOptionValue(studentFlightInfo.needsAirportPickup),
-        hasFlightInfo: null,
-        arrivalFlightNumber: null,
-        arrivalAirlineReferenceId: null,
-        customArrivalAirline: null,
-        arrivalDatetime: null,
-        departureFlightNumber: null,
-        departureAirlineReferenceId: null,
-        customDepartureAirline: null,
-        departureDatetime: null,
-        numLgLuggages: null,
-        numSmLuggages: null,
-      };
-
-      if(preparedFlightInfo.needsAirportPickup)
-      {
-        preparedFlightInfo.hasFlightInfo = fromYesOrNoOptionValue(studentFlightInfo.hasFlightInfo);
-      }
-
-      if(preparedFlightInfo.hasFlightInfo)
-      {
-        preparedFlightInfo.arrivalFlightNumber = studentFlightInfo.arrivalFlightNumber;
-        preparedFlightInfo.arrivalAirlineReferenceId = fromReferenceIdOptionValue(studentFlightInfo.arrivalAirlineReferenceId);
-        preparedFlightInfo.customArrivalAirline = fromCustomOptionValue(studentFlightInfo.customArrivalAirline, studentFlightInfo.arrivalAirlineReferenceId);
-        preparedFlightInfo.arrivalDatetime = studentFlightInfo.arrivalDate + ' ' + studentFlightInfo.arrivalTime;
-        preparedFlightInfo.departureFlightNumber = studentFlightInfo.departureFlightNumber;
-        preparedFlightInfo.departureAirlineReferenceId = fromReferenceIdOptionValue(studentFlightInfo.departureAirlineReferenceId);
-        preparedFlightInfo.customDepartureAirline = fromCustomOptionValue(studentFlightInfo.customDepartureAirline, studentFlightInfo.departureAirlineReferenceId);
-        preparedFlightInfo.departureDatetime = studentFlightInfo.departureDate + ' ' + studentFlightInfo.departureTime;
-        preparedFlightInfo.numLgLuggages = studentFlightInfo.numLgLuggages;
-        preparedFlightInfo.numSmLuggages = studentFlightInfo.numSmLuggages;
-      }
+      let preparedFlightInfo = formUtils.fromStudentFlightInfoForm(studentFlightInfo);
 
       await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateFlightInfo/${userId}`,
         {
