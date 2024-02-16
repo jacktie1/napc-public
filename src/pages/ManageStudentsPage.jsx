@@ -138,6 +138,7 @@ const ManageStudentsPage = () => {
     {
       headerName: 'BigLug',
       field: 'numLgLuggages',
+      numberFilter: true,
     },
     {
       headerName: 'PK Req',
@@ -177,7 +178,6 @@ const ManageStudentsPage = () => {
 
   const sendDeleteStudentsRequest = async () => {
     try {
-      console.log('selectedStudents', selectedStudents);
       await axiosInstance.delete(`${process.env.REACT_APP_API_BASE_URL}/api/userAccount/deleteUsers`, {
         data: {
          userIds: selectedStudents,

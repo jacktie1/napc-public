@@ -60,7 +60,7 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
         {
             columnDef['filter'] = 'agTextColumnFilter';
             columnDef['filterParams'] =  {
-                filterOptions: ['contains'],
+                filterOptions: ['contains', 'notBlank'],
                 maxNumConditions: 1,
                 debounceMs: 200,
                 buttons: ['reset'],
@@ -68,11 +68,23 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
 
             columnDef['floatingFilter'] = true;
             columnDef['suppressMenu'] = true;
-            columnDef['floatingFilterComponentParams'] = {
-                suppressFilterButton: true,
-            };
 
             delete columnDef['textFilter'];
+        }
+
+        if(columnDef['numberFilter'])
+        {
+            columnDef['filter'] = 'agNumberColumnFilter';
+            columnDef['filterParams'] =  {
+                filterOptions: ['equals', 'inRange', 'notBlank'],
+                maxNumConditions: 1,
+                inRangeInclusive: true,
+                buttons: ['reset'],
+            };
+            columnDef['floatingFilter'] = true;
+            columnDef['suppressMenu'] = true;
+
+            delete columnDef['numberFilter'];
         }
 
         if(columnDef['booleanFilter'])
@@ -149,7 +161,7 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
         {
             columnDef['filter'] = 'agDateColumnFilter';
             columnDef['filterParams'] =  {
-                filterOptions: ['equals', 'inRange'],
+                filterOptions: ['equals', 'inRange', 'notBlank'],
                 maxNumConditions: 1,
                 inRangeInclusive: true,
                 buttons: ['reset', 'apply'],
@@ -161,32 +173,6 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
         }
 
         columnDef['cellStyle'] = {'wordBreak': 'break-word'};
-
-        columnDef['comparator'] = function (valueA, valueB, nodeA, nodeB, isInverted) {
-            if (valueA === valueB) {
-                return 0;
-            }
-
-            if (valueA === null || valueA === undefined || valueA === '') {
-                if(isInverted)
-                {
-                    return -1;
-                }
-
-                return 1;
-            }
-
-            if (valueB === null || valueB === undefined || valueB === '') {
-                if(isInverted)
-                {
-                    return 1;
-                }
-
-                return -1;
-            }
-
-            return valueA < valueB ? -1 : 1;
-        };
 
         return columnDef;
     });
