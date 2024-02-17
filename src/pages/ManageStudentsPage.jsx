@@ -15,7 +15,6 @@ const ManageStudentsPage = () => {
 
   const [studentData, setStudentData] = useState([]);
   const [optionReferences, setOptionReferences] = useState({});
-  const [loadedData, setLoadedData] = useState({});
 
   const gridRef = useRef();
 
@@ -37,60 +36,59 @@ const ManageStudentsPage = () => {
         setServerError(errorMessage);
       }
     };
-    // Fetch data from API and set it in the state
-    // For demonstration purposes, assuming you have a function fetchDataFromApi
-    // Replace this with your actual API fetching logic
-    const fetchData = async () => {
-      try {
-        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getStudents`);
-        let fetechedStudents = axiosResponse.data.result.students;
 
-        let fetchedStudentsById = fetechedStudents.reduce((acc, student) => {
-          acc[student.userAccount.userId] = student;
-          return acc;
-        }, {});
-
-        setLoadedData(fetchedStudentsById);
-
-        let formattedStudents = fetechedStudents.map(function(student) {
-          let retRow = {
-            userId: student.userAccount.userId,
-            lastName: student.studentProfile.lastName,
-            firstName: student.studentProfile.firstName,
-            gender: magicGridUtils.toGenderValue(student.studentProfile.gender),
-            needsAirportPickup: magicGridUtils.toYesOrNoValue(student.studentFlightInfo.needsAirportPickup),
-            needsTempHousing: magicGridUtils.toYesOrNoValue(student.studentTempHousing.needsTempHousing),
-            modifiedAt: new Date(student.modifiedAt),
-            arrivalDate: null,
-            arrivalTime: null,
-            arrivalFlightNumber: null,
-            numLgLuggages: null,
-          }
-
-          if(student.studentFlightInfo.needsAirportPickup && student.studentFlightInfo.hasFlightInfo)
-          {
-            let arrivalDatetime = student.studentFlightInfo.arrivalDatetime;
-
-            retRow.arrivalDate = magicGridUtils.getDate(arrivalDatetime);
-            retRow.arrivalTime = magicGridUtils.getTime(arrivalDatetime);
-            retRow.arrivalFlightNumber = student.studentFlightInfo.arrivalFlightNumber;
-            retRow.numLgLuggages = student.studentFlightInfo.numLgLuggages;
-          }
-
-          return retRow
-        });
-
-        setStudentData(formattedStudents);
-      } catch (axiosError) {
-        let { errorMessage } = parseAxiosError(axiosError);
-
-        window.scrollTo(0, 0);
-        setServerError(errorMessage);
-      }
-    };
 
     fetchOptions();
   }, []);
+
+  // Fetch data from API and set it in the state
+  // For demonstration purposes, assuming you have a function fetchDataFromApi
+  // Replace this with your actual API fetching logic
+  const fetchData = async () => {
+    try {
+      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getStudents`);
+      let fetechedStudents = axiosResponse.data.result.students;
+
+      let formattedStudents = fetechedStudents.map(function(student) {
+        let retRow = {
+          userId: student.userAccount.userId,
+          lastName: student.studentProfile.lastName,
+          firstName: student.studentProfile.firstName,
+          gender: magicGridUtils.toGenderValue(student.studentProfile.gender),
+          needsAirportPickup: magicGridUtils.toYesOrNoValue(student.studentFlightInfo.needsAirportPickup),
+          needsTempHousing: magicGridUtils.toYesOrNoValue(student.studentTempHousing.needsTempHousing),
+          modifiedAt: new Date(student.modifiedAt),
+          arrivalDate: null,
+          arrivalTime: null,
+          arrivalFlightNumber: null,
+          numLgLuggages: null,
+        }
+
+        if(student.studentFlightInfo.needsAirportPickup && student.studentFlightInfo.hasFlightInfo)
+        {
+          let arrivalDatetime = student.studentFlightInfo.arrivalDatetime;
+
+          retRow.arrivalDate = magicGridUtils.getDate(arrivalDatetime);
+          retRow.arrivalTime = magicGridUtils.getTime(arrivalDatetime);
+          retRow.arrivalFlightNumber = student.studentFlightInfo.arrivalFlightNumber;
+          retRow.numLgLuggages = student.studentFlightInfo.numLgLuggages;
+        }
+
+        return retRow
+      });
+
+      setStudentData(formattedStudents);
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  };
+
+  const handleStudentDetailsModalClose = () => {
+    fetchData();
+  };
 
   const columns = [
     {
@@ -102,7 +100,7 @@ const ManageStudentsPage = () => {
         readOnly: false,
         adminView: true,
         optionReferences: optionReferences,
-        loadedData: loadedData,
+        onClose: handleStudentDetailsModalClose,
       },
       textFilter: true,
     },

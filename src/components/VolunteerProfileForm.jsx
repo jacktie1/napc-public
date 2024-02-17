@@ -31,7 +31,7 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, loadedData, formReadOnly, ad
 
   if(adminView)
   {
-    initialValues.enabled = '';
+    initialValues.userStatus = '';
   }
   
   const requiredAlphaTest = yup.string().required('Required!').matches(/^[a-zA-Z]+$/, { message: 'Can only contain English letters!', excludeEmptyString: true });
@@ -56,7 +56,7 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, loadedData, formReadOnly, ad
 
   if(adminView)
   {
-    schemaObject.enabled = requiredSelectTest;
+    schemaObject.userStatus = requiredSelectTest;
   }
 
   const schema = yup.object().shape(schemaObject);

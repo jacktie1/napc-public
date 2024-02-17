@@ -1,25 +1,36 @@
-import React, { useState, useRef } from 'react';
-import { Modal, Button, Tabs, Tab } from 'react-bootstrap';
+import React, { useState, useRef, useEffect } from 'react';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
+import { Modal, Button, Tabs, Tab, Alert } from 'react-bootstrap';
 import VolunteerProfileForm from './VolunteerProfileForm';
 import VolunteerPickupCapacityForm from './VolunteerPickupCapacityForm';
 import VolunteerHousingCapacityForm from './VolunteerHousingCapacityForm';
+import UserEditableAccountForm from './UserEditableAccountForm';
+import * as formUtils from '../utils/formUtils';
 
-const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
+const VolunteerDetailsModal = ({ value, node, readOnly, adminView, onClose }) => {
     const [showModal, setShowModal] = useState(false);
+    const [serverError, setServerError] = useState('');
     const [currentTab, setCurrentTab] = useState('profile');
+    const [loadedData, setLoadedData] = useState({});
+
+    const userId = value;
 
     var studentProfile;
+    var userAccount;
     var pickupCapacity;
     var housingCapacity;
 
     const studentProfileFormRef = useRef(null);
+    const userAccountFormRef = useRef(null);
     const VolunteerPickupCapacityFormRef = useRef(null);
     const VolunteerHousingCapacityFormRef = useRef(null);
 
-    const modalSize = 'md';
+    const modalSize = 'lg';
   
     const handleClose = () => {
       setCurrentTab('profile');
+      onClose();
       setShowModal(false);
     };
 
@@ -32,6 +43,108 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
       setCurrentTab(key);
     }
 
+    useEffect(() => {
+      const fetchVolunteerData = async () => {
+        try {
+          let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/getVolunteer/${userId}`);
+          let volunteer = axiosResponse.data.result.volunteer;
+
+          setLoadedData(volunteer);
+        } catch (axiosError) {
+          let { errorMessage } = parseAxiosError(axiosError);
+
+          window.scrollTo(0, 0);
+          setServerError(errorMessage);
+        }
+      };
+
+      if(showModal)
+      {
+        fetchVolunteerData();
+      }
+    }, [showModal, userId]);
+
+    const sendUpdateVolunteerProfileRequest = async () => {
+      try {
+        let preparedVolunteerProfile = formUtils.fromVolunteerProfileForm(studentProfile);
+
+        await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/updateProfile/${userId}`,
+          {
+            volunteerProfile: preparedVolunteerProfile,
+          });
+
+        setServerError('');
+
+        alert('Volunteer profile updated successully!');
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    };
+
+    const sendUpdateUserAccountRequest = async () => {
+      try {
+        let preparedUserAccount = formUtils.fromUserAccountForm(userAccount);
+
+        await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/userAccount/updateAccount/${userId}`,
+          {
+            userAccount: preparedUserAccount,
+          });
+
+        setServerError('');
+
+        alert('User account updated successully!');
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    };
+
+    const sendUpdateVolunteerAirportPickupRequest = async () => {
+      try {
+        let preparedVolunteerAirportPickup = formUtils.fromVolunteerAirportPickupForm(pickupCapacity);
+
+        await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/updateAirportPickup/${userId}`,
+          {
+            volunteerAirportPickup: preparedVolunteerAirportPickup,
+          });
+          
+        setServerError('');
+
+        alert('Volunteer airport pickup capacity updated successully!');
+
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    };
+
+    const sendUpdateVolunteerTempHousingRequest = async () => {
+      try {
+        let preparedVolunteerTempHousing = formUtils.fromVolunteerTempHousingForm(housingCapacity);
+        
+        await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/updateTempHousing/${userId}`,
+          {
+            volunteerTempHousing: preparedVolunteerTempHousing,
+          });
+
+        setServerError('');
+
+        alert('Volunteer temporary housing capacity updated successully!');
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    };
+
     const handleSubmit = () => {
       if (currentTab === 'profile')
       {
@@ -40,8 +153,18 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
         
             if (Object.keys(studentProfileErrors).length === 0)
             {
-              alert('success');
-              handleClose();
+              sendUpdateVolunteerProfileRequest();
+            }
+        });
+      }
+      else if (currentTab === 'userAccount')
+      {
+        userAccountFormRef.current.submitForm().then(() => {
+            const userAccountErrors = userAccountFormRef.current.errors;
+
+            if (Object.keys(userAccountErrors).length === 0)
+            {
+              sendUpdateUserAccountRequest();
             }
         });
       }
@@ -52,8 +175,7 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
         
             if (Object.keys(VolunteerPickupCapacityFormErros).length === 0)
             {
-              alert('success');
-              handleClose();
+              sendUpdateVolunteerAirportPickupRequest();
             }
         });
       }
@@ -64,8 +186,7 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
         
             if (Object.keys(VolunteerHousingCapacityFormErros).length === 0)
             {
-              alert('success');
-              handleClose();
+              sendUpdateVolunteerTempHousingRequest();
             }
         });
       }
@@ -73,6 +194,11 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
 
     const handleVolunteerProfileSubmit = (values, { setSubmitting }) => {
       studentProfile = values;
+      setSubmitting(false);
+    };
+
+    const handleUserAccountSubmit = (values, { setSubmitting }) => {
+      userAccount = values;
       setSubmitting(false);
     };
   
@@ -97,6 +223,11 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
             <Modal.Title>Volunteer Details</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            {serverError && (
+                    <Alert variant='danger'>
+                      {serverError}
+                    </Alert>
+                  )}
             <Tabs
               defaultActiveKey="profile"
               id="student-details-modal-tabs"
@@ -105,31 +236,35 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView }) => {
             >
               <Tab eventKey="profile" title="Volunteer Profile">
                 <VolunteerProfileForm
-                  userId={value}
                   innerRef={studentProfileFormRef}
                   onSubmit={handleVolunteerProfileSubmit}
                   adminView={adminView}
                   formReadOnly={readOnly}
-                  lazyLoadToggle={currentTab==='profile'}
+                  loadedData={loadedData.volunteerProfile}
+                />
+              </Tab>
+              <Tab eventKey="userAccount" title="User Account">
+                <UserEditableAccountForm
+                  innerRef={userAccountFormRef}
+                  onSubmit={handleUserAccountSubmit}
+                  formReadOnly={readOnly}
+                  loadedData={loadedData.userAccount}
                 />
               </Tab>
               <Tab eventKey="pickupCapacity" title="Airport Pickup">
                 <VolunteerPickupCapacityForm
-                  userId={value}
                   innerRef={VolunteerPickupCapacityFormRef}
                   onSubmit={handleVolunteerPickupCapacityFormSubmit}
                   formReadOnly={readOnly}
-                  lazyLoadToggle={currentTab==='pickupCapacity'}
-
+                  loadedData={loadedData.volunteerAirportPickup}
                 />
               </Tab>
               <Tab eventKey="housingCapacity" title="Temporary Housing">
                 <VolunteerHousingCapacityForm
-                  userId={value}
                   innerRef={VolunteerHousingCapacityFormRef}
                   onSubmit={handleVolunteerHousingCapacityFormSubmit}
                   formReadOnly={readOnly}
-                  lazyLoadToggle={currentTab==='housingCapacity'}
+                  loadedData={loadedData.volunteerTempHousing}
                 />
               </Tab>
             </Tabs>

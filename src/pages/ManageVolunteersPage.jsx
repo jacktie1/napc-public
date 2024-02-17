@@ -1,88 +1,91 @@
 import React, {useState, useEffect, useRef} from 'react';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
 import ApathNavbar from '../components/ApathNavbar';
 import { Container, Row, Col, Alert, Button, Modal } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import VolunteerDetailsModal from '../components/VolunteerDetailsModal';
+import * as magicGridUtils from '../utils/magicGridUtils';
+
 
 const ManageVolunteersPage = () => {
-  const [volunteerData, setVolunteerData] = useState([]);
+  const [serverError, setServerError] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [selectedVolunteers, setSelectedVolunteers] = useState([]);
-  const gridRef = useRef();
-  useEffect(() => {
-    // Fetch data from API and set it in the state
-    // For demonstration purposes, assuming you have a function fetchDataFromApi
-    // Replace this with your actual API fetching logic
-    const fetchData = () => {
-      setVolunteerData([
-        {
-          "id": '1024',
-          "lastName": 'Zhao',
-          'firstName': 'Siming',
-          'gender': 'F',
-          'emailAddress': 'sming@gmail.com',
-          'primaryPhoneNumber': '123-344-1223',
-          'secondaryPhoneNumber': '555-555-5555',
-          'providesPickup': 'Yes',
-          'providesTempHousing': 'No',
-          'userEnabled': 'Yes',
-          'modified': '07/18/2023 07:07:06'
-        },
-        {
-          "id": '1066',
-          "lastName": 'Zhiming',
-          'firstName': 'Qi',
-          'gender': 'M',
-          'emailAddress': 'zmingqi@gmail.com',
-          'primaryPhoneNumber': '566-344-1111',
-          'secondaryPhoneNumber': '666-666-6666',
-          'providesPickup': 'Yes',
-          'providesTempHousing': 'Yes',
-          'userEnabled': 'No',
-          'modified': '05/18/2023 07:07:06'
-        },
-        {
-          "id": '1078',
-          "lastName": 'Zhou',
-          'firstName': 'Fang',
-          'gender': 'M',
-          'emailAddress': 'zhouzhou@gmail.com',
-          'primaryPhoneNumber': '999-777-4444',
-          'secondaryPhoneNumber': '225-123-123',
-          'providesPickup': 'No',
-          'providesTempHousing': 'Yes',
-          'userEnabled': 'Yes',
-          'modified': '01/18/2023 07:07:06'
-        },
-      ])
-    };
 
+  const [volunteerData, setVolunteerData] = useState([]);
+  const [selectedVolunteers, setSelectedVolunteers] = useState([]);
+
+  const gridRef = useRef();
+
+  useEffect(() => {
     fetchData();
   }, []);
+
+    // Fetch data from API and set it in the state
+  // For demonstration purposes, assuming you have a function fetchDataFromApi
+  // Replace this with your actual API fetching logic
+  const fetchData = async () => {
+    try {
+      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/getVolunteers`);
+      let fetechedVolunteers = axiosResponse.data.result.volunteers;
+
+      let formattedVolunteers = fetechedVolunteers.map(function(volunteer) {
+        let retRow = {
+          userId: volunteer.userAccount.userId,
+          lastName: volunteer.volunteerProfile.lastName,
+          firstName: volunteer.volunteerProfile.firstName,
+          emailAddress: volunteer.volunteerProfile.emailAddress,
+          primaryPhoneNumber: volunteer.volunteerProfile.primaryPhoneNumber,
+          secondaryPhoneNumber: volunteer.volunteerProfile.secondaryPhoneNumber,
+          gender: magicGridUtils.toGenderValue(volunteer.volunteerProfile.gender),
+          providesAirportPickup: magicGridUtils.toYesOrNoValue(volunteer.volunteerAirportPickup.providesAirportPickup),
+          providesTempHousing: magicGridUtils.toYesOrNoValue(volunteer.volunteerTempHousing.providesTempHousing),
+          userEnabled: magicGridUtils.toYesOrNoValue(volunteer.volunteerProfile.enabled),
+          modifiedAt: new Date(volunteer.modifiedAt),
+        }
+
+        return retRow
+      });
+
+      setVolunteerData(formattedVolunteers);
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  };
+
+  const handleVolunteerDetailsModalClose = () => {
+    fetchData();
+  };
 
   const columns = [
     {
       headerName: 'Volunteer Id',
-      field: 'id',
+      field: 'userId',
       checkboxSelection: true,
       cellRenderer: VolunteerDetailsModal,
       cellRendererParams: {
         readOnly: false,
         adminView: true,
+        onClose: handleVolunteerDetailsModalClose,
       },
       textFilter: true,
-      width: 100,
+      minWidth: 100,
     },
     {
       headerName: 'Last Name',
       field: 'lastName',
       textFilter: true,
+      minWidth: 150,
     },
     {
       headerName: 'First Name',
       field: 'firstName',
       textFilter: true,
+      minWidth: 150,
     },
     {
       headerName: 'Gender',
@@ -93,20 +96,23 @@ const ManageVolunteersPage = () => {
       headerName: 'Email',
       field: 'emailAddress',
       textFilter: true,
+      minWidth: 250,
     },
     {
       headerName: 'Phone No',
       field: 'primaryPhoneNumber',
       textFilter: true,
+      minWidth: 150,
     },
     {
       headerName: 'BK Phone',
       field: 'secondaryPhoneNumber',
       textFilter: true,
+      minWidth: 150,
     },
     {
       headerName: 'PK Prov',
-      field: 'providesPickup',
+      field: 'providesAirportPickup',
       booleanFilter: true,
     },
     {
@@ -121,7 +127,9 @@ const ManageVolunteersPage = () => {
     },
     {
       headerName: 'Modified',
-      field: 'modified',
+      field: 'modifiedAt',
+      isTimestamp: true,
+      sort: 'desc',
     },
   ];
 
@@ -129,7 +137,7 @@ const ManageVolunteersPage = () => {
   const handleShowConfirmModal = () => setShowConfirmModal(true);
 
   const handleRowSelected = (event) => {
-    const volunteerId = event.node.data.id;
+    let volunteerId = event.node.data.userId;
 
     if(event.node.isSelected())
     {
@@ -143,13 +151,34 @@ const ManageVolunteersPage = () => {
     }
   };
 
+  const sendDeleteVolunteersRequest = async () => {
+    try {
+      await axiosInstance.delete(`${process.env.REACT_APP_API_BASE_URL}/api/userAccount/deleteUsers`, {
+        data: {
+         userIds: selectedVolunteers,
+        }
+      });
+
+      setVolunteerData(volunteerData => volunteerData.filter(
+        (volunteerRow) => !(selectedVolunteers.includes(volunteerRow.userId))
+      ));
+  
+      setSelectedVolunteers([]);
+
+      gridRef.current?.api.deselectAll();
+
+      alert('Volunteers deleted successfully!');
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  };
+
   const handleDeleteVolunteers = () => {
     handleCloseConfirmModal();
-    setVolunteerData(volunteerData => volunteerData.filter(
-      (volunteerRow) => !(selectedVolunteers.includes(volunteerRow.id))
-    ));
-    setSelectedVolunteers([]);
-    gridRef.current?.api.deselectAll();
+    sendDeleteVolunteersRequest();
   }
 
   return (
@@ -167,6 +196,12 @@ const ManageVolunteersPage = () => {
               This table below displays all volunteers. Click the ID to edit a volunteer.
             </Alert>
             <MultipleSortingInfo/>
+            <hr/>
+              {serverError && (
+                <Alert variant='danger'>
+                  {serverError}
+                </Alert>
+              )}
             <div className='py-3'>
               <Button variant="danger" onClick={handleShowConfirmModal} disabled={selectedVolunteers.length===0}>
                   Delete Selected Volunteers

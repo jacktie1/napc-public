@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import parseAxiosError from '../utils/parseAxiosError';
 import { Modal, Button, Tabs, Tab, Alert } from 'react-bootstrap';
@@ -8,13 +8,13 @@ import StudentTempHousingForm from './StudentTempHousingForm';
 import StudentCommentForm from './StudentCommentForm';
 import UserEditableAccountForm from './UserEditableAccountForm';
 import * as formUtils from '../utils/formUtils';
-import * as magicGridUtils from '../utils/magicGridUtils';
 
 
-const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReferences, loadedData }) => {
+const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReferences, onClose }) => {
     const [showModal, setShowModal] = useState(false);
     const [serverError, setServerError] = useState('');
     const [currentTab, setCurrentTab] = useState('profile');
+    const [loadedData, setLoadedData] = useState({});
 
     const userId = value;
 
@@ -35,6 +35,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
   
     const handleClose = () => {
       setCurrentTab('profile');
+      onClose();
       setShowModal(false);
     };
 
@@ -47,6 +48,27 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
       setCurrentTab(key);
     }
     
+    useEffect(() => {
+      const fetchStudentData = async () => {
+        try {
+          let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getStudent/${userId}`);
+          let student = axiosResponse.data.result.student;
+
+          setLoadedData(student);
+        } catch (axiosError) {
+          let { errorMessage } = parseAxiosError(axiosError);
+
+          window.scrollTo(0, 0);
+          setServerError(errorMessage);
+        }
+      };
+
+      if(showModal)
+      {
+        fetchStudentData();
+      }
+    }, [showModal, userId]);
+    
     const sendUpdateStudentProfileRequest = async () => {
       try {
         let preparedStudentProfile = formUtils.fromStudentProfileForm(studentProfile);
@@ -55,17 +77,6 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
           {
             studentProfile: preparedStudentProfile,
           });
-
-        node.updateData(
-          {
-            ...node.data,
-            firstName: preparedStudentProfile.firstName,
-            lastName: preparedStudentProfile.lastName,
-            gender: magicGridUtils.toGenderValue(preparedStudentProfile.gender),
-            modifiedAt: new Date(),
-          });
-
-        loadedData[userId].studentProfile = preparedStudentProfile;
 
         setServerError('');
 
@@ -87,12 +98,6 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
             userAccount: preparedUserAccount,
           });
 
-        loadedData[userId].userAccount = {
-          'username': preparedUserAccount.username,
-          'password': '',
-          'confirmPassword': '',
-        };
-
         setServerError('');
 
         alert('User account updated successully!');
@@ -112,34 +117,6 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
           {
             studentFlightInfo: preparedFlightInfo,
           });
-
-        let newArrivalDate = null;
-        let newArrivalTime = null;
-        let newArrivalFlightNumber = null;
-        let newNumLgLuggages = null;
-
-        if(preparedFlightInfo.needsAirportPickup && preparedFlightInfo.hasFlightInfo)
-        {
-          let arrivalDatetime = preparedFlightInfo.arrivalDatetime;
-
-          newArrivalDate = magicGridUtils.getDate(arrivalDatetime);
-          newArrivalTime = magicGridUtils.getTime(arrivalDatetime);
-          newArrivalFlightNumber = preparedFlightInfo.arrivalFlightNumber;
-          newNumLgLuggages = preparedFlightInfo.numLgLuggages;
-        }
-
-        node.updateData(
-          {
-            ...node.data,
-            needsAirportPickup: magicGridUtils.toYesOrNoValue(preparedFlightInfo.needsAirportPickup),
-            arrivalDate: newArrivalDate,
-            arrivalTime: newArrivalTime,
-            arrivalFlightNumber: newArrivalFlightNumber,
-            numLgLuggages: newNumLgLuggages,
-            modifiedAt: new Date(),
-          });
-
-        loadedData[userId].studentFlightInfo = preparedFlightInfo;
 
         setServerError('');
 
@@ -162,15 +139,6 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
             studentTempHousing: preparedTempHousing,
           });
 
-        node.updateData(
-          {
-            ...node.data,
-            needsTempHousing: magicGridUtils.toYesOrNoValue(preparedTempHousing.needsTempHousing),
-            modifiedAt: new Date(),
-          });
-
-        loadedData[userId].studentTempHousing = preparedTempHousing;
-
         setServerError('');
 
         alert('Student Temp Housing updated successully!');
@@ -190,8 +158,6 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
           {
             studentComment: preparedStudentComment,
           });
-
-        loadedData[userId].studentComment = preparedStudentComment;
 
         setServerError('');
 
@@ -315,7 +281,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
                   onSubmit={handleStudentProfileSubmit}
                   formReadOnly={readOnly}
                   optionReferences={optionReferences}
-                  loadedData={loadedData[userId].studentProfile}
+                  loadedData={loadedData.studentProfile}
                 />
               </Tab>
               <Tab eventKey="userAccount" title="User Account">
@@ -323,7 +289,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
                   innerRef={userAccountFormRef}
                   onSubmit={handleUserAccountSubmit}
                   formReadOnly={readOnly}
-                  loadedData={loadedData[userId].userAccount}
+                  loadedData={loadedData.userAccount}
                 />
               </Tab>
               <Tab eventKey="flightInfo" title="Airport Pickup">
@@ -332,7 +298,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
                   onSubmit={handleStudentFlightInfoFormSubmit}
                   formReadOnly={readOnly}
                   optionReferences={optionReferences}
-                  loadedData={loadedData[userId].studentFlightInfo}
+                  loadedData={loadedData.studentFlightInfo}
                 />
               </Tab>
               <Tab eventKey="tempHousing" title="Temporary Housing">
@@ -341,7 +307,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
                   onSubmit={handleStudentTempHousingFormSubmit}
                   formReadOnly={readOnly}
                   optionReferences={optionReferences}
-                  loadedData={loadedData[userId].studentTempHousing}
+                  loadedData={loadedData.studentTempHousing}
                 />
               </Tab>
               { adminView ?
@@ -351,7 +317,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
                     onSubmit={handleStudentCommentFormSubmit}
                     formReadOnly={readOnly}
                     adminView={true}
-                    loadedData={loadedData[userId].studentComment}
+                    loadedData={loadedData.studentComment}
                   />
                 </Tab>
               : null }

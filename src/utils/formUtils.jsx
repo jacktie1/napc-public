@@ -110,6 +110,26 @@ export const toStudentTypeValue = (dbValue)=> {
     }
 }
 
+export const fromUserStatusOptionValue = (optionValue)=> {
+    if (optionValue === 'enabled'){
+        return true;
+    } else if (optionValue === 'disabled'){
+        return false;
+    } else {
+        return null;
+    }
+}
+
+export const toUserStatusOptionValue = (dbValue)=> {
+    if (dbValue === true){
+        return 'enabled';
+    } else if (dbValue === false){
+        return 'disabled';
+    } else {
+        return '';
+    }
+}
+
 export const fromCustomOptionValue = (optionValue, dependency, returnOnEmptyDependency)=> {
     // 'other' selected, custom value will be used
     if(dependency === 'other'){
@@ -407,6 +427,10 @@ export const fromVolunteerProfileForm = (formData)=> {
         secondaryPhoneNumber: fromOptionalTextValue(formData.secondaryPhoneNumber),
       };
 
+    if('userStatus' in formData) {
+        preparedVolunteerProfile.enabled = fromUserStatusOptionValue(formData.userStatus);
+    }
+
     return preparedVolunteerProfile;
 }
 
@@ -421,6 +445,10 @@ export const toVolunteerProfileForm = (dbData)=> {
         primaryPhoneNumber: dbData.primaryPhoneNumber,
         secondaryPhoneNumber: toOptionalTextValue(dbData.secondaryPhoneNumber),
       }
+
+    if('enabled' in dbData) {
+        formData.userStatus = toUserStatusOptionValue(dbData.enabled);
+    }
 
     return formData;
 }

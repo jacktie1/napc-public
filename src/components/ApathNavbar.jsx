@@ -29,9 +29,6 @@ function ApathNavbar() {
           <Navbar.Collapse id="responsive-navbar-nav">
             <Nav className="me-auto" variant="underline" activeKey={activeKey}>
               <Nav.Item>
-                <Nav.Link href="/volunteer/home">Home</Nav.Link>
-              </Nav.Item>
-              <Nav.Item>
                 <Nav.Link href="/volunteer/airport-pickup-needs">Airport Pickup Needs</Nav.Link>
               </Nav.Item>
               <Nav.Item>
@@ -69,9 +66,6 @@ function ApathNavbar() {
           <Navbar.Collapse id="responsive-navbar-nav">
             <Nav className="me-auto" variant='underline' activeKey={activeKey}>
               <Nav.Item>
-                <Nav.Link href="/student/home">Home</Nav.Link>
-              </Nav.Item>
-              <Nav.Item>
                 <Nav.Link href="/student/airport-pickup-assignment">Airport Pickup Assignment</Nav.Link>
               </Nav.Item>
               <Nav.Item>
@@ -106,9 +100,6 @@ function ApathNavbar() {
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav">
             <Nav className="me-auto" variant="underline" activeKey={activeKey}>
-              <Nav.Item>
-                <Nav.Link href="/admin/home">Home</Nav.Link>
-              </Nav.Item>
               <Nav.Item>
                 <Nav.Link href="/admin/manage-announcement">Announcement</Nav.Link>
               </Nav.Item>
