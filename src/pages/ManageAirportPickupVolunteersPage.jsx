@@ -1,63 +1,67 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
 import ApathNavbar from '../components/ApathNavbar';
 import { Container, Row, Col, Alert } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import AssignPickupStudentsModal from '../components/AssignPickupStudentsModal';
+import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
 const ManageAirportPickupVolunteersPage = () => {
+  const [serverError, setServerError] = useState('');
+
   const [volunteerData, setVolunteerData] = useState([]);
 
   const gridRef = useRef();
 
-  useEffect(() => {
-    // Fetch data from API and set it in the state
-    // For demonstration purposes, assuming you have a function fetchDataFromApi
-    // Replace this with your actual API fetching logic
-    const fetchData = () => {
-      setVolunteerData([
-        {
-          "id": '1024',
-          "lastName": 'Zhao',
-          'firstName': 'Siming',
-          'gender': 'F',
-          'arrivalDate': new Date('2024/08/18'),
-          'emailAddress': 'sming@gmail.com',
-          'primaryPhoneNumber': '119-222-5555',
-          'airportPickupStudents': ['331', '99', '555'],
-          'modified': '07/18/2023 07:07:06'
-        },
-        {
-          "id": '1066',
-          "lastName": 'Zhiming',
-          'firstName': 'Qi',
-          'gender': 'M',
-          'emailAddress': 'zhmingqq@gmail.com',
-          'primaryPhoneNumber': '666-666-6666',
-          'airportPickupStudents': ['5', '222', '9'],
-          'modified': '05/18/2023 07:07:06'
-        },
-        {
-          "id": '1078',
-          "lastName": 'Zhou',
-          'firstName': 'Fang',
-          'gender': 'M',
-          'emailAddress': 'zhouzhou@gmail.com',
-          'primaryPhoneNumber': '999-999-9999',
-          'airportPickupStudents': ['12', '31'],
-          'modified': '01/18/2023 07:07:06'
-        },
-      ])
-    };
+  const fetchData = useCallback(async() => {
+    try {
+      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/getVolunteers`, {
+        params: {
+          providesAirportPickup: true,
+          includeAirportPickupAssignments: true,
+        }
+      });
 
-    fetchData();
+      let fetchedVolunteers = axiosResponse.data.result.volunteers;
+
+      let formattedVolunteers = fetchedVolunteers.map(function(volunteer) {
+        let retRow = {
+          volunteerUserId: volunteer.userAccount.userId,
+          lastName: volunteer.volunteerProfile.lastName,
+          firstName: volunteer.volunteerProfile.firstName,
+          emailAddress: volunteer.volunteerProfile.emailAddress,
+          primaryPhoneNumber: volunteer.volunteerProfile.primaryPhoneNumber,
+          gender: magicDataGridUtils.toGenderValue(volunteer.volunteerProfile.gender),
+          airportPickupStudents: volunteer?.airportPickupAssignments?.map(assignment => assignment.studentUserId),
+          modified: new Date(volunteer.modifiedAt),
+        }
+
+        return retRow
+      });
+
+      setVolunteerData(formattedVolunteers);
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const columns = [
     {
       headerName: 'Volunteer Id',
-      field: 'id',
+      field: 'volunteerUserId',
       cellRenderer: AssignPickupStudentsModal,
+      cellRendererParams: {
+        onClose: fetchData,
+      },
       textFilter: true,
     },
     {
@@ -90,7 +94,8 @@ const ManageAirportPickupVolunteersPage = () => {
       field: 'airportPickupStudents',
       cellRenderer: AssignPickupStudentsModal,
       cellRendererParams: {
-        viewAssigned: true
+        viewAssigned: true,
+        onClose: fetchData,
       },
       textFilter: true,
       isArray: true,
@@ -98,6 +103,7 @@ const ManageAirportPickupVolunteersPage = () => {
     {
       headerName: 'Modified',
       field: 'modified',
+      isTimestamp: true,
     },
   ];
 
@@ -106,16 +112,21 @@ const ManageAirportPickupVolunteersPage = () => {
       <ApathNavbar />
 
       <Container className="mt-5" fluid>
-        <Row className="mt-5 admin-pretty-box-layout">
+        <Row className="mt-5 full-pretty-box-layout">
           <Col className="pretty-box">
             <h2 className="pretty-box-heading">Manage Volunteer Pickup</h2>
             <Alert dismissible variant='info'>
-              This table below displays all volunteers that provided pickup.
+              This table below displays all volunteers that provide pickup.
             </Alert>
             <Alert dismissible variant='secondary'>
-              Click a volunteer ID to assign pickup tasks this volunteer.
+              Click a volunteer ID to assign pickup task(s) this volunteer.
             </Alert>
             <MultipleSortingInfo/>
+            {serverError && (
+              <Alert variant='danger'>
+                {serverError}
+              </Alert>
+            )}
             <MagicDataGrid
               innerRef={gridRef}
               gridStyle={{height: 800}}

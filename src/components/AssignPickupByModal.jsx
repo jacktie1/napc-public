@@ -1,128 +1,181 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
 import { Alert, Button, Modal } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
+import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
-const AssignPickupByModal = ({ value, node }) => {
+
+const AssignPickupByModal = ({ value, node, onClose }) => {
+    const [serverError, setServerError] = useState('');
+
     const [showModal, setShowModal] = useState(false);
 
     const [volunteerData, setVolunteerData] = useState([]);
 
     const [originalAssignee, setOriginalAssignee] = useState('');
+    const [currentAssignee, setCurrentAssignee] = useState('');
 
     const gridRef = useRef();
 
-    useEffect(() => {
-        // Fetch data from API and set it in the state
-        // For demonstration purposes, assuming you have a function fetchDataFromApi
-        // Replace this with your actual API fetching logic
-        const fetchData = () => {
-          if (!showModal)
-          {
-            return;
-          }
+    const fetchData = useCallback(async () => {
+      try {
+          // Clear the assignee state
+          setOriginalAssignee('');
+          setCurrentAssignee('');
 
-          const fetchedData = [
-            {
-              "id": '331',
-              "lastName": 'Zhao',
-              'firstName': 'Siming',
-              'gender': 'F',
-              'emailAddress': 'sming@gmail.com',
-              'primaryPhoneNumber': '123-344-1223',
-              'preferredStudent': 'No',
-              'assignedStudents': ['1024', '9932'],
-              'modified': '07/18/2023 07:07:06'
-            },
-            {
-              "id": '222',
-              "lastName": 'Zhiming',
-              'firstName': 'Qi',
-              'gender': 'M',
-              'emailAddress': 'zmingqi@gmail.com',
-              'primaryPhoneNumber': '566-344-1111',
-              'preferredStudent': 'Yes',
-              'assignedStudents': ['11', '9'],
-              'modified': '05/18/2023 07:07:06'
-            },
-            {
-              "id": '555',
-              "lastName": 'Zhou',
-              'firstName': 'Fang',
-              'gender': 'M',
-              'emailAddress': 'zhouzhou@gmail.com',
-              'primaryPhoneNumber': '999-777-4444',
-              'preferredStudent': 'No',
-              'assignedStudents': ['81', '211', '100'],
-              'modified': '01/18/2023 07:07:06'
-            },
-          ];
+          let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/getVolunteers`, {
+              params: {
+                providesAirportPickup: true,
+                includeAirportPickupAssignments: true,
+                includeAirportPickupPreferences: true,
+              }
+          }); 
+          
+          let fetchedVolunteers = axiosResponse.data.result.volunteers;
 
-          fetchedData.forEach(row => {
-            if(row.id === node.data.airportPickupVolunteer)
-            {
-              row.rowSelected = true;
+          let formattedVolunteers = fetchedVolunteers.map(function(volunteer) {
+            let retRow = {
+              volunteerUserId: volunteer.userAccount.userId,
+              lastName: volunteer.volunteerProfile.lastName,
+              firstName: volunteer.volunteerProfile.firstName,
+              gender: magicDataGridUtils.toGenderValue(volunteer.volunteerProfile.gender),
+              emailAddress: volunteer.volunteerProfile.emailAddress,
+              primaryPhoneNumber: volunteer.volunteerProfile.primaryPhoneNumber,
+              airportPickupStudents: volunteer?.airportPickupAssignments?.map(assignment => assignment.studentUserId),
+              preferredThisStudent: magicDataGridUtils.toYesOrNoValue(false),
+              modified: new Date(volunteer.modifiedAt),
             }
+
+            let airportPickupPreferences = volunteer?.airportPickupPreferences;
+
+            if(airportPickupPreferences !== null)
+            {
+              let airportPikcupPreferenceStudentIds = airportPickupPreferences.map(preference => preference.studentUserId);
+              retRow.preferredThisStudent = magicDataGridUtils.toYesOrNoValue(airportPikcupPreferenceStudentIds.includes(node.data.studentUserId));
+            }
+
+            let airportPickupAssignments = volunteer?.airportPickupAssignments;
+
+            if(airportPickupAssignments !== null)
+            {
+              let airportPickupAssignmentStuentIds = airportPickupAssignments.map(assignment => assignment.studentUserId);
+              retRow.rowSelected = airportPickupAssignmentStuentIds.includes(node.data.studentUserId);
+
+              if(retRow.rowSelected)
+              {
+                setOriginalAssignee(volunteer.userAccount.userId);
+                setCurrentAssignee(volunteer.userAccount.userId);
+              }
+            }
+
+            return retRow;
           });
 
-          setVolunteerData(fetchedData);
+          formattedVolunteers.sort(function(a, b) {
+            // if rowSelected is true, then it should be at the top
+            if(a.rowSelected && !b.rowSelected)
+            {
+              return -1;
+            }
+            else if(!a.rowSelected && b.rowSelected)
+            {
+              return 1;
+            }
 
-          setOriginalAssignee(node.data.airportPickupVolunteer);
-        };
-    
+            return 0;
+          });
+
+          setVolunteerData(formattedVolunteers);
+      }
+      catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    }, [node.data.studentUserId]);
+
+    const sendUpdateAirportPikcupAssignmentRequest = async (selectedVolunteer) => {
+      try {
+        let studentUserId = node.data.studentUserId;
+
+        await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateAirportPickupAssignment/${studentUserId}`, {
+          volunteerUserId: selectedVolunteer,
+        });
+
+        alert('The pickup volunteer has been updated successfully.');
+
         fetchData();
-      }, [showModal]);
+      }
+      catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    }
+
+    useEffect(() => {
+        if (showModal)
+        {
+          fetchData();
+        }
+      }, [showModal, fetchData]);
     
-      const columns = [
-        {
-          headerName: 'Volunteer Id',
-          field: 'id',
-          checkboxSelection: true,
+    const columns = [
+      {
+        headerName: 'Volunteer Id',
+        field: 'volunteerUserId',
+        checkboxSelection: true,
+        textFilter: true,
+      },
+      {
+        headerName: 'Last Name',
+        field: 'lastName',
+        textFilter: true,
+      },
+      {
+        headerName: 'First Name',
+        field: 'firstName',
+        textFilter: true,
+      },
+      {
+        headerName: 'Gender',
+        field: 'gender',
+        genderFilter: true,
+      },
+      {
+        headerName: 'Email',
+        field: 'emailAddress',
+        textFilter: true,
+      },
+      {
+        headerName: 'Phone No',
+        field: 'primaryPhoneNumber',
+        textFilter: true,
+      },
+      {
+          headerName: 'Pref',
+          field: 'preferredThisStudent',
+          booleanFilter: true,
+      },
+      {
+          headerName: 'Assign ST',
+          field: 'airportPickupStudents',
+          isArray: true,
           textFilter: true,
-        },
-        {
-          headerName: 'Last Name',
-          field: 'lastName',
-          textFilter: true,
-        },
-        {
-          headerName: 'First Name',
-          field: 'firstName',
-          textFilter: true,
-        },
-        {
-          headerName: 'Gender',
-          field: 'gender',
-          genderFilter: true,
-        },
-        {
-          headerName: 'Email',
-          field: 'emailAddress',
-          textFilter: true,
-        },
-        {
-          headerName: 'Phone No',
-          field: 'primaryPhoneNumber',
-          textFilter: true,
-        },
-        {
-            headerName: 'Pref',
-            field: 'preferredStudent',
-            booleanFilter: true,
-        },
-        {
-            headerName: 'Assign ST',
-            field: 'assignedStudents',
-            isArray: true,
-            textFilter: true,
-        },
-        {
-            headerName: 'Modified',
-            field: 'modified',
-        },
-      ];
+      },
+      {
+          headerName: 'Modified',
+          field: 'modified',
+          isTimestamp: true,
+      },
+    ];
   
     const handleClose = () => {
+      onClose();
       setShowModal(false);
     };
 
@@ -130,31 +183,30 @@ const AssignPickupByModal = ({ value, node }) => {
       setShowModal(true);
     };
 
+    const handleRowSelected = () => {
+      let selectedNodes = gridRef.current?.api.getSelectedNodes();
+
+      if(selectedNodes.length === 0)
+      {
+        setCurrentAssignee('');
+      }
+      else
+      {
+        setCurrentAssignee(selectedNodes[0].data.volunteerUserId);
+      }
+    }
+
     const handleSubmit = () => {
-        const selectedNodes = gridRef.current?.api.getSelectedNodes();
+        let selectedNodes = gridRef.current?.api.getSelectedNodes();
 
-        if(selectedNodes.length === 0)
+        let selectedVolunteer = null;
+
+        if(selectedNodes.length > 0)
         {
-            alert('No volunteer selected');
-            node.updateData({...node.data, airportPickupVolunteer: null});
-        }
-        else
-        {
-          const currentAssignee = selectedNodes[0].data.id;
-
-          if(currentAssignee === originalAssignee)
-          {
-            alert('Still assigned to ' + currentAssignee);
-          }
-          else
-          {
-            alert('Reassigned to ' + currentAssignee);
-          }
-
-          node.updateData({...node.data, airportPickupVolunteer: currentAssignee});
+          selectedVolunteer = selectedNodes[0].data.volunteerUserId;
         }
 
-        handleClose();
+        sendUpdateAirportPikcupAssignmentRequest(selectedVolunteer);
     }
 
     return (
@@ -169,13 +221,18 @@ const AssignPickupByModal = ({ value, node }) => {
           </Modal.Header>
           <Modal.Body>
             <Alert dismissible variant='info'>
-                This table below displays all pickup volunteers.
+                This table below displays all airport pickup volunteers.
             </Alert>
             <Alert dismissible variant='secondary'>
                 Click the checkbox below will assign the volunteer to this student.<br/><br/>
                 For any changes you have made on this page, please click the <b>Submit</b> button at the bottom of the page.
             </Alert>
             <MultipleSortingInfo/>
+            {serverError && (
+              <Alert variant='danger'>
+                {serverError}
+              </Alert>
+            )}
             <MagicDataGrid
               innerRef={gridRef}
               gridStyle={{height: 720}}
@@ -183,10 +240,11 @@ const AssignPickupByModal = ({ value, node }) => {
               rowData={volunteerData}
               pagination={true}
               rowSelection={'single'}
+              onRowSelected={handleRowSelected}
             />
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="primary" onClick={handleSubmit}>
+            <Button variant="primary" onClick={handleSubmit} disabled={originalAssignee === currentAssignee}>
                 Submit
             </Button>
             <Button variant="secondary" onClick={handleClose}>

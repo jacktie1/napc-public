@@ -1,10 +1,10 @@
 import React from 'react';
 import { Alert } from 'react-bootstrap';
 
-const MultipleSortingInfo = ({ }) => {
+const MultipleSortingInfo = () => {
     return (
         <Alert dismissible variant='warning'>
-            To sort by multiple columns, try holding 'Shift' key and click on the column header in order.
+            To <b>sort by multiple columns</b>, try holding <b>'Shift'</b> key and click on the column header in order.
         </Alert>
     );
 };

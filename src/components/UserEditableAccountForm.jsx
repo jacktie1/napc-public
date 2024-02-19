@@ -6,7 +6,7 @@ import * as yup from 'yup';
 import * as formUtils from '../utils/formUtils';
 
 
-const UserEditableAccountForm = ({ innerRef, onSubmit, loadedData }) => {
+const UserEditableAccountForm = ({ innerRef, onSubmit, loadedData, formReadOnly }) => {
     const { Formik } = formik;
 
     useEffect(() => {
@@ -69,6 +69,8 @@ const UserEditableAccountForm = ({ innerRef, onSubmit, loadedData }) => {
                         onChange={handleChange}
                         isValid={touched.username && !errors.username}
                         isInvalid={touched.username && !!errors.username}
+                        readOnly={formReadOnly}
+                        disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                         {errors.username}
@@ -85,6 +87,8 @@ const UserEditableAccountForm = ({ innerRef, onSubmit, loadedData }) => {
                       onChange={handleChange}
                       isValid={touched.password && !errors.password}
                       isInvalid={touched.password && !!errors.password}
+                      readOnly={formReadOnly}
+                      disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                       {errors.password}
@@ -101,6 +105,8 @@ const UserEditableAccountForm = ({ innerRef, onSubmit, loadedData }) => {
                       onChange={handleChange}
                       isValid={touched.confirmPassword && !errors.confirmPassword}
                       isInvalid={touched.confirmPassword && !!errors.confirmPassword}
+                      readOnly={formReadOnly}
+                      disabled={formReadOnly}
                     />
                     <Form.Control.Feedback type="invalid">
                       {errors.confirmPassword}

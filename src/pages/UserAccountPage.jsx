@@ -3,6 +3,7 @@ import { Container, Button, Row, Col, Alert } from 'react-bootstrap';
 import axiosInstance from '../utils/axiosInstance';
 import parseAxiosError from '../utils/parseAxiosError';
 import UserEditableAccountForm from '../components/UserEditableAccountForm';
+import EmergencyContactInfo from '../components/EmergencyContactInfo';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
 import ApathNavbar from '../components/ApathNavbar';
 import { UserContext } from '../auth/UserSession';
@@ -78,6 +79,12 @@ const UserAccountPage = () => {
   return (
     <div>
       <ApathNavbar />
+
+      <Container>
+          <Row className="mt-5">
+            <EmergencyContactInfo targetGroup={'student'}/>
+          </Row>
+      </Container>
 
       <Container>
         <Row className="mt-5 wide-pretty-box-layout">

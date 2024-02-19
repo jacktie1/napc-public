@@ -6,7 +6,7 @@ import { Container, Row, Col, Alert, Button, Modal } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import StudentDetailsModal from '../components/StudentDetailsModal';
-import * as magicGridUtils from '../utils/magicGridUtils';
+import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
 const ManageStudentsPage = () => {
   const [serverError, setServerError] = useState('');
@@ -17,6 +17,48 @@ const ManageStudentsPage = () => {
   const [optionReferences, setOptionReferences] = useState({});
 
   const gridRef = useRef();
+
+  const fetchData = async () => {
+    try {
+      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getStudents`);
+      let fetchedStudents = axiosResponse.data.result.students;
+
+      let formattedStudents = fetchedStudents.map(function(student) {
+        let retRow = {
+          userId: student.userAccount.userId,
+          lastName: student.studentProfile.lastName,
+          firstName: student.studentProfile.firstName,
+          gender: magicDataGridUtils.toGenderValue(student.studentProfile.gender),
+          needsAirportPickup: magicDataGridUtils.toYesOrNoValue(student.studentFlightInfo.needsAirportPickup),
+          needsTempHousing: magicDataGridUtils.toYesOrNoValue(student.studentTempHousing.needsTempHousing),
+          modifiedAt: new Date(student.modifiedAt),
+          arrivalDate: null,
+          arrivalTime: null,
+          arrivalFlightNumber: null,
+          numLgLuggages: null,
+        }
+
+        if(student.studentFlightInfo.needsAirportPickup && student.studentFlightInfo.hasFlightInfo)
+        {
+          let arrivalDatetime = student.studentFlightInfo.arrivalDatetime;
+
+          retRow.arrivalDate = magicDataGridUtils.getDate(arrivalDatetime);
+          retRow.arrivalTime = magicDataGridUtils.getTime(arrivalDatetime);
+          retRow.arrivalFlightNumber = student.studentFlightInfo.arrivalFlightNumber;
+          retRow.numLgLuggages = student.studentFlightInfo.numLgLuggages;
+        }
+
+        return retRow
+      });
+
+      setStudentData(formattedStudents);
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  };
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -37,54 +79,8 @@ const ManageStudentsPage = () => {
       }
     };
 
-
     fetchOptions();
   }, []);
-
-  // Fetch data from API and set it in the state
-  // For demonstration purposes, assuming you have a function fetchDataFromApi
-  // Replace this with your actual API fetching logic
-  const fetchData = async () => {
-    try {
-      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getStudents`);
-      let fetechedStudents = axiosResponse.data.result.students;
-
-      let formattedStudents = fetechedStudents.map(function(student) {
-        let retRow = {
-          userId: student.userAccount.userId,
-          lastName: student.studentProfile.lastName,
-          firstName: student.studentProfile.firstName,
-          gender: magicGridUtils.toGenderValue(student.studentProfile.gender),
-          needsAirportPickup: magicGridUtils.toYesOrNoValue(student.studentFlightInfo.needsAirportPickup),
-          needsTempHousing: magicGridUtils.toYesOrNoValue(student.studentTempHousing.needsTempHousing),
-          modifiedAt: new Date(student.modifiedAt),
-          arrivalDate: null,
-          arrivalTime: null,
-          arrivalFlightNumber: null,
-          numLgLuggages: null,
-        }
-
-        if(student.studentFlightInfo.needsAirportPickup && student.studentFlightInfo.hasFlightInfo)
-        {
-          let arrivalDatetime = student.studentFlightInfo.arrivalDatetime;
-
-          retRow.arrivalDate = magicGridUtils.getDate(arrivalDatetime);
-          retRow.arrivalTime = magicGridUtils.getTime(arrivalDatetime);
-          retRow.arrivalFlightNumber = student.studentFlightInfo.arrivalFlightNumber;
-          retRow.numLgLuggages = student.studentFlightInfo.numLgLuggages;
-        }
-
-        return retRow
-      });
-
-      setStudentData(formattedStudents);
-    } catch (axiosError) {
-      let { errorMessage } = parseAxiosError(axiosError);
-
-      window.scrollTo(0, 0);
-      setServerError(errorMessage);
-    }
-  };
 
   const handleStudentDetailsModalClose = () => {
     fetchData();
@@ -122,6 +118,7 @@ const ManageStudentsPage = () => {
     {
       headerName: 'Arr Date',
       field: 'arrivalDate',
+      isDate: true,
       dateFilter: true,
     },
     {
@@ -160,16 +157,16 @@ const ManageStudentsPage = () => {
   const handleShowConfirmModal = () => setShowConfirmModal(true);
 
   const handleRowSelected = (event) => {
-    let studentId = event.node.data.userId;
+    let studentUserId = event.node.data.userId;
 
     if(event.node.isSelected())
     {
-      setSelectedStudents(selectedStudents => [...selectedStudents, studentId]);
+      setSelectedStudents(selectedStudents => [...selectedStudents, studentUserId]);
     }
     else
     {
       setSelectedStudents(selectedStudents => selectedStudents.filter(
-        (student) => student !== studentId
+        (student) => student !== studentUserId
       ));
     }
   };
@@ -209,7 +206,7 @@ const ManageStudentsPage = () => {
       <ApathNavbar />
 
       <Container className="mt-5" fluid>
-        <Row className="mt-5 admin-pretty-box-layout">
+        <Row className="mt-5 full-pretty-box-layout">
           <Col className="pretty-box">
             <h2 className="pretty-box-heading">Manage Students</h2>
             <Alert dismissible variant='info'>
@@ -220,11 +217,11 @@ const ManageStudentsPage = () => {
             </Alert>
             <MultipleSortingInfo/>
             <hr/>
-              {serverError && (
-                <Alert variant='danger'>
-                  {serverError}
-                </Alert>
-              )}
+            {serverError && (
+              <Alert variant='danger'>
+                {serverError}
+              </Alert>
+            )}
             <div className='py-3'>
               <Button variant="danger" onClick={handleShowConfirmModal} disabled={selectedStudents.length===0}>
                   Delete Selected Students

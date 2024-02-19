@@ -220,7 +220,7 @@ const ExportStudentsPage = () => {
           <ApathNavbar />
     
           <Container className="mt-5" fluid>
-            <Row className="mt-5 admin-pretty-box-layout">
+            <Row className="mt-5 full-pretty-box-layout">
               <Col className="pretty-box">
                 <h2 className="pretty-box-heading">Export Students</h2>
                 <Alert dismissible variant='info'>

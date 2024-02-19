@@ -6,7 +6,7 @@ import { Container, Row, Col, Alert, Button, Modal } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import VolunteerDetailsModal from '../components/VolunteerDetailsModal';
-import * as magicGridUtils from '../utils/magicGridUtils';
+import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
 
 const ManageVolunteersPage = () => {
@@ -18,19 +18,12 @@ const ManageVolunteersPage = () => {
 
   const gridRef = useRef();
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-    // Fetch data from API and set it in the state
-  // For demonstration purposes, assuming you have a function fetchDataFromApi
-  // Replace this with your actual API fetching logic
   const fetchData = async () => {
     try {
       let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/getVolunteers`);
-      let fetechedVolunteers = axiosResponse.data.result.volunteers;
+      let fetchedVolunteers = axiosResponse.data.result.volunteers;
 
-      let formattedVolunteers = fetechedVolunteers.map(function(volunteer) {
+      let formattedVolunteers = fetchedVolunteers.map(function(volunteer) {
         let retRow = {
           userId: volunteer.userAccount.userId,
           lastName: volunteer.volunteerProfile.lastName,
@@ -38,10 +31,10 @@ const ManageVolunteersPage = () => {
           emailAddress: volunteer.volunteerProfile.emailAddress,
           primaryPhoneNumber: volunteer.volunteerProfile.primaryPhoneNumber,
           secondaryPhoneNumber: volunteer.volunteerProfile.secondaryPhoneNumber,
-          gender: magicGridUtils.toGenderValue(volunteer.volunteerProfile.gender),
-          providesAirportPickup: magicGridUtils.toYesOrNoValue(volunteer.volunteerAirportPickup.providesAirportPickup),
-          providesTempHousing: magicGridUtils.toYesOrNoValue(volunteer.volunteerTempHousing.providesTempHousing),
-          userEnabled: magicGridUtils.toYesOrNoValue(volunteer.volunteerProfile.enabled),
+          gender: magicDataGridUtils.toGenderValue(volunteer.volunteerProfile.gender),
+          providesAirportPickup: magicDataGridUtils.toYesOrNoValue(volunteer.volunteerAirportPickup.providesAirportPickup),
+          providesTempHousing: magicDataGridUtils.toYesOrNoValue(volunteer.volunteerTempHousing.providesTempHousing),
+          userEnabled: magicDataGridUtils.toYesOrNoValue(volunteer.volunteerProfile.enabled),
           modifiedAt: new Date(volunteer.modifiedAt),
         }
 
@@ -56,6 +49,10 @@ const ManageVolunteersPage = () => {
       setServerError(errorMessage);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleVolunteerDetailsModalClose = () => {
     fetchData();
@@ -137,16 +134,16 @@ const ManageVolunteersPage = () => {
   const handleShowConfirmModal = () => setShowConfirmModal(true);
 
   const handleRowSelected = (event) => {
-    let volunteerId = event.node.data.userId;
+    let volunteerUserId = event.node.data.userId;
 
     if(event.node.isSelected())
     {
-      setSelectedVolunteers(selectedVolunteers => [...selectedVolunteers, volunteerId]);
+      setSelectedVolunteers(selectedVolunteers => [...selectedVolunteers, volunteerUserId]);
     }
     else
     {
       setSelectedVolunteers(selectedVolunteers => selectedVolunteers.filter(
-        (volunteer) => volunteer !== volunteerId
+        (volunteer) => volunteer !== volunteerUserId
       ));
     }
   };
@@ -186,7 +183,7 @@ const ManageVolunteersPage = () => {
       <ApathNavbar />
 
       <Container className="mt-5" fluid>
-        <Row className="mt-5 admin-pretty-box-layout">
+        <Row className="mt-5 full-pretty-box-layout">
           <Col className="pretty-box">
             <h2 className="pretty-box-heading">Manage Volunteers</h2>
             <Alert dismissible variant='info'>
@@ -197,11 +194,11 @@ const ManageVolunteersPage = () => {
             </Alert>
             <MultipleSortingInfo/>
             <hr/>
-              {serverError && (
-                <Alert variant='danger'>
-                  {serverError}
-                </Alert>
-              )}
+            {serverError && (
+              <Alert variant='danger'>
+                {serverError}
+              </Alert>
+            )}
             <div className='py-3'>
               <Button variant="danger" onClick={handleShowConfirmModal} disabled={selectedVolunteers.length===0}>
                   Delete Selected Volunteers

@@ -26,7 +26,7 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
             {
                 columnDef['cellClass'] = 'magic-grid-norm-cell';
             }
-        }
+        }        
 
         if(columnDef['isArray'])
         {
@@ -40,6 +40,19 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
             };
 
             delete columnDef['isArray'];
+        }
+
+        if(columnDef['isDate'])
+        {
+            columnDef['valueFormatter'] = (params) => {
+                if (params.value)
+                {
+                    let paddedMonth = (params.value.getMonth() + 1).toString().padStart(2, '0');
+                    return params.value.getFullYear() + '-' + paddedMonth + '-' + params.value.getDate();
+                }
+            }
+
+            delete columnDef['isDate'];
         }
 
         if(columnDef['isTimestamp'])
@@ -183,7 +196,7 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
     };
 
     const onFirstDataRendered = (params) => {
-        const nodesToSelect = [];
+        let nodesToSelect = [];
 
         params.api.forEachNode((node) => {
             if (node.data && node.data.rowSelected) {
@@ -199,7 +212,19 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
         }
     }
 
-    const paginationPageSizeSelector = [30, 60, 90, 120, 10000];
+    const onRowDataUpdated = (params) => {
+        let nodesToSelect = [];
+
+        params.api.forEachNode((node) => {
+            if (node.data && node.data.rowSelected) {
+                nodesToSelect.push(node);
+            }
+        });
+
+        params.api.setNodesSelected({ nodes: nodesToSelect, newValue: true });
+    }
+
+    const paginationPageSizeSelector = [50, 100, 150, 200, 10000];
     const paginationPageSize = paginationPageSizeSelector[0];
   
     return (
@@ -215,6 +240,7 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
                     paginationPageSize={paginationPageSize}
                     paginationPageSizeSelector={paginationPageSizeSelector}
                     onFirstDataRendered={onFirstDataRendered}
+                    onRowDataUpdated={onRowDataUpdated}
                     rowSelection={rowSelection}
                     suppressRowClickSelection={true}
                     suppressCellFocus={true}

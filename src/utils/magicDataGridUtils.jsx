@@ -35,7 +35,9 @@ export const getDate = (dbValue) => {
 
         let utcDateString = dateObject.getUTCMonth() + 1 + '/' + dateObject.getUTCDate() + '/' + dateObject.getUTCFullYear();
 
-        return new Date(utcDateString);
+        let retDate = new Date(utcDateString);
+
+        return retDate;
     }
     else {
         return null;
@@ -52,4 +54,18 @@ export const getTime = (dbValue) => {
     else {
         return null;
     }
+}
+
+export const arraysAreIdentical = (arr1, arr2) => {
+    if (arr1.length !== arr2.length) {
+        return false;
+    }
+
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) {
+            return false;
+        }
+    }
+
+    return true;
 }

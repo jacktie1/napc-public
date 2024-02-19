@@ -110,12 +110,12 @@ function ApathNavbar() {
                 <NavDropdown.Item href="/admin/export-volunteers">Export Volunteers</NavDropdown.Item>
               </NavDropdown>
               <NavDropdown title='Airport Pickups' id="collapsible-nav-dropdown-2">
-                <NavDropdown.Item href="/admin/airport-pickup-students">Student Pickup</NavDropdown.Item>
-                <NavDropdown.Item href="/admin/airport-pickup-volunteers">Pickup Volunteers</NavDropdown.Item>
+                <NavDropdown.Item href="/admin/airport-pickup-students">View Students</NavDropdown.Item>
+                <NavDropdown.Item href="/admin/airport-pickup-volunteers">View Volunteers</NavDropdown.Item>
               </NavDropdown>
               <NavDropdown title='Temporary Housings' id="collapsible-nav-dropdown-3">
-                <NavDropdown.Item href="/admin/temp-housing-students">Student Housing</NavDropdown.Item>
-                <NavDropdown.Item href="/admin/temp-housing-volunteers">Housing Volunteers</NavDropdown.Item>
+                <NavDropdown.Item href="/admin/temp-housing-students">View Students</NavDropdown.Item>
+                <NavDropdown.Item href="/admin/temp-housing-volunteers">View Volunteers</NavDropdown.Item>
               </NavDropdown>
             </Nav>
             <Nav>

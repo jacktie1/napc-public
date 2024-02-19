@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Alert, Button, Modal } from 'react-bootstrap';
 import MagicDataGrid from './MagicDataGrid';
 import MultipleSortingInfo from './MultipleSortingInfo';
