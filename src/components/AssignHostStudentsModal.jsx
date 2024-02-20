@@ -1,116 +1,219 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
 import { Alert, Button, Modal } from 'react-bootstrap';
 import MagicDataGrid from './MagicDataGrid';
 import MultipleSortingInfo from './MultipleSortingInfo';
+import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
-const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned }) => {
+
+const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned, onClose }) => {
+    const [serverError, setServerError] = useState('');
+
     const [showModal, setShowModal] = useState(false);
 
-    const [studentData, setStudentData] = useState([]);
-
+    const [tempHousingNeeds, setTempHousingNeeds] = useState([]);
+    const [tempHousingAssignments, setTempHousingAssignments] = useState([]);
+    const [selectedTempHousingNeeds, setSelectedTempHousingNeeds] = useState([]);
+  
     const gridRef = useRef();
 
-    useEffect(() => {
-        // Fetch data from API and set it in the state
-        // For demonstration purposes, assuming you have a function fetchDataFromApi
-        // Replace this with your actual API fetching logic
-        const fetchData = () => {
-          if (!showModal)
-          {
-            return;
-          }
+    const formatDataRows = useCallback((dataRows, referencesById, tempHousingAssignmentsMap) => {
+      let formattedDataRows = dataRows.map(function(dataRow) {
+        let arrivalDatetime = dataRow.studentFlightInfo.arrivalDatetime;
 
-          const fetchedData = [
-            {
-              "id": '331',
-              "lastName": 'Zhao',
-              'firstName': 'Siming',
-              'gender': 'F',
-              'isNew': 'Yes',
-              'major': 'Biological Science',
-              'airlineName': 'Delta',
-              'arrivalDate': new Date('2024/08/18'),
-              'arrivalTime': '00:01',
-              'flightNumber': 'DL772',
-              'numNights': '4',
-              'tempHousingVolunteer': '1024',
-              'preferredByVolunteer': 'Yes',
-              'modified': '07/18/2023 07:07:06'
-            },
-            {
-              "id": '222',
-              "lastName": 'Zhiming',
-              'firstName': 'Qi',
-              'gender': 'M',
-              'isNew': 'Yes',
-              'major': 'Medical',
-              'airlineName': 'American',
-              'arrivalDate': new Date('2024/09/12'),
-              'arrivalTime': '11:02',
-              'flightNumber': 'AA331',
-              'numNights': '2',
-              'tempHousingVolunteer': '1066',
-              'modified': '05/18/2023 06:07:06'
-            },
-            {
-              "id": '555',
-              "lastName": 'Zhou',
-              'firstName': 'Fang',
-              'gender': 'M',
-              'isNew': 'No',
-              'major': 'Machine Learning',
-              'airlineName': 'United',
-              'arrivalDate': new Date('2024/09/12'),
-              'arrivalTime': '14:55',
-              'flightNumber': 'UA083',
-              'numNights': '2',
-              'tempHousingVolunteer': '1024',
-              'modified': '01/14/2023 07:07:06'
-            },
-            {
-              "id": '1010',
-              "lastName": 'Wenrui',
-              'firstName': 'Zhang',
-              'gender': 'F',
-              'isNew': 'Yes',
-              'major': 'Human Computer Interaction',
-              'airlineName': 'United',
-              'arrivalDate': new Date('2024/09/17'),
-              'arrivalTime': '16:55',
-              'flightNumber': 'UA083',
-              'numNights': '3',
-              'tempHousingVolunteer': null,
-              'modified': '01/19/2023 07:07:06'
-            },
-          ];
+        let retRow = {
+          studentUserId: dataRow.userAccount.userId,
+          lastName: dataRow.studentProfile.lastName,
+          firstName: dataRow.studentProfile.firstName,
+          gender: magicDataGridUtils.toGenderValue(dataRow.studentProfile.gender),
+          isNewStudent: magicDataGridUtils.toYesOrNoValue(dataRow.studentProfile.isNewStudent),
+          major: dataRow.studentProfile.customMajor,
+          arrivalAirline: dataRow.studentFlightInfo.customArrivalAirline,
+          arrivalDate: magicDataGridUtils.getDate(arrivalDatetime),
+          arrivalTime: magicDataGridUtils.getTime(arrivalDatetime),
+          arrivalFlightNumber: dataRow.studentFlightInfo.arrivalFlightNumber,
+          numNights: dataRow.studentTempHousing.numNights,
+          tempHousingVolunteer: dataRow?.tempHousingAssignment?.volunteerUserId,
+          modified: new Date(dataRow.modifiedAt),
+        }
 
-          if(viewAssigned)
-          {
-            const filteredFetchedData = fetchedData.filter((row) => row.tempHousingVolunteer === node.data.id);
+        if(dataRow.studentProfile.majorReferenceId !== null) {
+          retRow.major = referencesById['Major'][dataRow.studentProfile.majorReferenceId];
+        }
 
-            setStudentData(filteredFetchedData);
-          }
-          else
-          {
-            fetchedData.forEach(row => {
-              if(Array.isArray(node.data.tempHousingStudents) && node.data.tempHousingStudents.includes(row.id))
-              {
-                row.rowSelected = true;
-              }
+        if(dataRow.studentFlightInfo.arrivalAirlineReferenceId !== null) {
+          retRow.arrivalAirline = referencesById['Airline'][dataRow.studentFlightInfo.arrivalAirlineReferenceId];
+        }
+
+        if (tempHousingAssignmentsMap[retRow.studentUserId]) {
+          retRow.rowSelected = true;
+        }
+        
+        return retRow
+      });
+
+      
+      formattedDataRows.sort(function(a, b) {
+        // if rowSelected is true, then it should be at the top
+        if(a.rowSelected && !b.rowSelected)
+        {
+          return -1;
+        }
+        else if(!a.rowSelected && b.rowSelected)
+        {
+          return 1;
+        }
+
+        return 0;
+      });
+
+      return formattedDataRows;
+    }, []);
+      
+    const fetchTempHousingNeeds = useCallback(async (referencesById, tempHousingAssignmentsMap) => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getTempHousingNeeds`);
+        let fetchedTempHousingNeeds = axiosResponse.data.result.students;
+
+        let formattedTempHousingNeeds = formatDataRows(fetchedTempHousingNeeds, referencesById, tempHousingAssignmentsMap);
+
+        setTempHousingNeeds(formattedTempHousingNeeds);
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    }, [formatDataRows]);
+
+    const fetchTempHousingAssignments = useCallback(async (referencesById) => {
+      try {
+        let axiosResponse;
+        if(viewAssigned) {
+          axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/getTempHousingAssignments/${node.data.volunteerUserId}`, {
+            params: {
+              includeStudentDetails: true,
+            }
+          });
+        } else {
+          axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/getTempHousingAssignments/${node.data.volunteerUserId}`);
+        }
+
+        let fetchedTempHousingAssignments = axiosResponse.data.result.tempHousingAssignments;
+
+        let extractedTempHousingAssignments = fetchedTempHousingAssignments.map(function(tempHousingAssignment) {
+          return tempHousingAssignment.studentUserId;
+        });
+
+        extractedTempHousingAssignments.sort();
+
+        let tempHousingAssignmentsMap = {};
+
+        for (let tempHousingAssignment of fetchedTempHousingAssignments) {
+          tempHousingAssignmentsMap[tempHousingAssignment.studentUserId] = tempHousingAssignment;
+        }
+
+        setTempHousingAssignments(extractedTempHousingAssignments);
+        setSelectedTempHousingNeeds(extractedTempHousingAssignments);
+
+        if(viewAssigned)
+        {
+            let assignedStudents = fetchedTempHousingAssignments.map(function(tempHousingAssignment) {
+            let assignedStudentDetails = tempHousingAssignment.student;
+
+            // Add the volunteerUserId to the student details
+            assignedStudentDetails['tempHousingAssignment'] = {}
+            assignedStudentDetails['tempHousingAssignment']['volunteerUserId'] = tempHousingAssignment.volunteerUserId;
+            return tempHousingAssignment.student;
             });
 
-            setStudentData(fetchedData);
-          }
+            let formattedAssignedStudents = formatDataRows(assignedStudents, referencesById, assignedStudents);
 
-        };
-    
-        fetchData();
-      }, [showModal]);
-    
-      const columns = [
+            setTempHousingNeeds(formattedAssignedStudents);
+        }
+        else
+        {
+            fetchTempHousingNeeds(referencesById, tempHousingAssignmentsMap);
+        }
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    }, [node.data.volunteerUserId, viewAssigned, fetchTempHousingNeeds, formatDataRows]);
+
+    const fetchOptions = useCallback(async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
+          params: {
+            referenceTypes: ['Major', 'Airline'].join(','),
+          }
+        });
+  
+        let referencesById = {};
+  
+        let referencesByType = axiosResponse.data.result.referencesByType;
+  
+        for (let referenceType in referencesByType) {
+          let referenceList = referencesByType[referenceType];
+  
+          let referenceMap = {};
+  
+          for (let reference of referenceList) {
+            referenceMap[reference.referenceId] = reference.value;
+          }
+  
+          referencesById[referenceType] = referenceMap;
+        }
+  
+        fetchTempHousingAssignments(referencesById);
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        setServerError(errorMessage);
+      }
+    }, [fetchTempHousingAssignments]);
+
+    const sendUpdateTempHousingAssignmentsRequest = async (submittedTempHousingNeeds) => {
+      try {
+        let preparedVolunteerTempHousingAssignments = submittedTempHousingNeeds.map(function(studentUserId) {
+          return {
+            studentUserId: studentUserId,
+          }
+        });
+  
+        await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/updateTempHousingAssignments/${node.data.volunteerUserId}`,
+          {
+            tempHousingAssignments: preparedVolunteerTempHousingAssignments,
+          });
+  
+        setServerError('');
+
+        alert('The volunteer temp housing assignments have been updated successfully!');
+  
+        // Refresh the data after the update
+        fetchOptions();
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    };
+  
+    useEffect(() => {
+      if(showModal)
+      {
+        fetchOptions();
+      }
+    }, [fetchOptions, showModal]);
+  
+    const columns = [
         {
           headerName: 'Student Id',
-          field: 'id',
+          field: 'studentUserId',
           checkboxSelection: viewAssigned? false : true,
           showDisabledCheckboxes: true,
           textFilter: true,
@@ -135,7 +238,7 @@ const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned }) 
         },
         {
           headerName: 'First Time',
-          field: 'isNew',
+          field: 'isNewStudent',
           booleanFilter: true,
         },
         {
@@ -145,13 +248,14 @@ const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned }) 
         },
         {
           headerName: 'Air',
-          field: 'airlineName',
+          field: 'arrivalAirline',
           textFilter: true,
         },
         {
           headerName: 'Arr Date',
           field: 'arrivalDate',
           dateFilter: true,
+          isDate: true,
         },
         {
           headerName: 'Arr Time',
@@ -160,7 +264,7 @@ const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned }) 
         },
         {
           headerName: 'FN',
-          field: 'flightNumber',
+          field: 'arrivalFlightNumber',
           textFilter: true,
           width: 120,
         },
@@ -178,10 +282,12 @@ const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned }) 
         {
           headerName: 'Modified',
           field: 'modified',
+          isTimestamp: true,
         },
       ];
   
     const handleClose = () => {
+      onClose();
       setShowModal(false);
     };
 
@@ -189,27 +295,36 @@ const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned }) 
       setShowModal(true);
     };
 
+    const handleRowSelected = (event) => {
+      let selectedNodes = event.api.getSelectedNodes();
+  
+      // loop through selected nodes
+      // get the studentUserId from each node to create an array of selected students
+      let selectedTempHousingNeeds = [];
+  
+      selectedNodes.forEach((selectedNode) => {
+        selectedTempHousingNeeds.push(selectedNode.data.studentUserId);
+      });
+  
+      selectedTempHousingNeeds.sort();
+  
+      setSelectedTempHousingNeeds(selectedTempHousingNeeds);
+    };
+  
     const handleSubmit = () => {
-        const selectedNodes = gridRef.current?.api.getSelectedNodes();
-
-        if(selectedNodes.length === 0)
-        {
-            alert('No volunteer selected');
-            node.updateData({...node.data, tempHousingStudents: null});
-        }
-        else
-        {
-          const currentAssignees = [];
-          
-          selectedNodes.forEach(function(row) {
-            currentAssignees.push(row.data.id);
-          });
-
-          node.updateData({...node.data, tempHousingStudents: currentAssignees});
-        }
-
-        handleClose();
+      let selectedNodes = gridRef.current?.api.getSelectedNodes();
+  
+      let submittedTempHousingNeeds = [];
+  
+      selectedNodes.forEach((selectedNode) => {
+        submittedTempHousingNeeds.push(selectedNode.data.studentUserId);
+      });
+  
+      submittedTempHousingNeeds.sort();
+  
+      sendUpdateTempHousingAssignmentsRequest(submittedTempHousingNeeds);
     }
+  
     
     const isRowSelectable = (params) => {
       if (!params.data.tempHousingVolunteer)
@@ -217,7 +332,7 @@ const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned }) 
         return true;
       }
 
-      if(params.data.tempHousingVolunteer !== node.data.id)
+      if(params.data.tempHousingVolunteer !== node.data.volunteerUserId)
       {
         return false;
       }
@@ -226,8 +341,8 @@ const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned }) 
     };
 
     const modalTitle = viewAssigned ?
-      'View Housing Tasks of ' + node.data.firstName + ' ' + node.data.lastName : 
-      'Assign a Housing Task to ' + node.data.firstName + ' ' + node.data.lastName;
+      'View Temporary Housing Task(s) of ' + node.data.firstName + ' ' + node.data.lastName : 
+      'Assign Temporary Housing Task(s) to ' + node.data.firstName + ' ' + node.data.lastName;
 
     const contentAlert = 'This table below displays all students that ' + ( viewAssigned ? 'are assigned to this volunteer' : 'need temporary housing.' );
 
@@ -253,20 +368,29 @@ const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned }) 
               </Alert>
             }
             <MultipleSortingInfo/>
+            {serverError && (
+              <Alert variant='danger'>
+                {serverError}
+              </Alert>
+            )}
             <MagicDataGrid
               innerRef={gridRef}
               gridStyle={{height: 720}}
               columnDefs={columns}
-              rowData={studentData}
+              rowData={tempHousingNeeds}
               pagination={true}
               rowSelection={'multiple'}
               isRowSelectable={isRowSelectable}
+              onRowSelected={handleRowSelected}
             />
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="primary" onClick={handleSubmit}>
-                Submit
-            </Button>
+            { viewAssigned ? null :
+
+              <Button variant="primary" onClick={handleSubmit} disabled={magicDataGridUtils.arraysAreIdentical(tempHousingAssignments, selectedTempHousingNeeds)}>
+                  Submit
+              </Button>
+            }
             <Button variant="secondary" onClick={handleClose}>
               Close
             </Button>

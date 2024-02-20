@@ -190,9 +190,9 @@ const ManageTempHousingStudentsPage = () => {
       <Container className="mt-5" fluid>
         <Row className="mt-5 full-pretty-box-layout">
           <Col className="pretty-box">
-            <h2 className="pretty-box-heading">Manage Student Housing</h2>
+            <h2 className="pretty-box-heading">Temporary Housing Student List</h2>
             <Alert dismissible variant='info'>
-              This table below displays all students that required temporary housing.
+              This table below displays all students that request temporary housing.
             </Alert>
             <Alert dismissible variant='secondary'>
               Click a student ID to assign a housing volunteer to this student.

@@ -189,7 +189,7 @@ const ManageAirportPickupStudentsPage = () => {
       <Container className="mt-5" fluid>
         <Row className="mt-5 full-pretty-box-layout">
           <Col className="pretty-box">
-            <h2 className="pretty-box-heading">Manage Student Pickup</h2>
+            <h2 className="pretty-box-heading">Airport Pickup Student List</h2>
             <Alert dismissible variant='info'>
               This table below displays all students that request airport pickup.
             </Alert>

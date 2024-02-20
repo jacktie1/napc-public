@@ -45,7 +45,7 @@ const AssignPickupStudentsModal = ({ value, node, valueFormatted, viewAssigned, 
       }
     }, [node.data.volunteerUserId]);
 
-    const formatDataRows = useCallback((dataRows, referencesById, airportAssignmentsMap) => {
+    const formatDataRows = useCallback((dataRows, referencesById, airportPickupAssignmentsMap) => {
       let formattedDataRows = dataRows.map(function(dataRow) {
         let arrivalDatetime = dataRow.studentFlightInfo.arrivalDatetime;
 
@@ -74,7 +74,7 @@ const AssignPickupStudentsModal = ({ value, node, valueFormatted, viewAssigned, 
           retRow.arrivalAirline = referencesById['Airline'][dataRow.studentFlightInfo.arrivalAirlineReferenceId];
         }
 
-        if (airportAssignmentsMap[retRow.studentUserId]) {
+        if (airportPickupAssignmentsMap[retRow.studentUserId]) {
           retRow.rowSelected = true;
         }
         
@@ -99,12 +99,12 @@ const AssignPickupStudentsModal = ({ value, node, valueFormatted, viewAssigned, 
       return formattedDataRows;
     }, []);
       
-    const fetchAirportPickupNeeds = useCallback(async (referencesById, airportAssignmentsMap) => {
+    const fetchAirportPickupNeeds = useCallback(async (referencesById, airportPickupAssignmentsMap) => {
       try {
         let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getAirportPickupNeeds`);
         let fetchedAirportPickupNeeds = axiosResponse.data.result.students;
 
-        let formattedAirportPickupNeeds = formatDataRows(fetchedAirportPickupNeeds, referencesById, airportAssignmentsMap);
+        let formattedAirportPickupNeeds = formatDataRows(fetchedAirportPickupNeeds, referencesById, airportPickupAssignmentsMap);
 
         fetchAirportPickupPreferences(formattedAirportPickupNeeds);
       } catch (axiosError) {
@@ -136,10 +136,10 @@ const AssignPickupStudentsModal = ({ value, node, valueFormatted, viewAssigned, 
 
         extractedAirportPickupAssignments.sort();
 
-        let airportAssignmentsMap = {};
+        let airportPickupAssignmentsMap = {};
 
         for (let airportPickupAssignment of fetchedAirportPickupAssignments) {
-          airportAssignmentsMap[airportPickupAssignment.studentUserId] = airportPickupAssignment;
+          airportPickupAssignmentsMap[airportPickupAssignment.studentUserId] = airportPickupAssignment;
         }
 
         setAirportPickupAssignments(extractedAirportPickupAssignments);
@@ -162,7 +162,7 @@ const AssignPickupStudentsModal = ({ value, node, valueFormatted, viewAssigned, 
         }
         else
         {
-          fetchAirportPickupNeeds(referencesById, airportAssignmentsMap);
+          fetchAirportPickupNeeds(referencesById, airportPickupAssignmentsMap);
         }
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
