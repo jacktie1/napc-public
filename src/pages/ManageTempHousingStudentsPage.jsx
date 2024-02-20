@@ -1,78 +1,110 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
 import ApathNavbar from '../components/ApathNavbar';
 import { Container, Row, Col, Alert } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import AssignHostedByModal from '../components/AssignHostedByModal';
 import VolunteerDetailsModal from '../components/VolunteerDetailsModal';
+import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
 const ManageTempHousingStudentsPage = () => {
-  const [studentData, setStudentData] = useState([]);
+  const [serverError, setServerError] = useState('');
+
+  const [tempHousingNeeds, setTempHousingNeeds] = useState([]);
 
   const gridRef = useRef();
+  
+  const fetchData = useCallback(async (referencesById) => {
+    try {
+      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getTempHousingNeeds`);
+      let fetchedStudents = axiosResponse.data.result.students;
+
+      let formattedStudents = fetchedStudents.map(function(student) {
+
+        let arrivalDatetime = student.studentFlightInfo.arrivalDatetime;
+
+        let retRow = {
+          studentUserId: student.userAccount.userId,
+          lastName: student.studentProfile.lastName,
+          firstName: student.studentProfile.firstName,
+          gender: magicDataGridUtils.toGenderValue(student.studentProfile.gender),
+          isNewStudent: magicDataGridUtils.toYesOrNoValue(student.studentProfile.isNewStudent),
+          major: student.studentProfile.customMajor,
+          arrivalAirline: student.studentFlightInfo.customArrivalAirline,
+          arrivalDate: magicDataGridUtils.getDate(arrivalDatetime),
+          arrivalTime: magicDataGridUtils.getTime(arrivalDatetime),
+          arrivalFlightNumber: student.studentFlightInfo.arrivalFlightNumber,
+          numNights: student.studentTempHousing.numNights,
+          tempHousingVolunteer: student?.tempHousingAssignment?.volunteerUserId,
+          modified: new Date(student.modifiedAt),
+        }
+
+        if(student.studentProfile.majorReferenceId !== null) {
+          retRow.major = referencesById['Major'][student.studentProfile.majorReferenceId];
+        }
+
+        if(student.studentFlightInfo.arrivalAirlineReferenceId !== null) {
+          retRow.arrivalAirline = referencesById['Airline'][student.studentFlightInfo.arrivalAirlineReferenceId];
+        }
+
+        return retRow
+      });
+
+      setTempHousingNeeds(formattedStudents);
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  }, []);
+
+  const fetchOptions = useCallback(async () => {
+    try {
+      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
+        params: {
+          referenceTypes: ['Major', 'Airline'].join(','),
+        }
+      });
+
+      let referencesById = {};
+
+      let referencesByType = axiosResponse.data.result.referencesByType;
+
+      for (let referenceType in referencesByType) {
+        let referenceList = referencesByType[referenceType];
+
+        let referenceMap = {};
+
+        for (let reference of referenceList) {
+          referenceMap[reference.referenceId] = reference.value;
+        }
+
+        referencesById[referenceType] = referenceMap;
+      }
+
+      fetchData(referencesById);
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      setServerError(errorMessage);
+    }
+  }, [fetchData]);
 
   useEffect(() => {
-    // Fetch data from API and set it in the state
-    // For demonstration purposes, assuming you have a function fetchDataFromApi
-    // Replace this with your actual API fetching logic
-    const fetchData = () => {
-      setStudentData([
-        {
-          "id": '1024',
-          "lastName": 'Zhao',
-          'firstName': 'Siming',
-          'gender': 'F',
-          'isNew': 'Yes',
-          'major': 'Biological Science',
-          'airlineName': 'Delta',
-          'arrivalDate': new Date('2024/08/18'),
-          'arrivalTime': '00:01',
-          'flightNumber': 'DL772',
-          'numNights': '4',
-          'tempHousingVolunteer': '331',
-          'modified': '07/18/2023 07:07:06'
-        },
-        {
-          "id": '1066',
-          "lastName": 'Zhiming',
-          'firstName': 'Qi',
-          'gender': 'M',
-          'isNew': 'Yes',
-          'major': 'Medical',
-          'airlineName': 'American',
-          'arrivalDate': new Date('2024/09/12'),
-          'arrivalTime': '15:01',
-          'flightNumber': 'AA312',
-          'numNights': '2',
-          'tempHousingVolunteer': '1171',
-          'modified': '05/18/2023 07:07:06'
-        },
-        {
-          "id": '1078',
-          "lastName": 'Zhou',
-          'firstName': 'Fang',
-          'gender': 'M',
-          'isNew': 'No',
-          'major': 'Machine Learning',
-          'airlineName': 'United',
-          'arrivalDate': new Date('2024/09/02'),
-          'arrivalTime': '12:01',
-          'flightNumber': 'UA031',
-          'numNights': '2',
-          'tempHousingVolunteer': null,
-          'modified': '01/18/2023 07:07:06'
-        },
-      ])
-    };
-
-    fetchData();
-  }, []);
+    fetchOptions();
+  }, [fetchOptions]);
 
   const columns = [
     {
       headerName: 'Student Id',
-      field: 'id',
+      field: 'studentUserId',
       cellRenderer: AssignHostedByModal,
+      cellRendererParams: {
+        onClose: fetchOptions,
+      },
       textFilter: true,
       width: 100,
     },
@@ -96,7 +128,7 @@ const ManageTempHousingStudentsPage = () => {
     },
     {
       headerName: 'First Time',
-      field: 'isNew',
+      field: 'isNewStudent',
       booleanFilter: true,
       width: 100,
     },
@@ -107,13 +139,14 @@ const ManageTempHousingStudentsPage = () => {
     },
     {
       headerName: 'Air',
-      field: 'airlineName',
+      field: 'arrivalAirline',
       textFilter: true,
     },
     {
       headerName: 'Arr Date',
       field: 'arrivalDate',
       dateFilter: true,
+      isDate: true,
     },
     {
       headerName: 'Arr Time',
@@ -122,7 +155,7 @@ const ManageTempHousingStudentsPage = () => {
     },
     {
       headerName: 'FN',
-      field: 'flightNumber',
+      field: 'arrivalFlightNumber',
       textFilter: true,
     },
     {
@@ -137,6 +170,7 @@ const ManageTempHousingStudentsPage = () => {
       cellRendererParams: {
         readOnly: true,
         adminView: true,
+        onClose: fetchOptions,
       },
       textFilter: true,
       width: 120,
@@ -144,6 +178,8 @@ const ManageTempHousingStudentsPage = () => {
     {
       headerName: 'Modified',
       field: 'modified',
+      isTimestamp: true,
+      sort: 'desc',
     },
   ];
 
@@ -162,11 +198,16 @@ const ManageTempHousingStudentsPage = () => {
               Click a student ID to assign a housing volunteer to this student.
             </Alert>
             <MultipleSortingInfo/>
+            {serverError && (
+              <Alert variant='danger'>
+                {serverError}
+              </Alert>
+            )}
             <MagicDataGrid
               innerRef={gridRef}
               gridStyle={{height: 800}}
               columnDefs={columns}
-              rowData={studentData}
+              rowData={tempHousingNeeds}
               pagination={true}
             />
           </Col>

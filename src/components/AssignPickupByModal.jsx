@@ -97,7 +97,7 @@ const AssignPickupByModal = ({ value, node, onClose }) => {
       }
     }, [node.data.studentUserId]);
 
-    const sendUpdateAirportPikcupAssignmentRequest = async (selectedVolunteer) => {
+    const sendUpdateAirportPickupAssignmentRequest = async (selectedVolunteer) => {
       try {
         let studentUserId = node.data.studentUserId;
 
@@ -206,7 +206,7 @@ const AssignPickupByModal = ({ value, node, onClose }) => {
           selectedVolunteer = selectedNodes[0].data.volunteerUserId;
         }
 
-        sendUpdateAirportPikcupAssignmentRequest(selectedVolunteer);
+        sendUpdateAirportPickupAssignmentRequest(selectedVolunteer);
     }
 
     return (

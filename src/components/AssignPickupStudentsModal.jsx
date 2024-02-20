@@ -81,6 +81,21 @@ const AssignPickupStudentsModal = ({ value, node, valueFormatted, viewAssigned, 
         return retRow
       });
 
+      
+      formattedDataRows.sort(function(a, b) {
+        // if rowSelected is true, then it should be at the top
+        if(a.rowSelected && !b.rowSelected)
+        {
+          return -1;
+        }
+        else if(!a.rowSelected && b.rowSelected)
+        {
+          return 1;
+        }
+
+        return 0;
+      });
+
       return formattedDataRows;
     }, []);
       

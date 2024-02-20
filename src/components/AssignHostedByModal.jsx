@@ -1,97 +1,138 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
 import { Alert, Button, Modal } from 'react-bootstrap';
-import MagicDataGrid from './MagicDataGrid';
-import MultipleSortingInfo from './MultipleSortingInfo';
+import MagicDataGrid from '../components/MagicDataGrid';
+import MultipleSortingInfo from '../components/MultipleSortingInfo';
+import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
-const AssignHostedByModal = ({ value, node }) => {
-    const [showModal, setShowModal] = useState(false);
+const AssignHostedByModal = ({ value, node, onClose }) => {
+  const [serverError, setServerError] = useState('');
 
-    const [volunteerData, setVolunteerData] = useState([]);
+  const [showModal, setShowModal] = useState(false);
 
-    const [originalAssignee, setOriginalAssignee] = useState('');
+  const [volunteerData, setVolunteerData] = useState([]);
 
-    const gridRef = useRef();
+  const [originalAssignee, setOriginalAssignee] = useState('');
+  const [currentAssignee, setCurrentAssignee] = useState('');
 
-    useEffect(() => {
-        // Fetch data from API and set it in the state
-        // For demonstration purposes, assuming you have a function fetchDataFromApi
-        // Replace this with your actual API fetching logic
-        const fetchData = () => {
-          if (!showModal)
-          {
-            return;
+  const gridRef = useRef();
+
+  const fetchData = useCallback(async () => {
+    try {
+        // Clear the assignee state
+        setOriginalAssignee('');
+        setCurrentAssignee('');
+
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/getVolunteers`, {
+            params: {
+              providesTempHousing: true,
+              includeTempHousingAssignments: true,
+            }
+        }); 
+        
+        let fetchedVolunteers = axiosResponse.data.result.volunteers;
+
+        let formattedVolunteers = fetchedVolunteers.map(function(volunteer) {
+          let retRow = {
+            volunteerUserId: volunteer.userAccount.userId,
+            lastName: volunteer.volunteerProfile.lastName,
+            firstName: volunteer.volunteerProfile.firstName,
+            gender: magicDataGridUtils.toGenderValue(volunteer.volunteerProfile.gender),
+            emailAddress: volunteer.volunteerProfile.emailAddress,
+            primaryPhoneNumber: volunteer.volunteerProfile.primaryPhoneNumber,
+            homeAddress: volunteer.volunteerTempHousing.homeAddress,
+            tempHousingStudents: volunteer?.tempHousingAssignments?.map(assignment => assignment.studentUserId),
+            modified: new Date(volunteer.modifiedAt),
           }
 
-          const fetchedData = [
-            {
-              "id": '331',
-              "lastName": 'Zhao',
-              'firstName': 'Siming',
-              'gender': 'F',
-              'emailAddress': 'sming@gmail.com',
-              'primaryPhoneNumber': '123-344-1223',
-              'homeAddress': '3330 Lake',
-              'assignedStudents': ['1024', '9932'],
-              'modified': '07/18/2023 07:07:06'
-            },
-            {
-              "id": '222',
-              "lastName": 'Zhiming',
-              'firstName': 'Qi',
-              'gender': 'M',
-              'emailAddress': 'zmingqi@gmail.com',
-              'primaryPhoneNumber': '566-344-1111',
-              'homeAddress': '3890 Oak Lane, Marietta, 30062',
-              'assignedStudents': ['11', '9'],
-              'modified': '05/18/2023 07:07:06'
-            },
-            {
-              "id": '555',
-              "lastName": 'Zhou',
-              'firstName': 'Fang',
-              'gender': 'M',
-              'emailAddress': 'zhouzhou@gmail.com',
-              'primaryPhoneNumber': '999-777-4444',
-              'homeAddress': '416 Ethel Street NW. Atlanta, Ga 30318',
-              'assignedStudents': ['81', '211', '100'],
-              'modified': '01/18/2023 07:07:06'
-            },
-          ];
+          let tempHousingAssignments = volunteer?.tempHousingAssignments;
 
-          fetchedData.forEach(row => {
-            if(row.id === node.data.tempHousingVolunteer)
+          if(tempHousingAssignments !== null)
+          {
+            let tempHousingAssignmentStuentIds = tempHousingAssignments.map(assignment => assignment.studentUserId);
+            retRow.rowSelected = tempHousingAssignmentStuentIds.includes(node.data.studentUserId);
+
+            if(retRow.rowSelected)
             {
-              row.rowSelected = true;
+              setOriginalAssignee(volunteer.userAccount.userId);
+              setCurrentAssignee(volunteer.userAccount.userId);
             }
-          });
+          }
 
-          setVolunteerData(fetchedData);
+          return retRow;
+        });
 
-          setOriginalAssignee(node.data.tempHousingVolunteer);
-        };
-    
+        formattedVolunteers.sort(function(a, b) {
+          // if rowSelected is true, then it should be at the top
+          if(a.rowSelected && !b.rowSelected)
+          {
+            return -1;
+          }
+          else if(!a.rowSelected && b.rowSelected)
+          {
+            return 1;
+          }
+
+          return 0;
+        });
+
+        setVolunteerData(formattedVolunteers);
+    }
+    catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  }, [node.data.studentUserId]);
+
+  const sendUpdateTempHousingAssignmentRequest = async (selectedVolunteer) => {
+    try {
+      let studentUserId = node.data.studentUserId;
+
+      await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/student/updateTempHousingAssignment/${studentUserId}`, {
+        volunteerUserId: selectedVolunteer,
+      });
+
+      alert('The temp housing volunteer has been updated successfully.');
+
+      fetchData();
+    }
+    catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  }
+
+  useEffect(() => {
+      if (showModal)
+      {
         fetchData();
-      }, [showModal]);
+      }
+    }, [showModal, fetchData]);
     
       const columns = [
         {
           headerName: 'Volunteer Id',
-          field: 'id',
+          field: 'volunteerUserId',
           checkboxSelection: true,
           textFilter: true,
-          width: 100,
+          minWidth: 100,
         },
         {
           headerName: 'Last Name',
           field: 'lastName',
           textFilter: true,
-          width: 120,
+          minWidth: 120,
         },
         {
           headerName: 'First Name',
           field: 'firstName',
           textFilter: true,
-          width: 120,
+          minWidth: 120,
         },
         {
           headerName: 'Gender',
@@ -112,54 +153,55 @@ const AssignHostedByModal = ({ value, node }) => {
             headerName: 'Address',
             field: 'homeAddress',
             textFilter: true,
-            minWidth: 300,
+            minWidth: 350,
         },
         {
             headerName: 'Assign HS',
-            field: 'assignedStudents',
+            field: 'tempHousingStudents',
             isArray: true,
             textFilter: true,
         },
         {
             headerName: 'Modified',
             field: 'modified',
+            isTimestamp: true,
         },
       ];
   
-    const handleClose = () => {
-      setShowModal(false);
-    };
-
-    const handleShow = () => {
-      setShowModal(true);
-    };
-
-    const handleSubmit = () => {
-        const selectedNodes = gridRef.current?.api.getSelectedNodes();
-
+      const handleClose = () => {
+        onClose();
+        setShowModal(false);
+      };
+  
+      const handleShow = () => {
+        setShowModal(true);
+      };
+  
+      const handleRowSelected = () => {
+        let selectedNodes = gridRef.current?.api.getSelectedNodes();
+  
         if(selectedNodes.length === 0)
         {
-            alert('No volunteer selected');
-            node.updateData({...node.data, tempHousingVolunteer: null});
+          setCurrentAssignee('');
         }
         else
         {
-          const currentAssignee = selectedNodes[0].data.id;
-
-          if(currentAssignee === originalAssignee)
-          {
-            alert('Still assigned to ' + currentAssignee);
-          }
-          else
-          {
-            alert('Reassigned to ' + currentAssignee);
-          }
-
-          node.updateData({...node.data, tempHousingVolunteer: currentAssignee});
+          setCurrentAssignee(selectedNodes[0].data.volunteerUserId);
         }
-
-        handleClose();
-    }
+      }
+  
+      const handleSubmit = () => {
+          let selectedNodes = gridRef.current?.api.getSelectedNodes();
+  
+          let selectedVolunteer = null;
+  
+          if(selectedNodes.length > 0)
+          {
+            selectedVolunteer = selectedNodes[0].data.volunteerUserId;
+          }
+  
+          sendUpdateTempHousingAssignmentRequest(selectedVolunteer);
+      }
 
     return (
       <>
@@ -180,6 +222,11 @@ const AssignHostedByModal = ({ value, node }) => {
                 For any changes you have made on this page, please click the <b>Submit</b> button at the bottom of the page.
             </Alert>
             <MultipleSortingInfo/>
+            {serverError && (
+              <Alert variant='danger'>
+                {serverError}
+              </Alert>
+            )}
             <MagicDataGrid
               innerRef={gridRef}
               gridStyle={{height: 720}}
@@ -187,10 +234,11 @@ const AssignHostedByModal = ({ value, node }) => {
               rowData={volunteerData}
               pagination={true}
               rowSelection={'single'}
+              onRowSelected={handleRowSelected}
             />
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="primary" onClick={handleSubmit}>
+            <Button variant="primary" onClick={handleSubmit}  disabled={originalAssignee === currentAssignee}>
                 Submit
             </Button>
             <Button variant="secondary" onClick={handleClose}>
