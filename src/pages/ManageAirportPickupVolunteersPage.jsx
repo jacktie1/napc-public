@@ -21,6 +21,7 @@ const ManageAirportPickupVolunteersPage = () => {
         params: {
           providesAirportPickup: true,
           includeAirportPickupAssignments: true,
+          excludeDisabled: true,
         }
       });
 

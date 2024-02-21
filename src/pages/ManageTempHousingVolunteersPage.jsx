@@ -22,6 +22,7 @@ const ManageTempHousingStudentsPage = () => {
         params: {
           providesTempHousing: true,
           includeTempHousingAssignments: true,
+          excludeDisabled: true,
         }
       });
 

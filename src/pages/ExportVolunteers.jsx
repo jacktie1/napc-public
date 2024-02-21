@@ -1,96 +1,68 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';
 import ApathNavbar from '../components/ApathNavbar';
 import { Container, Row, Col, Alert, Button } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import XLSX from 'sheetjs-style';
 import Papa from "papaparse";
+import * as magicDataGridUtils from '../utils/magicDataGridUtils';
+
 
 const ExportVolunteersPage = () => {
-    const [volunteerData, setVolunteerData] = useState([]);
+  const [serverError, setServerError] = useState('');
 
-    const gridRef = useRef();
+  const [volunteerData, setVolunteerData] = useState([]);
 
-    useEffect(() => {
-        // Fetch data from API and set it in the state
-        // For demonstration purposes, assuming you have a function fetchDataFromApi
-        // Replace this with your actual API fetching logic
-        const fetchData = () => {
-          const fetchedData = [
-            {
-              "id": '331',
-              "lastName": 'Zhao',
-              'firstName': 'Siming',
-              'gender': 'F',
-              'providesAirportPickup': 'Yes',
-              'providesTempHousing': 'Yes',
-              'airportPickupStudents': ['921'],
-              'tempHousingStudents': ['1024'],
-              'modified': '07/18/2023 07:07:06'
-            },
-            {
-              "id": '222',
-              "lastName": 'Zhiming',
-              'firstName': 'Qi',
-              'gender': 'M',
-              'isNew': 'Yes',
-              'major': 'Medical',
-              'airlineName': 'American',
-              'arrivalDate': new Date('2024/09/12'),
-              'arrivalTime': '11:02',
-              'flightNumber': 'AA331',
-              'providesAirportPickup': 'Yes',
-              'providesTempHousing': 'Yes',
-              'airportPickupStudents': ['921','9912'],
-              'tempHousingStudents': ['1066','88','3251'],
-              'modified': '05/18/2023 06:07:06'
-            },
-            {
-              "id": '555',
-              "lastName": 'Zhou',
-              'firstName': 'Fang',
-              'gender': 'M',
-              'isNew': 'No',
-              'major': 'Machine Learning',
-              'airlineName': 'United',
-              'arrivalDate': new Date('2024/09/12'),
-              'arrivalTime': '14:55',
-              'flightNumber': 'UA083',
-              'providesAirportPickup': 'Yes',
-              'providesTempHousing': 'Yes',
-              'airportPickupStudents': ['17','23','666'],
-              'tempHousingStudents': ['1024'],
-              'modified': '01/14/2023 07:07:06'
-            },
-            {
-              "id": '1010',
-              "lastName": 'Wenrui',
-              'firstName': 'Zhang',
-              'gender': 'F',
-              'isNew': 'Yes',
-              'major': 'Human Computer Interaction',
-              'airlineName': 'United',
-              'arrivalDate': new Date('2024/09/17'),
-              'arrivalTime': '16:55',
-              'flightNumber': 'UA083',
-              'providesAirportPickup': 'Yes',
-              'providesTempHousing': 'No',
-              'airportPickupStudents': ['331'],
-              'tempHousingStudents': null,
-              'modified': '01/19/2023 07:07:06'
-            },
-          ];
+  const gridRef = useRef();
 
-            setVolunteerData(fetchedData);
-        };
-    
-        fetchData();
-      }, []);
+  const fetchData = useCallback(async() => {
+    try {
+      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/getVolunteers`, {
+        params: {
+          includeAirportPickupAssignments: true,
+          includeTempHousingAssignments: true,
+        }
+      });
+
+      let fetchedVolunteers = axiosResponse.data.result.volunteers;
+
+      let formattedVolunteers = fetchedVolunteers.map(function(volunteer) {
+        let retRow = {
+          volunteerUserId: volunteer.userAccount.userId,
+          lastName: volunteer.volunteerProfile.lastName,
+          firstName: volunteer.volunteerProfile.firstName,
+          emailAddress: volunteer.volunteerProfile.emailAddress,
+          primaryPhoneNumber: volunteer.volunteerProfile.primaryPhoneNumber,
+          gender: magicDataGridUtils.toGenderValue(volunteer.volunteerProfile.gender),
+          providesAirportPickup: magicDataGridUtils.toYesOrNoValue(volunteer.volunteerAirportPickup.providesAirportPickup),
+          providesTempHousing: magicDataGridUtils.toYesOrNoValue(volunteer.volunteerTempHousing.providesTempHousing),
+          airportPickupStudents: volunteer?.airportPickupAssignments?.map(assignment => assignment.studentUserId),
+          tempHousingStudents: volunteer?.tempHousingAssignments?.map(assignment => assignment.studentUserId),
+          modified: new Date(volunteer.modifiedAt),
+        }
+
+        return retRow
+      });
+
+      setVolunteerData(formattedVolunteers);
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
     
       const columns = [
         {
           headerName: 'Volunteer Id',
-          field: 'id',
+          field: 'volunteerUserId',
           textFilter: true,
           width: 120,
         },
@@ -141,6 +113,7 @@ const ExportVolunteersPage = () => {
         {
           headerName: 'Modified',
           field: 'modified',
+          isTimestamp: true,
         },
     ];
 
@@ -190,9 +163,14 @@ const ExportVolunteersPage = () => {
               <Col className="pretty-box">
                 <h2 className="pretty-box-heading">Export Volunteers</h2>
                 <Alert dismissible variant='info'>
-                    This page displays all volunteers. Click <b>Export</b> button to export volunteers (filtered only).
+                    This page displays all volunteers. Click any <b>Export</b> button to export volunteers.
                 </Alert>
                 <MultipleSortingInfo/>
+                {serverError && (
+                  <Alert variant='danger'>
+                    {serverError}
+                  </Alert>
+                )}
                 <div className='py-3'>
                     <span className='mx-1'>
                         <Button variant="success" onClick={() => handleExportAsCSV('all')}>

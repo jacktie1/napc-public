@@ -1,102 +1,123 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import ApathNavbar from '../components/ApathNavbar';
+import axiosInstance from '../utils/axiosInstance';
+import parseAxiosError from '../utils/parseAxiosError';import ApathNavbar from '../components/ApathNavbar';
 import { Container, Row, Col, Alert, Button } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import XLSX from 'sheetjs-style';
 import Papa from "papaparse";
+import * as magicDataGridUtils from '../utils/magicDataGridUtils';
+
 
 const ExportStudentsPage = () => {
-    const [studentData, setStudentData] = useState([]);
+  const [serverError, setServerError] = useState('');
 
-    const gridRef = useRef();
+  const [studentData, setStudentData] = useState([]);
 
-    useEffect(() => {
-        // Fetch data from API and set it in the state
-        // For demonstration purposes, assuming you have a function fetchDataFromApi
-        // Replace this with your actual API fetching logic
-        const fetchData = () => {
-          const fetchedData = [
-            {
-              "id": '331',
-              "lastName": 'Zhao',
-              'firstName': 'Siming',
-              'gender': 'F',
-              'isNew': 'Yes',
-              'major': 'Biological Science',
-              'airlineName': 'Delta',
-              'arrivalDate': new Date('2024/08/18'),
-              'arrivalTime': '00:01',
-              'flightNumber': 'DL772',
-              'requiresAirportPickup': 'Yes',
-              'requiresTempHousing': 'Yes',
-              'airportPickupVolunteer': '921',
-              'tempHousingVolunteer': '1024',
-              'modified': '07/18/2023 07:07:06'
-            },
-            {
-              "id": '222',
-              "lastName": 'Zhiming',
-              'firstName': 'Qi',
-              'gender': 'M',
-              'isNew': 'Yes',
-              'major': 'Medical',
-              'airlineName': 'American',
-              'arrivalDate': new Date('2024/09/12'),
-              'arrivalTime': '11:02',
-              'flightNumber': 'AA331',
-              'requiresAirportPickup': 'Yes',
-              'requiresTempHousing': 'Yes',
-              'airportPickupVolunteer': '921',
-              'tempHousingVolunteer': '1066',
-              'modified': '05/18/2023 06:07:06'
-            },
-            {
-              "id": '555',
-              "lastName": 'Zhou',
-              'firstName': 'Fang',
-              'gender': 'M',
-              'isNew': 'No',
-              'major': 'Machine Learning',
-              'airlineName': 'United',
-              'arrivalDate': new Date('2024/09/12'),
-              'arrivalTime': '14:55',
-              'flightNumber': 'UA083',
-              'requiresAirportPickup': 'Yes',
-              'requiresTempHousing': 'Yes',
-              'airportPickupVolunteer': '17',
-              'tempHousingVolunteer': '1024',
-              'modified': '01/14/2023 07:07:06'
-            },
-            {
-              "id": '1010',
-              "lastName": 'Wenrui',
-              'firstName': 'Zhang',
-              'gender': 'F',
-              'isNew': 'Yes',
-              'major': 'Human Computer Interaction',
-              'airlineName': 'United',
-              'arrivalDate': new Date('2024/09/17'),
-              'arrivalTime': '16:55',
-              'flightNumber': 'UA083',
-              'requiresAirportPickup': 'Yes',
-              'requiresTempHousing': 'No',
-              'airportPickupVolunteer': '331',
-              'tempHousingVolunteer': null,
-              'modified': '01/19/2023 07:07:06'
-            },
-          ];
+  const gridRef = useRef();
 
-            setStudentData(fetchedData);
-        };
-    
-        fetchData();
-      }, []);
+  const fetchData = useCallback(async (referencesById) => {
+    try {
+      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getStudents`, {
+        params: {
+          needsHousing: true,
+          includeAirportPickupAssignment: true,
+          includeTempHousingAssignment: true,
+        }
+      });
+
+      let fetchedStudents = axiosResponse.data.result.students;
+
+      let formattedStudents = fetchedStudents.map(function(student) {
+
+
+        let retRow = {
+          studentUserId: student.userAccount.userId,
+          lastName: student.studentProfile.lastName,
+          firstName: student.studentProfile.firstName,
+          gender: magicDataGridUtils.toGenderValue(student.studentProfile.gender),
+          isNewStudent: magicDataGridUtils.toYesOrNoValue(student.studentProfile.isNewStudent),
+          major: student.studentProfile.customMajor,
+          arrivalAirline: null,
+          arrivalDate: null,
+          arrivalTime: null,
+          arrivalFlightNumber: null,
+          needsAirportPickup: magicDataGridUtils.toYesOrNoValue(student.studentFlightInfo.needsAirportPickup),
+          needsTempHousing: magicDataGridUtils.toYesOrNoValue(student.studentTempHousing.needsTempHousing),
+          airportPickupVolunteer: student?.airportPickupAssignment?.volunteerUserId,
+          tempHousingVolunteer: student?.tempHousingAssignment?.volunteerUserId,
+          modified: new Date(student.modifiedAt),
+        }
+
+        if(student.studentProfile.majorReferenceId !== null) {
+          retRow.major = referencesById['Major'][student.studentProfile.majorReferenceId];
+        }
+
+        if(student.studentFlightInfo.needsAirportPickup && student.studentFlightInfo.hasFlightInfo)
+        {
+          let arrivalDatetime = student.studentFlightInfo.arrivalDatetime;
+
+          retRow.arrivalDate = magicDataGridUtils.getDate(arrivalDatetime);
+          retRow.arrivalTime = magicDataGridUtils.getTime(arrivalDatetime);
+          retRow.arrivalFlightNumber = student.studentFlightInfo.arrivalFlightNumber;
+          retRow.arrivalAirline = student.studentFlightInfo.customArrivalAirline;
+          if(student.studentFlightInfo.arrivalAirlineReferenceId !== null) {
+            retRow.arrivalAirline = referencesById['Airline'][student.studentFlightInfo.arrivalAirlineReferenceId];
+          }
+        }
+
+        return retRow
+      });
+
+      setStudentData(formattedStudents);
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      window.scrollTo(0, 0);
+      setServerError(errorMessage);
+    }
+  }, []);
+
+  const fetchOptions = useCallback(async () => {
+    try {
+      let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
+        params: {
+          referenceTypes: ['Major', 'Airline'].join(','),
+        }
+      });
+
+      let referencesById = {};
+
+      let referencesByType = axiosResponse.data.result.referencesByType;
+
+      for (let referenceType in referencesByType) {
+        let referenceList = referencesByType[referenceType];
+
+        let referenceMap = {};
+
+        for (let reference of referenceList) {
+          referenceMap[reference.referenceId] = reference.value;
+        }
+
+        referencesById[referenceType] = referenceMap;
+      }
+
+      fetchData(referencesById);
+    } catch (axiosError) {
+      let { errorMessage } = parseAxiosError(axiosError);
+
+      setServerError(errorMessage);
+    }
+  }, [fetchData]);
+
+  useEffect(() => {
+    fetchOptions();
+  }, [fetchOptions]);
     
       const columns = [
         {
           headerName: 'Student Id',
-          field: 'id',
+          field: 'studentUserId',
           textFilter: true,
           width: 100,
         },
@@ -119,7 +140,7 @@ const ExportStudentsPage = () => {
         },
         {
           headerName: 'First Time',
-          field: 'isNew',
+          field: 'isNewStudent',
           booleanFilter: true,
         },
         {
@@ -129,19 +150,20 @@ const ExportStudentsPage = () => {
         },
         {
             headerName: 'Arri FN',
-            field: 'flightNumber',
+            field: 'arrivalFlightNumber',
             textFilter: true,
             width: 120,
         },
         {
           headerName: 'Arri AirL',
-          field: 'airlineName',
+          field: 'arrivalAirline',
           textFilter: true,
         },
         {
           headerName: 'Arr Date',
           field: 'arrivalDate',
           dateFilter: true,
+          isDate: true,
         },
         {
           headerName: 'Arr Time',
@@ -150,13 +172,13 @@ const ExportStudentsPage = () => {
         },
         {
             headerName: 'Pk. Req',
-            field: 'requiresAirportPickup',
+            field: 'needsAirportPickup',
             booleanFilter: true,
             width: 120,
         },
         {
           headerName: 'Hous. Req',
-          field: 'requiresTempHousing',
+          field: 'needsTempHousing',
           booleanFilter: true,
           width: 120,
         },
@@ -175,6 +197,7 @@ const ExportStudentsPage = () => {
         {
           headerName: 'Modified',
           field: 'modified',
+          isTimestamp: true,
         },
     ];
 
@@ -224,9 +247,14 @@ const ExportStudentsPage = () => {
               <Col className="pretty-box">
                 <h2 className="pretty-box-heading">Export Students</h2>
                 <Alert dismissible variant='info'>
-                    This page displays all students. Click <b>Export</b> button to export students (filtered only).
+                    This page displays all students. Click any <b>Export</b> button to export students.
                 </Alert>
                 <MultipleSortingInfo/>
+                {serverError && (
+                  <Alert variant='danger'>
+                    {serverError}
+                  </Alert>
+                )}
                 <div className='py-3'>
                     <span className='mx-1'>
                         <Button variant="success" onClick={() => handleExportAsCSV('all')}>
