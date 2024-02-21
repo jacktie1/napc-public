@@ -62,6 +62,9 @@ const ManageTempHousingStudentsPage = () => {
       headerName: 'Volunteer Id',
       field: 'volunteerUserId',
       cellRenderer: AssignHostStudentsModal,
+      cellRendererParams: {
+        onClose: fetchData,
+      },
       textFilter: true,
       width: 120,
     },
