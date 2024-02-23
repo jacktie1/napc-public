@@ -23,7 +23,7 @@ const VolunteerTempHousingAssignmentPage = () => {
       let arrivalDatetime = dataRow.studentFlightInfo.arrivalDatetime;
 
       let retRow = {
-        studentUserId: dataRow.userAccount.userId,
+        studentUserId: dataRow.studentUserId,
         lastName: dataRow.studentProfile.lastName,
         firstName: dataRow.studentProfile.firstName,
         wechatId: dataRow.studentProfile.wechatId,
@@ -62,6 +62,9 @@ const VolunteerTempHousingAssignmentPage = () => {
 
       let assignedStudents = fetchedTempHousingAssignments.map(function(tempHousingAssignment) {
         let assignedStudentDetails = tempHousingAssignment.student;
+
+        assignedStudentDetails.studentUserId = tempHousingAssignment.studentUserId;
+
         return assignedStudentDetails;
       });
 

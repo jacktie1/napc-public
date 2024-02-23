@@ -239,6 +239,7 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
                     pagination={pagination}
                     paginationPageSize={paginationPageSize}
                     paginationPageSizeSelector={paginationPageSizeSelector}
+                    enableCellTextSelection={true}
                     onFirstDataRendered={onFirstDataRendered}
                     onRowDataUpdated={onRowDataUpdated}
                     rowSelection={rowSelection}

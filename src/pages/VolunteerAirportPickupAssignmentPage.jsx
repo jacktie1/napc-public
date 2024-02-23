@@ -24,7 +24,7 @@ const VolunteerAirportPickupAssignmentPage = () => {
       let arrivalDatetime = dataRow.studentFlightInfo.arrivalDatetime;
 
       let retRow = {
-        studentUserId: dataRow.userAccount.userId,
+        studentUserId: dataRow.studentUserId,
         lastName: dataRow.studentProfile.lastName,
         firstName: dataRow.studentProfile.firstName,
         wechatId: dataRow.studentProfile.wechatId,
@@ -63,6 +63,9 @@ const VolunteerAirportPickupAssignmentPage = () => {
 
       let assignedStudents = fetchedAirportPickupAssignments.map(function(airportPickupAssignment) {
         let assignedStudentDetails = airportPickupAssignment.student;
+
+        assignedStudentDetails.studentUserId = airportPickupAssignment.studentUserId;
+  
         return assignedStudentDetails;
       });
 
