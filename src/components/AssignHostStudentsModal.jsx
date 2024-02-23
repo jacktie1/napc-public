@@ -128,7 +128,7 @@ const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned, on
             return tempHousingAssignment.student;
             });
 
-            let formattedAssignedStudents = formatDataRows(assignedStudents, referencesById, assignedStudents);
+            let formattedAssignedStudents = formatDataRows(assignedStudents, referencesById, tempHousingAssignmentsMap);
 
             setTempHousingNeeds(formattedAssignedStudents);
         }

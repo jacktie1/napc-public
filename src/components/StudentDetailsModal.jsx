@@ -10,7 +10,7 @@ import UserEditableAccountForm from './UserEditableAccountForm';
 import * as formUtils from '../utils/formUtils';
 
 
-const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReferences, onClose }) => {
+const StudentDetailsModal = ({ value, readOnly, adminView, optionReferences, onClose }) => {
     const [showModal, setShowModal] = useState(false);
     const [serverError, setServerError] = useState('');
     const [currentTab, setCurrentTab] = useState('profile');
@@ -284,14 +284,17 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
                   loadedData={loadedData.studentProfile}
                 />
               </Tab>
-              <Tab eventKey="userAccount" title="User Account">
-                <UserEditableAccountForm
-                  innerRef={userAccountFormRef}
-                  onSubmit={handleUserAccountSubmit}
-                  formReadOnly={readOnly}
-                  loadedData={loadedData.userAccount}
-                />
-              </Tab>
+              { adminView ?
+                <Tab eventKey="userAccount" title="User Account">
+                  <UserEditableAccountForm
+                    innerRef={userAccountFormRef}
+                    onSubmit={handleUserAccountSubmit}
+                    formReadOnly={readOnly}
+                    loadedData={loadedData.userAccount}
+                  />
+                </Tab>
+                : null
+              }
               <Tab eventKey="flightInfo" title="Airport Pickup">
                 <StudentFlightInfoForm
                   innerRef={StudentFlightInfoFormRef}

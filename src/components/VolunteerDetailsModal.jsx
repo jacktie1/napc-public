@@ -8,7 +8,7 @@ import VolunteerHousingCapacityForm from './VolunteerHousingCapacityForm';
 import UserEditableAccountForm from './UserEditableAccountForm';
 import * as formUtils from '../utils/formUtils';
 
-const VolunteerDetailsModal = ({ value, node, readOnly, adminView, onClose }) => {
+const VolunteerDetailsModal = ({ value, readOnly, adminView, onClose }) => {
     const [showModal, setShowModal] = useState(false);
     const [serverError, setServerError] = useState('');
     const [currentTab, setCurrentTab] = useState('profile');
@@ -243,14 +243,17 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView, onClose }) =>
                   loadedData={loadedData.volunteerProfile}
                 />
               </Tab>
-              <Tab eventKey="userAccount" title="User Account">
-                <UserEditableAccountForm
-                  innerRef={userAccountFormRef}
-                  onSubmit={handleUserAccountSubmit}
-                  formReadOnly={readOnly}
-                  loadedData={loadedData.userAccount}
-                />
-              </Tab>
+              { adminView ?
+                <Tab eventKey="userAccount" title="User Account">
+                  <UserEditableAccountForm
+                    innerRef={userAccountFormRef}
+                    onSubmit={handleUserAccountSubmit}
+                    formReadOnly={readOnly}
+                    loadedData={loadedData.userAccount}
+                  />
+                </Tab>
+                : null
+              }
               <Tab eventKey="pickupCapacity" title="Airport Pickup">
                 <VolunteerPickupCapacityForm
                   innerRef={VolunteerPickupCapacityFormRef}

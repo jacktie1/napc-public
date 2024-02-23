@@ -156,7 +156,7 @@ const AssignPickupStudentsModal = ({ value, node, valueFormatted, viewAssigned, 
             return airportPickupAssignment.student;
           });
 
-          let formattedAssignedStudents = formatDataRows(assignedStudents, referencesById, assignedStudents);
+          let formattedAssignedStudents = formatDataRows(assignedStudents, referencesById, airportPickupAssignmentsMap);
 
           fetchAirportPickupPreferences(formattedAssignedStudents);
         }
