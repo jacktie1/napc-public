@@ -2,6 +2,14 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## NodeJS Version Requirement
+
+node version >= 20
+
+## Test Locally With One-Command
+
+npm start
+
 ## Available Scripts
 
 In the project directory, you can run:
