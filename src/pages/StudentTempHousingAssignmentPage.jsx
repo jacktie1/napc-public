@@ -60,7 +60,7 @@ const StudentTempHousingAssignmentPage = () => {
       <Container className="mt-5">
         <Row className="mt-5 wide-pretty-box-layout">
           <Col className="pretty-box">
-            <h2 className="pretty-box-heading">Airport Pickup Assignment</h2>
+            <h2 className="pretty-box-heading">Temporary Housing Assignment</h2>
             <VolunteerHelpInfo />
             {serverError && (
               <Alert variant='danger'>
