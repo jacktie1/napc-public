@@ -222,12 +222,14 @@ const PasswordResetPage = () => {
 
   const handleUserSecurityQuestionsModalClose = () => {
     setToken('');
+    setTargeUsername('');
     setSubmitSecurityAnswersServerError('');
     setShowUserSecurityQuestionsModal(false);
   }
 
   const handleResetPasswordModalClose = () => {
     setToken('');
+    setTargeUsername('');
     setResetPasswordServerError('');
     setShowResetPasswordModal(false);
   }
