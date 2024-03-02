@@ -10,6 +10,10 @@ node version >= 20
 
 npm start
 
+## Deployment Tips
+
+You have to create a `.env.production` file with `.env.development` variables replaced with production values (`REACT_APP_API_BASE_URL` for example)
+
 ## Available Scripts
 
 In the project directory, you can run:
