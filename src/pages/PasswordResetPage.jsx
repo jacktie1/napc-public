@@ -251,6 +251,8 @@ const PasswordResetPage = () => {
                 <Form noValidate onSubmit={handleSubmit}>
                   <h2 className="pretty-box-heading">Password Reset</h2>
 
+                  <Alert>If you don't remember the username or security answer(s), please email Jason Chen at jasonchenatlanta@gmail.com for help</Alert>
+
                   {retrieveSecurityQuestionsServerError && (
                     <Alert variant='danger'>
                       {retrieveSecurityQuestionsServerError}
