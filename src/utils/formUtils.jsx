@@ -189,7 +189,7 @@ export const fromUserAccountForm = (formData)=> {
     }
 
     return preparedUserAccount;
-} 
+}
 
 export const toUserAccountForm = (dbData)=> {
     let formData = {
@@ -215,6 +215,29 @@ export const toUserAccountForm = (dbData)=> {
     }
 
     return formData;
+}
+
+export const fromUserSecurityQustionsForm = (formData)=> {
+    let preparedUserSecurityQuestions = {
+    };
+
+    // if security question and answer fields are present, they should be updated
+    if('securityQuestionReferenceId1' in formData && 'securityAnswer1' in formData){
+        preparedUserSecurityQuestions.securityQuestionReferenceId1 = fromReferenceIdOptionValue(formData.securityQuestionReferenceId1);
+        preparedUserSecurityQuestions.securityAnswer1 = formData.securityAnswer1;
+    }
+
+    if('securityQuestionReferenceId2' in formData && 'securityAnswer2' in formData){
+        preparedUserSecurityQuestions.securityQuestionReferenceId2 = fromReferenceIdOptionValue(formData.securityQuestionReferenceId2);
+        preparedUserSecurityQuestions.securityAnswer2 = formData.securityAnswer2;
+    }
+
+    if('securityQuestionReferenceId3' in formData && 'securityAnswer3' in formData){
+        preparedUserSecurityQuestions.securityQuestionReferenceId3 = fromReferenceIdOptionValue(formData.securityQuestionReferenceId3);
+        preparedUserSecurityQuestions.securityAnswer3 = formData.securityAnswer3;
+    }
+
+    return preparedUserSecurityQuestions;
 }
 
 export const fromStudentProfileForm = (formData)=> {

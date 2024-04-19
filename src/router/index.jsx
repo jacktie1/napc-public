@@ -12,6 +12,7 @@ import SignupStudentPage from '../pages/SignupStudentPage'
 import SignupVolunteerPage from '../pages/SignupVolunteerPage'
 
 import UserAccountPage from "../pages/UserAccountPage";
+import UserSecurityQuestionsPage from "../pages/UserSecurityQuestionsPage";
 
 import AnnouncementPage from './../pages/AnnouncementPage'
 import StudentAirportPickupAssignmentPage from '../pages/StudentAirportPickupAssignmentPage'
@@ -51,6 +52,7 @@ const CustomRouter = () => {
                 <BrowserRouter>
                     <Routes>
                         <Route path="/" element={<VolunteerPickupNeedsPage />} />
+                        <Route path="/user/security-question-setup" element={<UserSecurityQuestionsPage />} />
                         <Route path="/volunteer/agreement" element={<VolunteerAgreementPage />} />
                         <Route path="/volunteer/home" element={<VolunteerPickupNeedsPage />} />
                         <Route path="/volunteer/airport-pickup-assignment" element={<VolunteerAirportPickupAssignmentPage />} />
@@ -72,6 +74,7 @@ const CustomRouter = () => {
                 <BrowserRouter>
                     <Routes>
                         <Route path="/" element={<StudentAirportPickupAssignmentPage />} />
+                        <Route path="/user/security-question-setup" element={<UserSecurityQuestionsPage />} />
                         <Route path="/student/announcement" element={<AnnouncementPage />} />
                         <Route path="/student/home" element={<StudentAirportPickupAssignmentPage />} />
                         <Route path="/student/airport-pickup-assignment" element={<StudentAirportPickupAssignmentPage />} />
@@ -93,6 +96,7 @@ const CustomRouter = () => {
                 <BrowserRouter>
                     <Routes>
                         <Route path="/" element={<ManageAnnouncementPage />} />
+                        <Route path="/user/security-question-setup" element={<UserSecurityQuestionsPage />} />
                         <Route path="/admin/manage-announcement" element={<ManageAnnouncementPage />} />
                         <Route path="/admin/home" element={<ManageAnnouncementPage />} />
                         <Route path="/admin/manage-students" element={<ManageStudentsPage />} />

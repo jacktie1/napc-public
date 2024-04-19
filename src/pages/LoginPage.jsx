@@ -54,6 +54,7 @@ const LoginPage = () => {
         let firstName = data.firstName;
         let lastName = data.lastName;
         let userId = data.userId;
+        let hasSecurityQuestions = data.hasSecurityQuestions;
         let profile = {
           userId: userId,
           role: role,
@@ -63,12 +64,17 @@ const LoginPage = () => {
 
         startSession(jwtToken, profile);
 
+        if(hasSecurityQuestions) {
+
         if (role === 'Student') {
-          navigate('/student/announcement');
-        } else if (role === 'Volunteer') {  
-          navigate('/volunteer/agreement');
-        } else if (role === 'Admin') {  
-          navigate('/admin/home');
+            navigate('/student/announcement');
+          } else if (role === 'Volunteer') {  
+            navigate('/volunteer/agreement');
+          } else if (role === 'Admin') {  
+            navigate('/admin/home');
+          }
+        } else {
+          navigate('/user/security-question-setup');
         }
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
