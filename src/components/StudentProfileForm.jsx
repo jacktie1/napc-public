@@ -42,7 +42,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
     usPhoneNumber: '',
   }
 
-  const requiredAlphaTest = yup.string().required('Required!').matches(/^[a-zA-Z]+$/, { message: 'Can only contain English letters!', excludeEmptyString: true });
+  const nameTest = yup.string().required('Required!').matches(/^[a-zA-Z &-]+$/, { message: "Can only contain English letters, spaces, '&', or '-'!", excludeEmptyString: true });
   const requireNoSpaceTest = yup.string().required('Required!').matches(/^[^ ]+$/, { message: 'Cannot contain any space!', excludeEmptyString: true });
   const optionalAlphaSpaceTest = yup.string().matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
   const requiredAlphaSpaceTest = yup.string().required('Required!').matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
@@ -50,11 +50,11 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
   const emailAddressTest = yup.string().email('Must be a valid email address').required('Required!');
   const phoneNumberTest = yup.string()
     .min(8, 'Too Short!')
-    .matches( /^[0-9\+\-\(\) ]*$/, 'Must be a valid phone number' );
+    .matches( /^[0-9\+\-\(\) \.]*$/, 'Must be a valid phone number' );
 
   const schema = yup.object().shape({
-      firstName: requiredAlphaTest,
-      lastName: requiredAlphaTest,
+      firstName: nameTest,
+      lastName: nameTest,
       englishName: optionalAlphaSpaceTest,
       gender: requiredSelectTest,
       isNewStudent: requiredSelectTest,

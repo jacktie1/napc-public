@@ -34,20 +34,20 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, loadedData, formReadOnly, ad
     initialValues.userStatus = '';
   }
   
-  const requiredAlphaTest = yup.string().required('Required!').matches(/^[a-zA-Z]+$/, { message: 'Can only contain English letters!', excludeEmptyString: true });
-  const requiredAlphaSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
+  const nameTest = yup.string().required('Required!').matches(/^[a-zA-Z &-]+$/, { message: "Can only contain English letters, spaces, '&', or '-'!", excludeEmptyString: true });
+  const affiliationTest =  yup.string().required('Required!').matches(/^[a-zA-Z0-9][a-zA-Z0-9 \/\-&]*$/, { message: 'Can only contain English letters, numbers, spaces, "/", "&" or "-"!', excludeEmptyString: true });
   const optionalNoSpaceTest = yup.string().matches(/^[^ ]+$/, { message: 'Cannot contain any space!', excludeEmptyString: true });
   const requiredSelectTest = yup.string().required('Required!');
   const emailAddressTest = yup.string().email('Must be a valid email address').required('Required!');
   const phoneNumberTest = yup.string()
     .min(8, 'Too Short!')
-    .matches( /^[0-9\+\-\(\) ]*$/, 'Must be a valid phone number' );
+    .matches( /^[0-9\+\-\(\) \.]*$/, 'Must be a valid phone number' );
 
   const schemaObject = {
-    firstName: requiredAlphaTest,
-    lastName: requiredAlphaTest,
+    firstName: nameTest,
+    lastName: nameTest,
     gender: requiredSelectTest,
-    affiliation: requiredAlphaSpaceTest,
+    affiliation: affiliationTest,
     emailAddress: emailAddressTest,
     wechatId: optionalNoSpaceTest,
     primaryPhoneNumber: phoneNumberTest.required('Required!'),
