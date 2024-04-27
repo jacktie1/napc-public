@@ -18,6 +18,8 @@ const StudentFlightInfoPage = () => {
 
   const [loadedData, setLoadedData] = useState(false);
 
+  const [assigned, setAssigned] = useState(false);
+
   const [optionReferences, setOptionReferences] = useState({});
   
   var studentFlightInfo;
@@ -51,8 +53,27 @@ const StudentFlightInfoPage = () => {
         let studentFlightInfo = axiosResponse.data.result.student.studentFlightInfo;
   
         setLoadedData(studentFlightInfo);
+
+        checkAirportPickupAssignment();
       }
       catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    }
+
+    const checkAirportPickupAssignment = async () => {
+      try{
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getAirportPickupAssignment/${userId}`);
+        let fetchedAirportPickupAssignment = axiosResponse.data.result.student.airportPickupAssignment;
+        let assignedVolunteer = fetchedAirportPickupAssignment?.volunteer;
+
+        if(assignedVolunteer !== undefined && assignedVolunteer !== null) {
+          setAssigned(true);
+        }
+      } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
   
         window.scrollTo(0, 0);
@@ -120,16 +141,24 @@ const StudentFlightInfoPage = () => {
                   {serverError}
                 </Alert>
               )}
+              {assigned && (
+                <Alert variant='info'>
+                  You have already been assigned an airport pickup volunteer. Your flight information cannot be updated.
+                </Alert>
+              )}
               <StudentFlightInfoForm
                 innerRef={studentStudentFlightInfoFormRef}
                 onSubmit={handleStudentFlightInfoSubmit}
                 optionReferences={optionReferences}
                 loadedData={loadedData}
+                formReadOnly={assigned}
               />
               <hr/>
-              <Button variant="primary" onClick={handleClick} className="pretty-box-button">
-                Submit
-              </Button> 
+              {!assigned && (
+                <Button variant="primary" onClick={handleClick} className="pretty-box-button">
+                  Submit
+                </Button> 
+              )}
           </Col>
         </Row>
       </Container>
