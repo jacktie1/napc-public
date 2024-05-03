@@ -15,6 +15,7 @@ const StudentDetailsModal = ({ value, readOnly, adminView, optionReferences, onC
     const [serverError, setServerError] = useState('');
     const [currentTab, setCurrentTab] = useState('profile');
     const [loadedData, setLoadedData] = useState({});
+    const [managementData, setManagementData] = useState({});
 
     const userId = value;
 
@@ -55,6 +56,8 @@ const StudentDetailsModal = ({ value, readOnly, adminView, optionReferences, onC
           let student = axiosResponse.data.result.student;
 
           setLoadedData(student);
+
+          fetchManagementData();
         } catch (axiosError) {
           let { errorMessage } = parseAxiosError(axiosError);
 
@@ -62,6 +65,21 @@ const StudentDetailsModal = ({ value, readOnly, adminView, optionReferences, onC
           setServerError(errorMessage);
         }
       };
+
+      const fetchManagementData = async () => {
+        try {
+          let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getManagement`);
+    
+          let managent = axiosResponse?.data?.result?.management;
+  
+          setManagementData(managent);
+        }
+        catch (axiosError) {
+          let { errorMessage } = parseAxiosError(axiosError);
+    
+          setServerError(errorMessage);
+        }
+      }
 
       if(showModal)
       {
@@ -282,6 +300,7 @@ const StudentDetailsModal = ({ value, readOnly, adminView, optionReferences, onC
                   formReadOnly={readOnly}
                   optionReferences={optionReferences}
                   loadedData={loadedData.studentProfile}
+                  managementData={managementData}
                 />
               </Tab>
               { adminView ?

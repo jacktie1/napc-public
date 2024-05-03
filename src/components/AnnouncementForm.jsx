@@ -16,6 +16,7 @@ const AnnouncementForm = ({ innerRef, onSubmit, loadedData }) => {
         doesAssignmentStart: formUtils.toYesOrNoOptionValue(loadedData.doesAssignmentStart),
         studentRegistrationStartDate: loadedData.studentRegistrationStartDate,
         studentRegistrationEndDate: loadedData.studentRegistrationEndDate,
+        weekOfWelcomeStartDate: loadedData.weekOfWelcomeStartDate,
         announcement: loadedData.announcement,
       }
 
@@ -27,6 +28,7 @@ const AnnouncementForm = ({ innerRef, onSubmit, loadedData }) => {
     doesAssignmentStart: '',
     studentRegistrationStartDate: '',
     studentRegistrationEndDate: '',
+    weekOfWelcomeStartDate: '',
     announcement: '',
   };
 
@@ -42,6 +44,7 @@ const AnnouncementForm = ({ innerRef, onSubmit, loadedData }) => {
     doesAssignmentStart: requiredSelectTest,
     studentRegistrationStartDate: requiredDateTest,
     studentRegistrationEndDate: requiredDateTest.min(yup.ref('studentRegistrationStartDate'), "End time cannot be before start time"),
+    weekOfWelcomeStartDate: requiredDateTest,
     announcement: requiredNonEmptyTest,
   });
 
@@ -114,6 +117,22 @@ const AnnouncementForm = ({ innerRef, onSubmit, loadedData }) => {
                     />
                     <Form.Control.Feedback type="invalid">
                     {errors.studentRegistrationEndDate}
+                    </Form.Control.Feedback>
+                </Form.Group>
+            </Row>
+            <Row className="mb-3">
+                <Form.Group as={Col} controlId="annoucementFormWeekOfWelcomeStartDate">
+                    <RequiredFieldFormLabel>Week of Welcome Start Date</RequiredFieldFormLabel>
+                    <Form.Control
+                    type="date"
+                    name='weekOfWelcomeStartDate'
+                    value={values.weekOfWelcomeStartDate}
+                    onChange={handleChange}
+                    isValid={touched.weekOfWelcomeStartDate && !errors.weekOfWelcomeStartDate}
+                    isInvalid={touched.weekOfWelcomeStartDate && !!errors.weekOfWelcomeStartDate}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                    {errors.weekOfWelcomeStartDate}
                     </Form.Control.Feedback>
                 </Form.Group>
             </Row>

@@ -19,6 +19,8 @@ const StudentProfilePage = () => {
 
   const [optionReferences, setOptionReferences] = useState({});
 
+  const [managementData, setManagementData] = useState({});
+
   var studentProfile;
 
   const studentProfileFormRef = useRef(null);
@@ -49,10 +51,27 @@ const StudentProfilePage = () => {
         let studentProfile = axiosResponse.data.result.student.studentProfile;
   
         setLoadedData(studentProfile);
+
+        fetchManagementData();
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
   
         window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    }
+
+    const fetchManagementData = async () => {
+      try {
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getManagement`);
+  
+        let managent = axiosResponse?.data?.result?.management;
+
+        setManagementData(managent);
+      }
+      catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
         setServerError(errorMessage);
       }
     }
@@ -124,6 +143,7 @@ const StudentProfilePage = () => {
                 onSubmit={handleStudentProfileSubmit}
                 optionReferences={optionReferences}
                 loadedData={loadedData}
+                managementData={managementData}
               />
               <hr/>
               <Button variant="primary" onClick={handleClick} className="pretty-box-button">

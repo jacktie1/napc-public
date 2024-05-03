@@ -6,8 +6,12 @@ import * as yup from 'yup';
 import * as formUtils from '../utils/formUtils';
 
 
-const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, formReadOnly }) => {
+const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, managementData, loadedData, formReadOnly }) => {
   const { Formik } = formik;
+
+  const weekOfWelcomeStartDate = useMemo(() => {
+    return managementData?.weekOfWelcomeStartDate ?? '';
+  }, [managementData]);
 
   const majorOptions = useMemo(() => {
     let majorOptionReferences = optionReferences.Major ?? [];
@@ -33,6 +37,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
     isNewStudent: '',
     graduatesFrom: '',
     studentType: '',
+    attendsWeekOfWelcome: '',
     majorReferenceId: '',
     customMajor: '',
     hasCompanion: '',
@@ -59,6 +64,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
       gender: requiredSelectTest,
       isNewStudent: requiredSelectTest,
       studentType: requiredSelectTest,
+      attendsWeekOfWelcome: requiredSelectTest,
       graduatesFrom: optionalAlphaSpaceTest,
       majorReferenceId: requiredSelectTest,
       customMajor: yup.string()
@@ -214,6 +220,26 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, loadedData, 
               </Form.Select>
               <Form.Control.Feedback type="invalid">
                 {errors.studentType}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Row>
+          <Row className="mb-3">
+            <Form.Group as={Col} controlId="studentProfileFormAttendsWeekOfWelcome">
+              <RequiredFieldFormLabel>Are you attending the Week of Welcome (Starting {weekOfWelcomeStartDate})?</RequiredFieldFormLabel>
+              <Form.Select
+                name='attendsWeekOfWelcome'
+                onChange={handleChange}
+                value={values.attendsWeekOfWelcome}
+                isValid={touched.attendsWeekOfWelcome && !errors.attendsWeekOfWelcome}
+                isInvalid={touched.attendsWeekOfWelcome && !!errors.attendsWeekOfWelcome}
+                disabled={formReadOnly}
+              >
+                {yesOrNoOptions.map((option) => (
+                  <option key={option.value} value={option.value} label={option.label} />
+                ))}
+              </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                {errors.attendsWeekOfWelcome}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>

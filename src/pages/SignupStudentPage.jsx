@@ -13,6 +13,7 @@ import StudentCommentForm from '../components/StudentCommentForm';
 import PrivacyStatement from '../components/PrivacyStatement';
 import PatienceInfo from '../components/PatienceInfo';
 import RequiredFieldInfo from '../components/RequiredFieldInfo';
+import CollapsibleAlert from '../components/CollapsibleAlert';
 import * as formUtils from '../utils/formUtils';
 
 const SignupStudentPage = () => {
@@ -24,6 +25,7 @@ const SignupStudentPage = () => {
   const [studentRegisterationStartDate, setStudentRegisterationStartDate] = useState('');
   const [studentRegisterationEndDate, setStudentRegisterationEndDate] = useState('');
   const [studentRegisterationEndDateForDisplay, setStudentRegisterationEndDateForDisplay] = useState('');
+  const [managementData, setManagementData] = useState({});
 
   const [optionReferences, setOptionReferences] = useState({});
 
@@ -72,7 +74,7 @@ const SignupStudentPage = () => {
   };
 
   useEffect(() => {
-    const fetchStudentRigistrationDateRange = async () => {
+    const fetchManagementData = async () => {
       try {
         let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getManagement`);
   
@@ -100,6 +102,7 @@ const SignupStudentPage = () => {
   
         setStudentRegisterationStartDate(startDate);
         setStudentRegisterationEndDate(endDate);
+        setManagementData(managent);
   
         fetchOptions();
       } catch (axiosError) {
@@ -108,7 +111,6 @@ const SignupStudentPage = () => {
         setStudentRegisterationEndDate('1900-01-01');
         setStudentRegisterationEndDateForDisplay('1900-01-01');
 
-  
         setServerError(errorMessage);
       }
     };
@@ -130,7 +132,7 @@ const SignupStudentPage = () => {
       }
     };
   
-    fetchStudentRigistrationDateRange();
+    fetchManagementData();
   }, [])
 
   const handleClick = () => {
@@ -225,6 +227,11 @@ const SignupStudentPage = () => {
         <Row className="mt-5 wide-pretty-box-layout">
           <Col className="pretty-box" >
               <h2 className="pretty-box-heading">Student Registration</h2> 
+              <CollapsibleAlert variant='primary' dismissible>
+                Each summer, hundreds of Chinese students come to Georgia Tech to study.<br/><br/>
+                The purpose of this website is to link these students with friends who will assist them with airport pickup and temporary housing when they arrive.<br/><br/>
+                We hope that many solid friendships will be made.
+              </CollapsibleAlert>
               <PrivacyStatement />
               <PatienceInfo targetGroup='student'/>
               <RequiredFieldInfo />
@@ -242,6 +249,7 @@ const SignupStudentPage = () => {
                       innerRef={studentProfileFormRef}
                       onSubmit={handleStudentProfileSubmit}
                       optionReferences={optionReferences}
+                      managementData={managementData}
                     />
                   </Accordion.Body>
                 </Accordion.Item>

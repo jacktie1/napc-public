@@ -256,6 +256,7 @@ export const fromStudentProfileForm = (formData)=> {
         wechatId: formData.wechatId,
         cnPhoneNumber: fromOptionalTextValue(formData.cnPhoneNumber),
         usPhoneNumber: fromOptionalTextValue(formData.usPhoneNumber),
+        attendsWeekOfWelcome: fromYesOrNoOptionValue(formData.attendsWeekOfWelcome),
     };
 
     return preparedStudentProfile;
@@ -277,6 +278,7 @@ export const toStudentProfileForm = (dbData)=> {
         wechatId: dbData.wechatId,
         cnPhoneNumber: toOptionalTextValue(dbData.cnPhoneNumber),
         usPhoneNumber: toOptionalTextValue(dbData.usPhoneNumber),
+        attendsWeekOfWelcome: toYesOrNoOptionValue(dbData.attendsWeekOfWelcome),
     }
 
     return formData;

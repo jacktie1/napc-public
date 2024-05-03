@@ -44,6 +44,7 @@ const AdminProfilePage = () => {
         studentRegistrationStartDate: announcement.studentRegistrationStartDate,
         studentRegistrationEndDate: announcement.studentRegistrationEndDate,
         announcement: announcement.announcement,
+        weekOfWelcomeStartDate: announcement.weekOfWelcomeStartDate,
       };
 
       await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/admin/updateManagement`,
