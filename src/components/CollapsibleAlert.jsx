@@ -23,7 +23,7 @@ function CollapsibleAlert({ children, ...props }) {
     {
         return (
             <div onClick={toggleAlert} style={{ cursor: 'pointer' }}>
-                <Alert onClose={toggleAlert} {...props}>
+                <Alert {...props}>
                 {children}
                 </Alert>
             </div>
@@ -33,7 +33,7 @@ function CollapsibleAlert({ children, ...props }) {
     {
         return (
             <div onClick={toggleAlert} style={{ cursor: 'pointer' }}>
-                <Alert onClose={toggleAlert} {...props}>
+                <Alert {...props}>
                 {trimmedChildren}
                 </Alert>
             </div>
