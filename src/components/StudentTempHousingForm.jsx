@@ -356,7 +356,7 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
             { showApartment ? <>
             <Row className="mb-3">
               <Form.Group as={Col} controlId="StudentTempHousingFormApartmentReferenceId">
-                <Form.Label>Please choose the dorm/apartment from the list</Form.Label>
+                <Form.Label>Please choose the dorm/apartment/hotel from the list</Form.Label>
                 <Form.Select
                     name='apartmentReferenceId'
                     onChange={(e) => {setFieldValue('customDestinationAddress', ''); handleChange(e);}}
