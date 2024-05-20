@@ -34,6 +34,8 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, loadedData, formRead
     numSingleBeds: '',
     genderPreference: '',
     providesRide: '',
+    hasPet: '',
+    petDescription: '',
     tempHousingComment: '',
   };
 
@@ -53,7 +55,8 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, loadedData, formRead
     tempHousingEndDate: optionalDateTest.min(yup.ref('tempHousingStartDate'), "End time cannot be before start time"),
     numDoubleBeds: capacityNumTest,
     numSingleBeds: capacityNumTest,
-    genderPreference: '',
+    hasPet: '',
+    petDescription:yup.string().when('hasPet', { is: 'yes', then: () => yup.string().required('Pet description is required!').max(100)}),
     tempHousingComment: yup.string().max(500),
   });
 
@@ -83,7 +86,7 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, loadedData, formRead
       validationSchema={schema}
       initialValues={initialValues}
     >
-      {({ handleSubmit, handleChange, resetForm, values, touched, errors }) => (
+      {({ handleSubmit, handleChange, resetForm, setFieldValue, values, touched, errors }) => (
 
         <Form noValidate onSubmit={handleSubmit}>
           <Row className="mb-3">
@@ -252,6 +255,43 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, loadedData, formRead
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">
                   {errors.providesRide}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Row>
+            <Row className="mb-3">
+              <Form.Group as={Col} controlId="VolunteerHousingCapacityFormHasPet">
+                <Form.Label>Do you have any pets at home?</Form.Label>
+                <Form.Select
+                  name='hasPet'
+                  onChange={(e) => {setFieldValue('petDescription', ''); handleChange(e);}}
+                  value={values.hasPet}
+                  isValid={touched.hasPet && !errors.hasPet}
+                  isInvalid={touched.hasPet && !!errors.hasPet}
+                  disabled={formReadOnly}
+                >
+                  {yesOrNoOptions.map((option) => (
+                    <option key={option.value} value={option.value} label={option.label} />
+                  ))}
+                </Form.Select>
+                <Form.Control.Feedback type="invalid">
+                  {errors.hasPet}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Row>
+            <Row className="mb-3">
+              <Form.Group as={Col} controlId="VolunteerHousingCapacityFormPetDescription">
+                <Form.Label>If yes, please describe your pet (Maximum 100 characters):</Form.Label>
+                <Form.Control
+                  name='petDescription'
+                  value={values.petDescription}
+                  onChange={(e) => {setFieldValue('hasPet', 'yes'); handleChange(e);}}
+                  isValid={touched.petDescription && !errors.petDescription}
+                  isInvalid={touched.petDescription && !!errors.petDescription}
+                  readOnly={formReadOnly}
+                  disabled={formReadOnly}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.petDescription}
                 </Form.Control.Feedback>
               </Form.Group>
             </Row>

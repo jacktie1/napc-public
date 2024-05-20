@@ -34,6 +34,8 @@ const StudentTempHousingAssignmentPage = () => {
             gender: magicDataGridUtils.toGenderValue(assignedVolunteer.volunteerProfile.gender),
             emailAddress: assignedVolunteer.volunteerProfile.emailAddress,
             primaryPhoneNumber: assignedVolunteer.volunteerProfile.primaryPhoneNumber,
+            hasPet: magicDataGridUtils.toYesOrNoValue(assignedVolunteer.volunteerTempHousing.hasPet),
+            petDescription: assignedVolunteer.volunteerTempHousing.petDescription,
           }
 
           setTempHousingAssignment(formattedTempHousingAssignment);
@@ -108,6 +110,16 @@ const StudentTempHousingAssignmentPage = () => {
                   <Row>
                     <Col sm="4"><p class="my-1 fw-bold">Phone Number:</p></Col>
                     <Col sm="8"><p class="my-1">{tempHousingAssignment.primaryPhoneNumber}</p></Col>
+                  </Row>
+                  <hr />
+                  <Row>
+                    <Col sm="4"><p class="my-1 fw-bold">Has Pet:</p></Col>
+                    <Col sm="8"><p class="my-1">{tempHousingAssignment.hasPet}</p></Col>
+                  </Row>
+                  <hr />
+                  <Row>
+                    <Col sm="4"><p class="my-1 fw-bold">Pet Description:</p></Col>
+                    <Col sm="8"><p class="my-1">{tempHousingAssignment.petDescription}</p></Col>
                   </Row>
                 </Card.Body>
               </Card>

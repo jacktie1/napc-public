@@ -48,7 +48,8 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
                 if (params.value)
                 {
                     let paddedMonth = (params.value.getMonth() + 1).toString().padStart(2, '0');
-                    return params.value.getFullYear() + '-' + paddedMonth + '-' + params.value.getDate();
+                    let paddedDay = params.value.getDate().toString().padStart(2, '0');
+                    return params.value.getFullYear() + '-' + paddedMonth + '-' + paddedDay;
                 }
             }
 
@@ -168,6 +169,47 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
             }
 
             delete columnDef['genderFilter'];
+        }
+
+        if(columnDef['genderPrefFilter'])
+        {
+            columnDef['filter'] = 'agTextColumnFilter';
+            columnDef['filterParams'] =  {
+                filterOptions: [
+                    'empty',
+                    {
+                        displayKey: 'f',
+                        displayName: 'F',
+                        predicate: (_, cellValue) => cellValue != null && cellValue === 'F',
+                        numberOfInputs: 0,
+                    },
+                    {
+                        displayKey: 'm',
+                        displayName: 'M',
+                        predicate: (_, cellValue) => cellValue != null && cellValue === 'M',
+                        numberOfInputs: 0,
+                    },
+                    {
+                        displayKey: 'no',
+                        displayName: 'No',
+                        predicate: (_, cellValue) => cellValue != null && cellValue === 'No',
+                        numberOfInputs: 0,
+                    },
+                ],
+                maxNumConditions: 1,
+                debounceMs: 200,
+                buttons: ['reset'],
+            };
+
+            columnDef['floatingFilter'] = true;
+            columnDef['suppressMenu'] = true;
+
+            if(!columnDef.width)
+            {
+                columnDef['width'] = 100;
+            }
+
+            delete columnDef['genderPrefFilter'];
         }
 
         if(columnDef['dateFilter'])

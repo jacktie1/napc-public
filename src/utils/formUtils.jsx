@@ -533,6 +533,8 @@ export const fromVolunteerTempHousingForm = (formData)=> {
         numSingleBeds: null,
         genderPreference: null,
         providesRide: null,
+        hasPet: null,
+        petDescription: null,
         tempHousingComment: fromOptionalTextValue(formData.tempHousingComment),
     };
 
@@ -545,6 +547,8 @@ export const fromVolunteerTempHousingForm = (formData)=> {
         preparedVolunteerTempHousing.numSingleBeds = fromOptionalTextValue(formData.numSingleBeds);
         preparedVolunteerTempHousing.genderPreference = fromGenderOptionValue(formData.genderPreference);
         preparedVolunteerTempHousing.providesRide = fromYesOrNoOptionValue(formData.providesRide);
+        preparedVolunteerTempHousing.hasPet = fromYesOrNoOptionValue(formData.hasPet);
+        preparedVolunteerTempHousing.petDescription = fromOptionalTextValue(formData.petDescription);
     }
 
     return preparedVolunteerTempHousing;
@@ -561,6 +565,8 @@ export const toVolunteerTempHousingForm = (dbData)=> {
         numSingleBeds: '',
         genderPreference: '',
         providesRide: '',
+        hasPet: '',
+        petDescription: '',
         tempHousingComment: toOptionalTextValue(dbData.tempHousingComment),
     }
 
@@ -573,6 +579,8 @@ export const toVolunteerTempHousingForm = (dbData)=> {
         formData.numSingleBeds = toOptionalTextValue(dbData.numSingleBeds);
         formData.genderPreference = toGenderOptionValue(dbData.genderPreference);
         formData.providesRide = toYesOrNoOptionValue(dbData.providesRide);
+        formData.hasPet = toYesOrNoOptionValue(dbData.hasPet);
+        formData.petDescription = toOptionalTextValue(dbData.petDescription);
     }
 
     return formData;

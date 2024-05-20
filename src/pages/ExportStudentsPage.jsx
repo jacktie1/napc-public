@@ -30,20 +30,38 @@ const ExportStudentsPage = () => {
 
       let formattedStudents = fetchedStudents.map(function(student) {
 
-
         let retRow = {
           studentUserId: student.userAccount.userId,
           lastName: student.studentProfile.lastName,
           firstName: student.studentProfile.firstName,
+          emailAddress: student.studentProfile.emailAddress,
           gender: magicDataGridUtils.toGenderValue(student.studentProfile.gender),
           isNewStudent: magicDataGridUtils.toYesOrNoValue(student.studentProfile.isNewStudent),
+          studentType: student.studentProfile.studentType,
+          graduatesFrom: student.studentProfile.graduatesFrom,
           major: student.studentProfile.customMajor,
+          hasCompanion: magicDataGridUtils.toYesOrNoValue(student.studentProfile.hasCompanion),
+          wechatId: student.studentProfile.wechatId,
+          cnPhoneNumber: student.studentProfile.cnPhoneNumber,
+          usPhoneNumber: student.studentProfile.usPhoneNumber,
+          attendsWeekOfWelcome: magicDataGridUtils.toYesOrNoValue(student.studentProfile.attendsWeekOfWelcome),
+          needsAirportPickup: magicDataGridUtils.toYesOrNoValue(student.studentFlightInfo.needsAirportPickup),
           arrivalAirline: null,
           arrivalDate: null,
           arrivalTime: null,
           arrivalFlightNumber: null,
-          needsAirportPickup: magicDataGridUtils.toYesOrNoValue(student.studentFlightInfo.needsAirportPickup),
+          departureAirline: null,
+          departureDate: null,
+          departureTime: null,
+          departureFlightNumber: null,
+          numLgLuggages: null,
+          numSmLuggages: null,
           needsTempHousing: magicDataGridUtils.toYesOrNoValue(student.studentTempHousing.needsTempHousing),
+          numNights: null,
+          destinationAddress: null,
+          contactName: null,
+          contactPhoneNumber: null,
+          contactEmailAddress: null,
           airportPickupVolunteer: student?.airportPickupAssignment?.volunteerUserId,
           tempHousingVolunteer: student?.tempHousingAssignment?.volunteerUserId,
           modified: new Date(student.modifiedAt),
@@ -56,6 +74,7 @@ const ExportStudentsPage = () => {
         if(student.studentFlightInfo.needsAirportPickup && student.studentFlightInfo.hasFlightInfo)
         {
           let arrivalDatetime = student.studentFlightInfo.arrivalDatetime;
+          let departureDatetime = student.studentFlightInfo.departureDatetime;
 
           retRow.arrivalDate = magicDataGridUtils.getDate(arrivalDatetime);
           retRow.arrivalTime = magicDataGridUtils.getTime(arrivalDatetime);
@@ -64,6 +83,34 @@ const ExportStudentsPage = () => {
           if(student.studentFlightInfo.arrivalAirlineReferenceId !== null) {
             retRow.arrivalAirline = referencesById['Airline'][student.studentFlightInfo.arrivalAirlineReferenceId];
           }
+
+          retRow.departureDate = magicDataGridUtils.getDate(departureDatetime);
+          retRow.departureTime = magicDataGridUtils.getTime(departureDatetime);
+          retRow.departureFlightNumber = student.studentFlightInfo.departureFlightNumber;
+          retRow.departureAirline = student.studentFlightInfo.customDepartureAirline;
+          if(student.studentFlightInfo.departureAirlineReferenceId !== null) {
+            retRow.departureAirline = referencesById['Airline'][student.studentFlightInfo.departureAirlineReferenceId];
+          }
+
+          retRow.numLgLuggages = student.studentFlightInfo.numLgLuggages;
+          retRow.numSmLuggages = student.studentFlightInfo.numSmLuggages;
+        }
+
+        retRow.destinationAddress = student.studentTempHousing.customDestinationAddress;
+
+        if(student.studentTempHousing.apartmentReferenceId !== null) {
+          retRow.destinationAddress = referencesById['Apartment'][student.studentTempHousing.apartmentReferenceId];
+        }
+
+        if(student.studentTempHousing.needsTempHousing)
+        {
+          retRow.numNights = student.studentTempHousing.numNights;
+        }
+        else
+        {
+          retRow.contactName = student.studentTempHousing.contactName;
+          retRow.contactPhoneNumber = student.studentTempHousing.contactPhoneNumber;
+          retRow.contactEmailAddress = student.studentTempHousing.contactEmailAddress;
         }
 
         return retRow
@@ -82,7 +129,7 @@ const ExportStudentsPage = () => {
     try {
       let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
         params: {
-          referenceTypes: ['Major', 'Airline'].join(','),
+          referenceTypes: ['Major', 'Airline', 'Apartment'].join(','),
         }
       });
 
@@ -134,6 +181,12 @@ const ExportStudentsPage = () => {
           width: 120,
         },
         {
+          headerName: 'Email',
+          field: 'emailAddress',
+          textFilter: true,
+          width: 200,
+        },
+        {
           headerName: 'Gender',
           field: 'gender',
           genderFilter: true,
@@ -144,9 +197,73 @@ const ExportStudentsPage = () => {
           booleanFilter: true,
         },
         {
+          headerName: 'Type',
+          field: 'studentType',
+          textFilter: true,
+          width: 150,
+        },
+        {
+          headerName: 'Grad. From',
+          field: 'graduatesFrom',
+          textFilter: true,
+          width: 150,
+        },
+        {
           headerName: 'Major',
           field: 'major',
           textFilter: true,
+        },
+        {
+          headerName: 'Has Comp.',
+          field: 'hasCompanion',
+          booleanFilter: true,
+          width: 120,
+        },
+        {
+          headerName: 'Wechat',
+          field: 'wechatId',
+          textFilter: true,
+          width: 150,
+        },
+        {
+          headerName: 'CN Phone',
+          field: 'cnPhoneNumber',
+          textFilter: true,
+          width: 150,
+        },
+        {
+          headerName: 'US Phone',
+          field: 'usPhoneNumber',
+          textFilter: true,
+          width: 150,
+        },
+        {
+          headerName: 'Pk. Req',
+          field: 'needsAirportPickup',
+          booleanFilter: true,
+          width: 120,
+        },
+        {
+          headerName: 'Dep FN',
+          field: 'departureFlightNumber',
+          textFilter: true,
+          width: 120,
+        },
+        {
+          headerName: 'Dep AirL',
+          field: 'departureAirline',
+          textFilter: true,
+        },
+        {
+          headerName: 'Dep Date',
+          field: 'departureDate',
+          dateFilter: true,
+          isDate: true,
+        },
+        {
+          headerName: 'Dep Time',
+          field: 'departureTime',
+          width: 100,
         },
         {
             headerName: 'Arri FN',
@@ -171,16 +288,52 @@ const ExportStudentsPage = () => {
           width: 100,
         },
         {
-            headerName: 'Pk. Req',
-            field: 'needsAirportPickup',
-            booleanFilter: true,
-            width: 120,
+          headerName: 'Lg Lugg.',
+          field: 'numLgLuggages',
+          numberFilter: true,
+          width: 120,
+        },
+        {
+          headerName: 'Sm Lugg.',
+          field: 'numSmLuggages',
+          numberFilter: true,
+          width: 120,
         },
         {
           headerName: 'Hous. Req',
           field: 'needsTempHousing',
           booleanFilter: true,
           width: 120,
+        },
+        {
+          headerName: 'Nights',
+          field: 'numNights',
+          numberFilter: true,
+          width: 120,
+        },
+        {
+          headerName: 'Dest. Addr.',
+          field: 'destinationAddress',
+          textFilter: true,
+          width: 300,
+        },
+        {
+          headerName: 'Cont. Name',
+          field: 'contactName',
+          textFilter: true,
+          width: 150,
+        },
+        {
+          headerName: 'Cont. Phone',
+          field: 'contactPhoneNumber',
+          textFilter: true,
+          width: 150,
+        },
+        {
+          headerName: 'Cont. Email',
+          field: 'contactEmailAddress',
+          textFilter: true,
+          width: 150,
         },
         {
             headerName: 'PV Assigned',
