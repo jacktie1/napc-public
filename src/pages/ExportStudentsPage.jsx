@@ -62,6 +62,8 @@ const ExportStudentsPage = () => {
           contactName: null,
           contactPhoneNumber: null,
           contactEmailAddress: null,
+          studentComment: student.studentComment.studentComment,
+          adminComment: student.studentComment.adminComment,
           airportPickupVolunteer: student?.airportPickupAssignment?.volunteerUserId,
           tempHousingVolunteer: student?.tempHousingAssignment?.volunteerUserId,
           modified: new Date(student.modifiedAt),
@@ -336,6 +338,18 @@ const ExportStudentsPage = () => {
           width: 150,
         },
         {
+          headerName: 'Stud. Comment',
+          field: 'studentComment',
+          width: 200,
+          textFilter: true,
+        },
+        {
+          headerName: 'Admin Comment',
+          field: 'adminComment',
+          width: 200,
+          textFilter: true,
+        },
+        {
             headerName: 'PV Assigned',
             field: 'airportPickupVolunteer',
             textFilter: true,
@@ -436,6 +450,7 @@ const ExportStudentsPage = () => {
                   columnDefs={columns}
                   rowData={studentData}
                   pagination={true}
+                  noDefaultCellClass={true}
                 />
               </Col>
             </Row>

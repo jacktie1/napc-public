@@ -2,7 +2,7 @@ import React from 'react';
 import { AgGridReact } from 'ag-grid-react'; // React Grid Logic
 
 
-const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, rowSelection, onRowSelected, isRowSelectable}) => {
+const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, rowSelection, onRowSelected, isRowSelectable, noDefaultCellClass}) => {
     const autoSizeStrategy = {
         type: 'fitGridWidth',
         defaultMinWidth: 100,
@@ -13,7 +13,7 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
         columnDef['autoHeight'] = columnDef['autoHeight'] ?? true;
 
         // default class set if not set
-        if(!columnDef['cellClass'])
+        if(!columnDef['cellClass'] && !noDefaultCellClass)
         {
             if(columnDef['checkboxSelection'])
             {

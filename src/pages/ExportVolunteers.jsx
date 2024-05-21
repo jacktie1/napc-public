@@ -45,7 +45,8 @@ const ExportVolunteersPage = () => {
           carModel: volunteer.volunteerAirportPickup.carModel,
           numCarSeats: volunteer.volunteerAirportPickup.numCarSeats,
           numMaxLgLuggages: volunteer.volunteerAirportPickup.numMaxLgLuggages,
-          numTrips: volunteer.volunteerAirportPickup.numTrips,
+          numMaxTrips: volunteer.volunteerAirportPickup.numMaxTrips,
+          airportPickupComment: volunteer.volunteerAirportPickup.airportPickupComment,
           providesTempHousing: magicDataGridUtils.toYesOrNoValue(volunteer.volunteerTempHousing.providesTempHousing),
           homeAddress: volunteer.volunteerTempHousing.homeAddress,
           numMaxStudentsHosted: volunteer.volunteerTempHousing.numMaxStudentsHosted,
@@ -57,6 +58,7 @@ const ExportVolunteersPage = () => {
           providesRide: magicDataGridUtils.toYesOrNoValue(volunteer.volunteerTempHousing.providesRide),
           hasPet: magicDataGridUtils.toYesOrNoValue(volunteer.volunteerTempHousing.hasPet),
           petDescription: volunteer.volunteerTempHousing.petDescription,
+          tempHousingComment: volunteer.volunteerTempHousing.tempHousingComment,
           airportPickupStudents: volunteer?.airportPickupAssignments?.map(assignment => assignment.studentUserId),
           tempHousingStudents: volunteer?.tempHousingAssignments?.map(assignment => assignment.studentUserId),
           modified: new Date(volunteer.modifiedAt),
@@ -169,6 +171,18 @@ const ExportVolunteersPage = () => {
           width: 150,
         },
         {
+          headerName: 'Max Trips',
+          field: 'numMaxTrips',
+          numberFilter: true,
+          width: 150,
+        },
+        {
+          headerName: 'Pk. Comment',
+          field: 'airportPickupComment',
+          textFilter: true,
+          width: 200,
+        },
+        {
           headerName: 'Hous. Prov.',
           field: 'providesTempHousing',
           booleanFilter: true,
@@ -233,6 +247,12 @@ const ExportVolunteersPage = () => {
         {
           headerName: 'Pet Desc.',
           field: 'petDescription',
+          textFilter: true,
+          width: 200,
+        },
+        {
+          headerName: 'Hous. Comment',
+          field: 'tempHousingComment',
           textFilter: true,
           width: 200,
         },
@@ -339,6 +359,7 @@ const ExportVolunteersPage = () => {
                   columnDefs={columns}
                   rowData={volunteerData}
                   pagination={true}
+                  noDefaultCellClass={true}
                 />
               </Col>
             </Row>
