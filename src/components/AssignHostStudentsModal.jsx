@@ -7,7 +7,7 @@ import MultipleSortingInfo from './MultipleSortingInfo';
 import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
 
-const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned, onClose }) => {
+const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned }) => {
     const [serverError, setServerError] = useState('');
 
     const [showModal, setShowModal] = useState(false);
@@ -192,6 +192,11 @@ const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned, on
         setServerError('');
 
         alert('The volunteer temp housing assignments have been updated successfully!');
+
+        node.setData({
+          ...node.data,
+          tempHousingStudents: preparedVolunteerTempHousingAssignments.map(assignment => assignment.studentUserId),
+        })
   
         // Refresh the data after the update
         fetchOptions();
@@ -287,7 +292,6 @@ const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned, on
       ];
   
     const handleClose = () => {
-      onClose();
       setShowModal(false);
     };
 
@@ -375,7 +379,6 @@ const AssignHostStudentsModal = ({ value, node, valueFormatted, viewAssigned, on
             )}
             <MagicDataGrid
               innerRef={gridRef}
-              gridStyle={{height: 720}}
               columnDefs={columns}
               rowData={tempHousingNeeds}
               pagination={true}

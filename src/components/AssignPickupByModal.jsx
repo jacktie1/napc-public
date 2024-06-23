@@ -7,7 +7,7 @@ import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
 
-const AssignPickupByModal = ({ value, node, onClose }) => {
+const AssignPickupByModal = ({ value, node }) => {
     const [serverError, setServerError] = useState('');
 
     const [showModal, setShowModal] = useState(false);
@@ -107,6 +107,11 @@ const AssignPickupByModal = ({ value, node, onClose }) => {
 
         alert('The pickup volunteer has been updated successfully.');
 
+        node.setData({
+          ...node.data,
+          airportPickupVolunteer: selectedVolunteer,
+        });
+
         fetchData();
       }
       catch (axiosError) {
@@ -175,7 +180,6 @@ const AssignPickupByModal = ({ value, node, onClose }) => {
     ];
   
     const handleClose = () => {
-      onClose();
       setShowModal(false);
     };
 
@@ -235,7 +239,6 @@ const AssignPickupByModal = ({ value, node, onClose }) => {
             )}
             <MagicDataGrid
               innerRef={gridRef}
-              gridStyle={{height: 720}}
               columnDefs={columns}
               rowData={volunteerData}
               pagination={true}

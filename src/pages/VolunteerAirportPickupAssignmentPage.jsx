@@ -198,7 +198,7 @@ const VolunteerAirportPickupAssignmentPage = () => {
                 {serverError}
               </Alert>
             )}
-            <MagicDataGrid gridStyle={{height: 400}} columnDefs={columns} rowData={airportPickupAssignments} />
+            <MagicDataGrid columnDefs={columns} rowData={airportPickupAssignments} />
           </Col>
         </Row>
       </Container>

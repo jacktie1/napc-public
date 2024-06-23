@@ -288,6 +288,7 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
                     suppressRowClickSelection={true}
                     suppressCellFocus={true}
                     isRowSelectable={isRowSelectable}
+                    domLayout={'autoHeight'}
                 />
             </div>
         </div>

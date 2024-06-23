@@ -8,9 +8,11 @@ import StudentTempHousingForm from './StudentTempHousingForm';
 import StudentCommentForm from './StudentCommentForm';
 import UserEditableAccountForm from './UserEditableAccountForm';
 import * as formUtils from '../utils/formUtils';
+import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
 
-const StudentDetailsModal = ({ value, readOnly, adminView, optionReferences, onClose }) => {
+
+const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReferences }) => {
     const [showModal, setShowModal] = useState(false);
     const [serverError, setServerError] = useState('');
     const [currentTab, setCurrentTab] = useState('profile');
@@ -36,7 +38,6 @@ const StudentDetailsModal = ({ value, readOnly, adminView, optionReferences, onC
   
     const handleClose = () => {
       setCurrentTab('profile');
-      onClose();
       setShowModal(false);
     };
 
@@ -99,6 +100,15 @@ const StudentDetailsModal = ({ value, readOnly, adminView, optionReferences, onC
         setServerError('');
 
         alert('Student Profile updated successully!');
+
+        node.setData({
+          ...node.data,
+          firstName: preparedStudentProfile.firstName,
+          lastName: preparedStudentProfile.lastName,
+          gender: magicDataGridUtils.toGenderValue(preparedStudentProfile.gender),
+          modifiedAt: new Date(),
+        });
+
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
 
@@ -140,6 +150,32 @@ const StudentDetailsModal = ({ value, readOnly, adminView, optionReferences, onC
 
         alert('Student Flight Info updated successully!');
 
+        if(preparedFlightInfo.needsAirportPickup && preparedFlightInfo.hasFlightInfo)
+        {
+          let arrivalDatetime = preparedFlightInfo.arrivalDatetime;
+
+          node.setData({
+            ...node.data,
+            needsAirportPickup: magicDataGridUtils.toYesOrNoValue(preparedFlightInfo.needsAirportPickup),
+            arrivalDate: magicDataGridUtils.getDate(arrivalDatetime),
+            arrivalTime: magicDataGridUtils.getTime(arrivalDatetime),
+            arrivalFlightNumber: preparedFlightInfo.arrivalFlightNumber,
+            numLgLuggages: preparedFlightInfo.numLgLuggages,
+            modifiedAt: new Date(),
+          });
+        }
+        else
+        {
+          node.setData({
+            ...node.data,
+            needsAirportPickup: magicDataGridUtils.toYesOrNoValue(preparedFlightInfo.needsAirportPickup),
+            arrivalDate: null,
+            arrivalTime: null,
+            arrivalFlightNumber: null,
+            numLgLuggages: null,
+            modifiedAt: new Date(),
+          });
+        }
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
 
@@ -160,6 +196,12 @@ const StudentDetailsModal = ({ value, readOnly, adminView, optionReferences, onC
         setServerError('');
 
         alert('Student Temp Housing updated successully!');
+
+        node.setData({
+          ...node.data,
+          needsTempHousing: magicDataGridUtils.toYesOrNoValue(preparedTempHousing.needsTempHousing),
+          modifiedAt: new Date(),
+        });
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
 

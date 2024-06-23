@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import parseAxiosError from '../utils/parseAxiosError';
 import ApathNavbar from '../components/ApathNavbar';
-import { Container, Row, Col, Alert, Button } from 'react-bootstrap';
+import { Container, Alert, Button } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import XLSX from 'sheetjs-style';
@@ -319,50 +319,45 @@ const ExportVolunteersPage = () => {
           <ApathNavbar />
     
           <Container className="mt-5" fluid>
-            <Row className="mt-5 full-pretty-box-layout">
-              <Col className="pretty-box">
-                <h2 className="pretty-box-heading">Export Volunteers</h2>
-                <Alert dismissible variant='info'>
-                    This page displays all volunteers. Click any <b>Export</b> button to export volunteers.
-                </Alert>
-                <MultipleSortingInfo/>
-                {serverError && (
-                  <Alert variant='danger'>
-                    {serverError}
-                  </Alert>
-                )}
-                <div className='py-3'>
-                    <span className='mx-1'>
-                        <Button variant="success" onClick={() => handleExportAsCSV('all')}>
-                            Export CSV (All)
-                        </Button>
-                    </span>
-                    <span className='mx-1'>
-                        <Button variant="success" onClick={() => handleExportAsCSV('filteredAndSorted')}>
-                            Export CSV (Filtered Only)
-                        </Button>
-                    </span>
-                    <span className='mx-1'>
-                        <Button variant="success" onClick={() => handleExportAsExcel('all')}>
-                            Export Excel (All)
-                        </Button>
-                    </span>
-                    <span className='mx-1'>
-                        <Button variant="success" onClick={() => handleExportAsExcel('filteredAndSorted')}>
-                            Export Excel (Filtered Only)
-                        </Button>
-                    </span>
-                </div>
-                <MagicDataGrid
-                  innerRef={gridRef}
-                  gridStyle={{height: 800}}
-                  columnDefs={columns}
-                  rowData={volunteerData}
-                  pagination={true}
-                  noDefaultCellClass={true}
-                />
-              </Col>
-            </Row>
+            <h2 className="pretty-box-heading">Export Volunteers</h2>
+            <Alert dismissible variant='info'>
+                This page displays all volunteers. Click any <b>Export</b> button to export volunteers.
+            </Alert>
+            <MultipleSortingInfo/>
+            {serverError && (
+              <Alert variant='danger'>
+                {serverError}
+              </Alert>
+            )}
+            <div className='py-3'>
+                <span className='mx-1'>
+                    <Button variant="success" onClick={() => handleExportAsCSV('all')}>
+                        Export CSV (All)
+                    </Button>
+                </span>
+                <span className='mx-1'>
+                    <Button variant="success" onClick={() => handleExportAsCSV('filteredAndSorted')}>
+                        Export CSV (Filtered Only)
+                    </Button>
+                </span>
+                <span className='mx-1'>
+                    <Button variant="success" onClick={() => handleExportAsExcel('all')}>
+                        Export Excel (All)
+                    </Button>
+                </span>
+                <span className='mx-1'>
+                    <Button variant="success" onClick={() => handleExportAsExcel('filteredAndSorted')}>
+                        Export Excel (Filtered Only)
+                    </Button>
+                </span>
+            </div>
+            <MagicDataGrid
+              innerRef={gridRef}
+              columnDefs={columns}
+              rowData={volunteerData}
+              pagination={true}
+              noDefaultCellClass={true}
+            />
           </Container>
         </div>
       );

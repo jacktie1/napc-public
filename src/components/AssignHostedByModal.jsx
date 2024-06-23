@@ -6,7 +6,7 @@ import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
-const AssignHostedByModal = ({ value, node, onClose }) => {
+const AssignHostedByModal = ({ value, node }) => {
   const [serverError, setServerError] = useState('');
 
   const [showModal, setShowModal] = useState(false);
@@ -97,6 +97,11 @@ const AssignHostedByModal = ({ value, node, onClose }) => {
 
       alert('The temp housing volunteer has been updated successfully.');
 
+      node.setData({
+        ...node.data,
+        tempHousingVolunteer: selectedVolunteer,
+      })
+
       fetchData();
     }
     catch (axiosError) {
@@ -169,7 +174,6 @@ const AssignHostedByModal = ({ value, node, onClose }) => {
       ];
   
       const handleClose = () => {
-        onClose();
         setShowModal(false);
       };
   
@@ -229,7 +233,6 @@ const AssignHostedByModal = ({ value, node, onClose }) => {
             )}
             <MagicDataGrid
               innerRef={gridRef}
-              gridStyle={{height: 720}}
               columnDefs={columns}
               rowData={volunteerData}
               pagination={true}

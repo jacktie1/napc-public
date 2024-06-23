@@ -259,7 +259,6 @@ const VolunteerPickupNeedsPage = () => {
             </div>
             <MagicDataGrid
               innerRef={gridRef}
-              gridStyle={{height: 800}}
               columnDefs={columns}
               rowData={airportPickupNeeds}
               pagination={true}

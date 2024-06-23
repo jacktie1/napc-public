@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import parseAxiosError from '../utils/parseAxiosError';
 import ApathNavbar from '../components/ApathNavbar';
-import { Container, Row, Col, Alert, Button, Modal } from 'react-bootstrap';
+import { Container, Alert, Button, Modal } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import VolunteerDetailsModal from '../components/VolunteerDetailsModal';
@@ -54,10 +54,6 @@ const ManageVolunteersPage = () => {
     fetchData();
   }, []);
 
-  const handleVolunteerDetailsModalClose = () => {
-    fetchData();
-  };
-
   const columns = [
     {
       headerName: 'Volunteer Id',
@@ -67,7 +63,6 @@ const ManageVolunteersPage = () => {
       cellRendererParams: {
         readOnly: false,
         adminView: true,
-        onClose: handleVolunteerDetailsModalClose,
       },
       textFilter: true,
       minWidth: 100,
@@ -183,38 +178,33 @@ const ManageVolunteersPage = () => {
       <ApathNavbar />
 
       <Container className="mt-5" fluid>
-        <Row className="mt-5 full-pretty-box-layout">
-          <Col className="pretty-box">
-            <h2 className="pretty-box-heading">Manage Volunteers</h2>
-            <Alert dismissible variant='info'>
-              This page allows admin to edit or delete volunteer users.
-            </Alert>
-            <Alert dismissible variant='secondary'>
-              This table below displays all volunteers. Click the ID to edit a volunteer.
-            </Alert>
-            <MultipleSortingInfo/>
-            <hr/>
-            {serverError && (
-              <Alert variant='danger'>
-                {serverError}
-              </Alert>
-            )}
-            <div className='py-3'>
-              <Button variant="danger" onClick={handleShowConfirmModal} disabled={selectedVolunteers.length===0}>
-                  Delete Selected Volunteers
-              </Button>
-            </div>
-            <MagicDataGrid
-              innerRef={gridRef}
-              gridStyle={{height: 800}}
-              columnDefs={columns}
-              rowData={volunteerData}
-              pagination={true}
-              rowSelection={'multiple'}
-              onRowSelected={handleRowSelected}
-            />
-          </Col>
-        </Row>
+        <h2 className="pretty-box-heading">Manage Volunteers</h2>
+        <Alert dismissible variant='info'>
+          This page allows admin to edit or delete volunteer users.
+        </Alert>
+        <Alert dismissible variant='secondary'>
+          This table below displays all volunteers. Click the ID to edit a volunteer.
+        </Alert>
+        <MultipleSortingInfo/>
+        <hr/>
+        {serverError && (
+          <Alert variant='danger'>
+            {serverError}
+          </Alert>
+        )}
+        <div className='py-3'>
+          <Button variant="danger" onClick={handleShowConfirmModal} disabled={selectedVolunteers.length===0}>
+              Delete Selected Volunteers
+          </Button>
+        </div>
+        <MagicDataGrid
+          innerRef={gridRef}
+          columnDefs={columns}
+          rowData={volunteerData}
+          pagination={true}
+          rowSelection={'multiple'}
+          onRowSelected={handleRowSelected}
+        />
       </Container>
 
       <Modal show={showConfirmModal} onHide={handleCloseConfirmModal} centered>

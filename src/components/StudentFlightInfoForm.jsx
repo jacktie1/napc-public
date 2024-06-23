@@ -27,12 +27,19 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
 
       if (formData.needsAirportPickup === 'yes') {
         setShowHasFlightInfoQ(true);
-      }
 
-      if (formData.hasFlightInfo === 'yes') {
-        setShowFlightDetails(true);
-      } else if (formData.hasFlightInfo === 'no') {
-        setShowUpdateFlightInfoAlert(true);
+        if (formData.hasFlightInfo === 'yes') {
+          setShowFlightDetails(true);
+          setShowUpdateFlightInfoAlert(false);
+        } else if (formData.hasFlightInfo === 'no') {
+          setShowFlightDetails(false);
+          setShowUpdateFlightInfoAlert(true);
+        }
+      }
+      else {
+        setShowHasFlightInfoQ(false);
+        setShowUpdateFlightInfoAlert(false);
+        setShowFlightDetails(false);
       }
     }
   }, [loadedData, innerRef]);

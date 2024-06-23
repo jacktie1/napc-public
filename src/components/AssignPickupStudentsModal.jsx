@@ -7,7 +7,7 @@ import MultipleSortingInfo from './MultipleSortingInfo';
 import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
 
-const AssignPickupStudentsModal = ({ value, node, valueFormatted, viewAssigned, onClose }) => {
+const AssignPickupStudentsModal = ({ value, node, valueFormatted, viewAssigned }) => {
     const [serverError, setServerError] = useState('');
 
     const [showModal, setShowModal] = useState(false);
@@ -220,6 +220,11 @@ const AssignPickupStudentsModal = ({ value, node, valueFormatted, viewAssigned, 
         setServerError('');
 
         alert('The volunteer airport pickup assignments have been updated successfully!');
+
+        node.setData({
+            ...node.data,
+            airportPickupStudents: preparedVolunteerAirportPickupAssignments.map(assignment => assignment.studentUserId),
+        });
   
         // Refresh the data after the update
         fetchOptions();
@@ -320,7 +325,6 @@ const AssignPickupStudentsModal = ({ value, node, valueFormatted, viewAssigned, 
     ];
   
     const handleClose = () => {
-      onClose();
       setShowModal(false);
     };
 
@@ -408,7 +412,6 @@ const AssignPickupStudentsModal = ({ value, node, valueFormatted, viewAssigned, 
             )}
             <MagicDataGrid
               innerRef={gridRef}
-              gridStyle={{height: 720}}
               columnDefs={columns}
               rowData={airportPickupNeeds}
               pagination={true}

@@ -198,7 +198,7 @@ const VolunteerTempHousingAssignmentPage = () => {
                 {serverError}
               </Alert>
             )}
-            <MagicDataGrid gridStyle={{height: 400}} columnDefs={columns} rowData={tempHousingAssignments} />
+            <MagicDataGrid columnDefs={columns} rowData={tempHousingAssignments} />
           </Col>
         </Row>
       </Container>

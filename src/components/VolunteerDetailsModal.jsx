@@ -7,8 +7,9 @@ import VolunteerPickupCapacityForm from './VolunteerPickupCapacityForm';
 import VolunteerHousingCapacityForm from './VolunteerHousingCapacityForm';
 import UserEditableAccountForm from './UserEditableAccountForm';
 import * as formUtils from '../utils/formUtils';
+import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
-const VolunteerDetailsModal = ({ value, readOnly, adminView, onClose }) => {
+const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
     const [showModal, setShowModal] = useState(false);
     const [serverError, setServerError] = useState('');
     const [currentTab, setCurrentTab] = useState('profile');
@@ -30,7 +31,6 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView, onClose }) => {
   
     const handleClose = () => {
       setCurrentTab('profile');
-      onClose();
       setShowModal(false);
     };
 
@@ -76,6 +76,18 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView, onClose }) => {
         setServerError('');
 
         alert('Volunteer profile updated successully!');
+
+        node.setData({
+          ...node.data,
+          firstName: preparedVolunteerProfile.firstName,
+          lastName: preparedVolunteerProfile.lastName,
+          gender: magicDataGridUtils.toGenderValue(preparedVolunteerProfile.gender),
+          emailAddress: preparedVolunteerProfile.emailAddress,
+          primaryPhoneNumber: preparedVolunteerProfile.primaryPhoneNumber,
+          secondaryPhoneNumber: preparedVolunteerProfile.secondaryPhoneNumber,
+          userEnabled: magicDataGridUtils.toYesOrNoValue(preparedVolunteerProfile.enabled),
+          modifiedAt: new Date(),
+        });
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
 
@@ -117,6 +129,11 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView, onClose }) => {
 
         alert('Volunteer airport pickup capacity updated successully!');
 
+        node.setData({
+          ...node.data,
+          providesAirportPickup: magicDataGridUtils.toYesOrNoValue(preparedVolunteerAirportPickup.providesAirportPickup),
+          modifiedAt: new Date(),
+        });
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
 
@@ -137,6 +154,12 @@ const VolunteerDetailsModal = ({ value, readOnly, adminView, onClose }) => {
         setServerError('');
 
         alert('Volunteer temporary housing capacity updated successully!');
+
+        node.setData({
+          ...node.data,
+          providesTempHousing: magicDataGridUtils.toYesOrNoValue(preparedVolunteerTempHousing.providesTempHousing),
+          modifiedAt: new Date(),
+        });
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import parseAxiosError from '../utils/parseAxiosError';
 import ApathNavbar from '../components/ApathNavbar';
-import { Container, Row, Col, Alert } from 'react-bootstrap';
+import { Container, Alert } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import AssignHostedByModal from '../components/AssignHostedByModal';
@@ -102,9 +102,6 @@ const ManageTempHousingStudentsPage = () => {
       headerName: 'Student Id',
       field: 'studentUserId',
       cellRenderer: AssignHostedByModal,
-      cellRendererParams: {
-        onClose: fetchOptions,
-      },
       textFilter: true,
       width: 100,
     },
@@ -170,7 +167,6 @@ const ManageTempHousingStudentsPage = () => {
       cellRendererParams: {
         readOnly: true,
         adminView: true,
-        onClose: fetchOptions,
       },
       textFilter: true,
       width: 120,
@@ -188,30 +184,25 @@ const ManageTempHousingStudentsPage = () => {
       <ApathNavbar />
 
       <Container className="mt-5" fluid>
-        <Row className="mt-5 full-pretty-box-layout">
-          <Col className="pretty-box">
-            <h2 className="pretty-box-heading">Temporary Housing Student List</h2>
-            <Alert dismissible variant='info'>
-              This table below displays all students that request temporary housing.
-            </Alert>
-            <Alert dismissible variant='secondary'>
-              Click a student ID to assign a housing volunteer to this student.
-            </Alert>
-            <MultipleSortingInfo/>
-            {serverError && (
-              <Alert variant='danger'>
-                {serverError}
-              </Alert>
-            )}
-            <MagicDataGrid
-              innerRef={gridRef}
-              gridStyle={{height: 800}}
-              columnDefs={columns}
-              rowData={tempHousingNeeds}
-              pagination={true}
-            />
-          </Col>
-        </Row>
+        <h2 className="pretty-box-heading">Temporary Housing Student List</h2>
+        <Alert dismissible variant='info'>
+          This table below displays all students that request temporary housing.
+        </Alert>
+        <Alert dismissible variant='secondary'>
+          Click a student ID to assign a housing volunteer to this student.
+        </Alert>
+        <MultipleSortingInfo/>
+        {serverError && (
+          <Alert variant='danger'>
+            {serverError}
+          </Alert>
+        )}
+        <MagicDataGrid
+          innerRef={gridRef}
+          columnDefs={columns}
+          rowData={tempHousingNeeds}
+          pagination={true}
+        />
       </Container>
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import parseAxiosError from '../utils/parseAxiosError';
 import ApathNavbar from '../components/ApathNavbar';
-import { Container, Row, Col, Alert } from 'react-bootstrap';
+import { Container, Alert } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import AssignPickupStudentsModal from '../components/AssignPickupStudentsModal';
@@ -60,9 +60,6 @@ const ManageAirportPickupVolunteersPage = () => {
       headerName: 'Volunteer Id',
       field: 'volunteerUserId',
       cellRenderer: AssignPickupStudentsModal,
-      cellRendererParams: {
-        onClose: fetchData,
-      },
       textFilter: true,
     },
     {
@@ -96,7 +93,6 @@ const ManageAirportPickupVolunteersPage = () => {
       cellRenderer: AssignPickupStudentsModal,
       cellRendererParams: {
         viewAssigned: true,
-        onClose: fetchData,
       },
       textFilter: true,
       isArray: true,
@@ -113,30 +109,25 @@ const ManageAirportPickupVolunteersPage = () => {
       <ApathNavbar />
 
       <Container className="mt-5" fluid>
-        <Row className="mt-5 full-pretty-box-layout">
-          <Col className="pretty-box">
-            <h2 className="pretty-box-heading">Airport Pickup Volunteer List</h2>
-            <Alert dismissible variant='info'>
-              This table below displays all volunteers that provide pickup.
-            </Alert>
-            <Alert dismissible variant='secondary'>
-              Click a volunteer ID to assign pickup task(s) this volunteer.
-            </Alert>
-            <MultipleSortingInfo/>
-            {serverError && (
-              <Alert variant='danger'>
-                {serverError}
-              </Alert>
-            )}
-            <MagicDataGrid
-              innerRef={gridRef}
-              gridStyle={{height: 800}}
-              columnDefs={columns}
-              rowData={volunteerData}
-              pagination={true}
-            />
-          </Col>
-        </Row>
+        <h2 className="pretty-box-heading">Airport Pickup Volunteer List</h2>
+        <Alert dismissible variant='info'>
+          This table below displays all volunteers that provide pickup.
+        </Alert>
+        <Alert dismissible variant='secondary'>
+          Click a volunteer ID to assign pickup task(s) this volunteer.
+        </Alert>
+        <MultipleSortingInfo/>
+        {serverError && (
+          <Alert variant='danger'>
+            {serverError}
+          </Alert>
+        )}
+        <MagicDataGrid
+          innerRef={gridRef}
+          columnDefs={columns}
+          rowData={volunteerData}
+          pagination={true}
+        />
       </Container>
     </div>
   );

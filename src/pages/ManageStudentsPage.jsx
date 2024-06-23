@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import parseAxiosError from '../utils/parseAxiosError';
 import ApathNavbar from '../components/ApathNavbar';
-import { Container, Row, Col, Alert, Button, Modal } from 'react-bootstrap';
+import { Container, Alert, Button, Modal } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import StudentDetailsModal from '../components/StudentDetailsModal';
@@ -82,10 +82,6 @@ const ManageStudentsPage = () => {
     fetchOptions();
   }, []);
 
-  const handleStudentDetailsModalClose = () => {
-    fetchData();
-  };
-
   const columns = [
     {
       headerName: 'Student Id',
@@ -96,7 +92,6 @@ const ManageStudentsPage = () => {
         readOnly: false,
         adminView: true,
         optionReferences: optionReferences,
-        onClose: handleStudentDetailsModalClose,
       },
       textFilter: true,
     },
@@ -206,38 +201,33 @@ const ManageStudentsPage = () => {
       <ApathNavbar />
 
       <Container className="mt-5" fluid>
-        <Row className="mt-5 full-pretty-box-layout">
-          <Col className="pretty-box">
-            <h2 className="pretty-box-heading">Manage Students</h2>
-            <Alert dismissible variant='info'>
-              This page allows admin to edit or delete student users.
-            </Alert>
-            <Alert dismissible variant='secondary'>
-              This table below displays all students. Click the ID to edit a student.
-            </Alert>
-            <MultipleSortingInfo/>
-            <hr/>
-            {serverError && (
-              <Alert variant='danger'>
-                {serverError}
-              </Alert>
-            )}
-            <div className='py-3'>
-              <Button variant="danger" onClick={handleShowConfirmModal} disabled={selectedStudents.length===0}>
-                  Delete Selected Students
-              </Button>
-            </div>
-            <MagicDataGrid
-              innerRef={gridRef}
-              gridStyle={{height: 800}}
-              columnDefs={columns}
-              rowData={studentData}
-              pagination={true}
-              rowSelection={'multiple'}
-              onRowSelected={handleRowSelected}
-            />
-          </Col>
-        </Row>
+        <h2 className="pretty-box-heading">Manage Students</h2>
+        <Alert dismissible variant='info'>
+          This page allows admin to edit or delete student users.
+        </Alert>
+        <Alert dismissible variant='secondary'>
+          This table below displays all students. Click the ID to edit a student.
+        </Alert>
+        <MultipleSortingInfo/>
+        <hr/>
+        {serverError && (
+          <Alert variant='danger'>
+            {serverError}
+          </Alert>
+        )}
+        <div className='py-3'>
+          <Button variant="danger" onClick={handleShowConfirmModal} disabled={selectedStudents.length===0}>
+              Delete Selected Students
+          </Button>
+        </div>
+        <MagicDataGrid
+          innerRef={gridRef}
+          columnDefs={columns}
+          rowData={studentData}
+          pagination={true}
+          rowSelection={'multiple'}
+          onRowSelected={handleRowSelected}
+        />
       </Container>
 
       <Modal show={showConfirmModal} onHide={handleCloseConfirmModal} centered>

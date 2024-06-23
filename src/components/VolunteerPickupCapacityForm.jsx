@@ -18,6 +18,9 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, loadedData, formReadO
       if(formData.providesAirportPickup === 'yes') {
         setShowCapacityDetails(true);
       }
+      else {
+        setShowCapacityDetails(false);
+      }
 
       innerRef.current.setValues(formData);
     }

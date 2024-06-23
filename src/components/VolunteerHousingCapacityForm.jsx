@@ -19,6 +19,9 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, loadedData, formRead
       if(formData.providesTempHousing === 'yes') {
         setShowCapacityDetails(true);
       }
+      else {
+        setShowCapacityDetails(false);
+      }
 
       innerRef.current.setValues(formData);
     }

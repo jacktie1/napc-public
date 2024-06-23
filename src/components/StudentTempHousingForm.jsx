@@ -82,10 +82,12 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
       let formData = formUtils.toStudentTempHousingForm(loadedData);
   
       if (formData.needsTempHousing === 'yes') {
+        setShowContact(false);
         setShowNumNights(true);
         setAddressText('Where should we send you to after this period? Address');
       } else if (formData.needsTempHousing === 'no') {
         setShowContact(true);
+        setShowNumNights(false);
         setAddressText('If not, where should we drive you to from the airport? Address');
       }
 
@@ -137,6 +139,14 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
 
         setLocationOptions([{"id": '', "value": 'Select an option'}].concat(newLocationOptions));
         setApartmentOptions([{"id": '', "value": 'Select an option'}].concat(newApartmentOptions));
+      }
+      else
+      {
+        setShowLocation(false);
+        setShowApartment(false);
+
+        setLocationOptions([{"id": '', "value": 'Select an option'}]);
+        setApartmentOptions([{"id": '', "value": 'Select an option'}]);
       }
     }
   }, [loadedData, innerRef, referencesById]);
