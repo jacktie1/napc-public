@@ -40,7 +40,18 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
     };
 
     const handleTabSelect = (key) => {
-      setCurrentTab(key);
+      if(readOnly)
+      {
+        setCurrentTab(key);
+      }
+      else
+      {
+        let userConfirmed = window.confirm('Each tab form needs to be submitted separately. Are you sure you want to switch tabs?');
+
+        if (userConfirmed) {
+          setCurrentTab(key);
+        }
+      }
     }
 
     useEffect(() => {
@@ -256,6 +267,7 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
               id="student-details-modal-tabs"
               className="mb-3"
               onSelect={handleTabSelect}
+              activeKey={currentTab}
             >
               <Tab eventKey="profile" title="Volunteer Profile">
                 <VolunteerProfileForm

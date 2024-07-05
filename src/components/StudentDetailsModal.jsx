@@ -30,8 +30,8 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
     const studentProfileFormRef = useRef(null);
     const userAccountFormRef = useRef(null);
 
-    const StudentFlightInfoFormRef = useRef(null);
-    const StudentTempHousingFormRef = useRef(null);
+    const studentFlightInfoFormRef = useRef(null);
+    const studentTempHousingFormRef = useRef(null);
     const studentCommentFormRef = useRef(null);
 
     const modalSize = adminView ? 'lg' : 'md';
@@ -47,7 +47,57 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
     };
 
     const handleTabSelect = (key) => {
-      setCurrentTab(key);
+      if(readOnly || !getTabFormDirty(currentTab))
+        {
+          console.log(getTabFormDirty(currentTab));
+          setCurrentTab(key);
+        }
+        else
+        {
+          let userConfirmed = window.confirm('Each tab form needs to be submitted separately. Are you sure you want to switch tabs?');
+
+          if (userConfirmed) {
+            setCurrentTab(key);
+          }
+        }
+    }
+
+    const getTabFormDirty = (key) => {
+      if( !studentCommentFormRef
+        || !studentProfileFormRef
+        || !userAccountFormRef
+        || !studentFlightInfoFormRef
+        || !studentTempHousingFormRef
+        || !studentCommentFormRef.current
+        || !studentProfileFormRef.current
+        || !userAccountFormRef.current
+        || !studentFlightInfoFormRef.current
+        || !studentTempHousingFormRef.current)
+        
+      {
+        return false;
+      }
+
+      if (key === 'profile')
+      {
+        return studentProfileFormRef.current.dirty;
+      }
+      else if (key === 'userAccount')
+      {
+        return userAccountFormRef.current.dirty;
+      }
+      else if (key === 'flightInfo')
+      {
+        return studentFlightInfoFormRef.current.dirty;
+      }
+      else if (key === 'tempHousing')
+      {
+        return studentTempHousingFormRef.current.dirty;
+      }
+      else if (key === 'comment')
+      {
+        return studentCommentFormRef.current.dirty;
+      }
     }
     
     useEffect(() => {
@@ -88,7 +138,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
       }
     }, [showModal, userId]);
     
-    const sendUpdateStudentProfileRequest = async () => {
+    const sendUpdateStudentProfileRequest = async (setSubmitting) => {
       try {
         let preparedStudentProfile = formUtils.fromStudentProfileForm(studentProfile);
 
@@ -109,6 +159,9 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
           modifiedAt: new Date(),
         });
 
+        setSubmitting(false);
+
+        studentProfileFormRef.current.resetForm({values: studentProfile});
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
 
@@ -117,7 +170,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
       }
     };
 
-    const sendUpdateUserAccountRequest = async () => {
+    const sendUpdateUserAccountRequest = async (setSubmitting) => {
       try {
         let preparedUserAccount = formUtils.fromUserAccountForm(userAccount);
 
@@ -129,6 +182,10 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
         setServerError('');
 
         alert('User account updated successully!');
+
+        setSubmitting(false);
+
+        userAccountFormRef.current.resetForm({values: userAccount});
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
 
@@ -137,7 +194,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
       }
     };
 
-    const sendUpdateStudentFlightInfoRequest = async () => {
+    const sendUpdateStudentFlightInfoRequest = async (setSubmitting) => {
       try {
         let preparedFlightInfo = formUtils.fromStudentFlightInfoForm(flightInfo);
 
@@ -149,6 +206,10 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
         setServerError('');
 
         alert('Student Flight Info updated successully!');
+
+        setSubmitting(false);
+
+        studentFlightInfoFormRef.current.resetForm({values: flightInfo});
 
         if(preparedFlightInfo.needsAirportPickup && preparedFlightInfo.hasFlightInfo)
         {
@@ -184,7 +245,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
       }
     };
 
-    const sendUpdateStudentTempHousingRequest = async () => {
+    const sendUpdateStudentTempHousingRequest = async (setSubmitting) => {
       try {
         let preparedTempHousing = formUtils.fromStudentTempHousingForm(tempHousing);
 
@@ -196,6 +257,10 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
         setServerError('');
 
         alert('Student Temp Housing updated successully!');
+
+        setSubmitting(false);
+
+        studentTempHousingFormRef.current.resetForm({values: tempHousing});
 
         node.setData({
           ...node.data,
@@ -210,7 +275,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
       }
     };
 
-    const sendUpdateStudentCommentRequest = async () => {
+    const sendUpdateStudentCommentRequest = async (setSubmitting) => {
       try {
         let preparedStudentComment = formUtils.fromStudentCommentForm(studentComment);
 
@@ -222,6 +287,10 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
         setServerError('');
 
         alert('Student Comment updated successully!');
+
+        setSubmitting(false);
+
+        studentCommentFormRef.current.resetForm({values: studentComment});
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
 
@@ -233,84 +302,79 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
     const handleSubmit = () => {
       if (currentTab === 'profile')
       {
-        studentProfileFormRef.current.submitForm().then(() => {
-            const studentProfileErrors = studentProfileFormRef.current.errors;
-        
-            if (Object.keys(studentProfileErrors).length === 0)
-            {
-              sendUpdateStudentProfileRequest();
-            }
-        });
+        studentProfileFormRef.current.submitForm();
       }
       else if (currentTab === 'userAccount')
       {
-        userAccountFormRef.current.submitForm().then(() => {
-          let userAccountErrors = userAccountFormRef.current.errors;
-
-          if (Object.keys(userAccountErrors).length === 0)
-          {
-            sendUpdateUserAccountRequest();
-          }
-        });
+        userAccountFormRef.current.submitForm();
       }
       else if (currentTab === 'flightInfo')
       {
-        StudentFlightInfoFormRef.current.submitForm().then(() => {
-            const StudentFlightInfoFormErros = StudentFlightInfoFormRef.current.errors;
-        
-            if (Object.keys(StudentFlightInfoFormErros).length === 0)
-            {
-              sendUpdateStudentFlightInfoRequest();
-            }
-        });
+        studentFlightInfoFormRef.current.submitForm();
       }
       else if (currentTab === 'tempHousing')
       {
-        StudentTempHousingFormRef.current.submitForm().then(() => {
-            const StudentTempHousingFormErros = StudentTempHousingFormRef.current.errors;
-        
-            if (Object.keys(StudentTempHousingFormErros).length === 0)
-            {
-              sendUpdateStudentTempHousingRequest();
-            }
-        });
+        studentTempHousingFormRef.current.submitForm();
       }
       else if (currentTab === 'comment')
       {
-        studentCommentFormRef.current.submitForm().then(() => {
-            const studentCommentFormErros = studentCommentFormRef.current.errors;
-        
-            if (Object.keys(studentCommentFormErros).length === 0)
-            {
-              sendUpdateStudentCommentRequest();
-            }
-        });
+        studentCommentFormRef.current.submitForm();
       }
     }
 
     const handleStudentProfileSubmit = (values, { setSubmitting }) => {
       studentProfile = values;
-      setSubmitting(false);
+
+      const studentProfileErrors = studentProfileFormRef.current.errors;
+        
+      if (Object.keys(studentProfileErrors).length === 0)
+      {
+        sendUpdateStudentProfileRequest(setSubmitting);
+      }
     };
 
     const handleUserAccountSubmit = (values, { setSubmitting }) => {
       userAccount = values;
-      setSubmitting(false);
+
+      let userAccountErrors = userAccountFormRef.current.errors;
+
+      if (Object.keys(userAccountErrors).length === 0)
+      {
+        sendUpdateUserAccountRequest(setSubmitting);
+      }
     };
   
     const handleStudentFlightInfoFormSubmit = (values, { setSubmitting }) => {
       flightInfo = values;
-      setSubmitting(false);
+
+      const StudentFlightInfoFormErros = studentFlightInfoFormRef.current.errors;
+        
+      if (Object.keys(StudentFlightInfoFormErros).length === 0)
+      {
+        sendUpdateStudentFlightInfoRequest(setSubmitting);
+      }
     };
   
     const handleStudentTempHousingFormSubmit = (values, { setSubmitting }) => {
       tempHousing = values;
-      setSubmitting(false);
+
+      const StudentTempHousingFormErros = studentTempHousingFormRef.current.errors;
+        
+      if (Object.keys(StudentTempHousingFormErros).length === 0)
+      {
+        sendUpdateStudentTempHousingRequest(setSubmitting);
+      }
     };
 
     const handleStudentCommentFormSubmit = (values, { setSubmitting }) => {
       studentComment = values;
-      setSubmitting(false);
+
+      const studentCommentFormErros = studentCommentFormRef.current.errors;
+        
+      if (Object.keys(studentCommentFormErros).length === 0)
+      {
+        sendUpdateStudentCommentRequest(setSubmitting);
+      }
     };
 
     return (
@@ -334,6 +398,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
               id="student-details-modal-tabs"
               className="mb-3"
               onSelect={handleTabSelect}
+              activeKey={currentTab}
             >
               <Tab eventKey="profile" title="Student Profile">
                 <StudentProfileForm
@@ -358,7 +423,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
               }
               <Tab eventKey="flightInfo" title="Airport Pickup">
                 <StudentFlightInfoForm
-                  innerRef={StudentFlightInfoFormRef}
+                  innerRef={studentFlightInfoFormRef}
                   onSubmit={handleStudentFlightInfoFormSubmit}
                   formReadOnly={readOnly}
                   optionReferences={optionReferences}
@@ -367,7 +432,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
               </Tab>
               <Tab eventKey="tempHousing" title="Temporary Housing">
                 <StudentTempHousingForm
-                  innerRef={StudentTempHousingFormRef}
+                  innerRef={studentTempHousingFormRef}
                   onSubmit={handleStudentTempHousingFormSubmit}
                   formReadOnly={readOnly}
                   optionReferences={optionReferences}

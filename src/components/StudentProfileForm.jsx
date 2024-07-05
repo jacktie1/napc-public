@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Row, Form, Col} from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
@@ -8,6 +8,24 @@ import * as formUtils from '../utils/formUtils';
 
 const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, managementData, loadedData, formReadOnly }) => {
   const { Formik } = formik;
+  
+  const [initialValues, setInitialValues] = useState({
+    firstName: '',
+    lastName: '',
+    englishName: '',
+    gender: '',
+    isNewStudent: '',
+    graduatesFrom: '',
+    studentType: '',
+    attendsWeekOfWelcome: '',
+    majorReferenceId: '',
+    customMajor: '',
+    hasCompanion: '',
+    emailAddress: '',
+    wechatId: '',
+    cnPhoneNumber: '',
+    usPhoneNumber: '',
+  });
 
   const weekOfWelcomeStartDate = useMemo(() => {
     return managementData?.weekOfWelcomeStartDate ?? '';
@@ -25,27 +43,9 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, managementDa
     if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
     {
       let formData = formUtils.toStudentProfileForm(loadedData);
-      innerRef.current.setValues(formData);
+      setInitialValues(formData);
     }
   }, [loadedData, innerRef]);
-
-  const initialValues = {
-    firstName: '',
-    lastName: '',
-    englishName: '',
-    gender: '',
-    isNewStudent: '',
-    graduatesFrom: '',
-    studentType: '',
-    attendsWeekOfWelcome: '',
-    majorReferenceId: '',
-    customMajor: '',
-    hasCompanion: '',
-    emailAddress: '',
-    wechatId: '',
-    cnPhoneNumber: '',
-    usPhoneNumber: '',
-  }
 
   const nameTest = yup.string().required('Required!').matches(/^[a-zA-Z &-]+$/, { message: "Can only contain English letters, spaces, '&', or '-'!", excludeEmptyString: true });
   const requireNoSpaceTest = yup.string().required('Required!').matches(/^[^ ]+$/, { message: 'Cannot contain any space!', excludeEmptyString: true });

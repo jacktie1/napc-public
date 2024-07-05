@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Form, Col, Alert } from 'react-bootstrap';
 import * as formik from 'formik';
 import * as yup from 'yup';
@@ -7,12 +7,9 @@ import * as formUtils from '../utils/formUtils';
 const StudentCommentForm = ({ innerRef, onSubmit, adminView, loadedData }) => {
   const { Formik } = formik;
 
-  const initialValues = adminView ? {
+  const [initialValues, setInitialValues] = useState({
     studentComment: '',
-    adminComment: ''
-  } : {
-    studentComment: '',
-  }
+  });
 
   useEffect(() => {
     if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
@@ -28,7 +25,7 @@ const StudentCommentForm = ({ innerRef, onSubmit, adminView, loadedData }) => {
         }
       }
 
-      innerRef.current.setValues(formData);
+      setInitialValues(formData);
     }
   }, [loadedData, innerRef, adminView]);
 
@@ -45,6 +42,7 @@ const StudentCommentForm = ({ innerRef, onSubmit, adminView, loadedData }) => {
       onSubmit={onSubmit}
       validationSchema={schema}
       initialValues={initialValues}
+      enableReinitialize={true}
     >
       {({ handleSubmit, handleChange, values, touched, errors }) => (
         <Form noValidate onSubmit={handleSubmit}>

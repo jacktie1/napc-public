@@ -13,6 +13,25 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
   const [showUpdateFlightInfoAlert, setShowUpdateFlightInfoAlert] = useState(false);
   const [showFlightDetails, setShowFlightDetails] = useState(false);
 
+  const emptyFormData = {
+    needsAirportPickup: '',
+    hasFlightInfo: '',
+    arrivalFlightNumber: '',
+    arrivalAirlineReferenceId: '',
+    customArrivalAirline: '',
+    arrivalDate: '',
+    arrivalTime: '',
+    departureFlightNumber: '',
+    departureAirlineReferenceId: '',
+    customDepartureAirline: '',
+    departureDate: '',
+    departureTime: '',
+    numLgLuggages: '',
+    numSmLuggages: '',
+  };
+
+  const [initialValues, setInitialValues] = useState(emptyFormData);
+
   const airlineOptions = useMemo(() => {
     let airlineOptionReferences = optionReferences.Airline ?? [];
     airlineOptionReferences = airlineOptionReferences.map((optionReference) => ({ id: optionReference.referenceId, value: optionReference.value }));
@@ -22,8 +41,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
   useEffect(() => {
     if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0) {
       let formData = formUtils.toStudentFlightInfoForm(loadedData);
-
-      innerRef.current.setValues(formData);
+      setInitialValues(formData);
 
       if (formData.needsAirportPickup === 'yes') {
         setShowHasFlightInfoQ(true);
@@ -43,23 +61,6 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
       }
     }
   }, [loadedData, innerRef]);
-
-  const initialValues = {
-    needsAirportPickup: '',
-    hasFlightInfo: '',
-    arrivalFlightNumber: '',
-    arrivalAirlineReferenceId: '',
-    customArrivalAirline: '',
-    arrivalDate: '',
-    arrivalTime: '',
-    departureFlightNumber: '',
-    departureAirlineReferenceId: '',
-    customDepartureAirline: '',
-    departureDate: '',
-    departureTime: '',
-    numLgLuggages: '',
-    numSmLuggages: '',
-  };
 
   const requiredAlphaNumTest = yup.string().required('Required!').matches(/^[a-zA-Z0-9]+$/, { message: 'Can only contain English letters and numbers!', excludeEmptyString: true });
   const requiredAlphaSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
@@ -107,7 +108,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
     setShowHasFlightInfoQ(e.target.value === 'yes');
     setShowUpdateFlightInfoAlert(false);
     setShowFlightDetails(false);
-    action({values: { ...initialValues, needsAirportPickup: e.target.value}}); 
+    action({ ...emptyFormData, needsAirportPickup: e.target.value}); 
   };
 
   return (
@@ -116,15 +117,16 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
       validationSchema={schema}
       onSubmit={onSubmit}
       initialValues={initialValues}
+      enableReinitialize={true}
     >
-      {({ handleSubmit, handleChange, resetForm, setFieldValue, values, touched, errors }) => (
+      {({ handleSubmit, handleChange, setValues, setFieldValue, values, touched, errors }) => (
         <Form noValidate onSubmit={handleSubmit}>
           <Row className="mb-3">
             <Form.Group as={Col} controlId="StudentFlightInfoFormNeedsAirportPickup">
               <RequiredFieldFormLabel>Do you need airport pickup</RequiredFieldFormLabel>
               <Form.Select
                 name='needsAirportPickup'
-                onChange={(e) => {handleChange(e); handleNeedsAirportPickupChange(e, resetForm);}}
+                onChange={(e) => {handleChange(e); handleNeedsAirportPickupChange(e, setValues);}}
                 value={values.needsAirportPickup}
                 isValid={touched.needsAirportPickup && !errors.needsAirportPickup}
                 isInvalid={touched.needsAirportPickup && !!errors.needsAirportPickup}

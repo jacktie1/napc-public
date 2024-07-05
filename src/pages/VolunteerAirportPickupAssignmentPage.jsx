@@ -84,7 +84,7 @@ const VolunteerAirportPickupAssignmentPage = () => {
     try {
       let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/getReferences`, {
         params: {
-          referenceTypes: ['Major', 'Airline'].join(','),
+          referenceTypes: ['Major', 'Airline', 'Area', 'Location', 'Apartment'].join(','),
         }
       });
 

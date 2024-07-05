@@ -17,6 +17,20 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
   const [locationOptions, setLocationOptions] = useState([{"id": '', "value": 'Select an option'}]);
   const [apartmentOptions, setApartmentOptions] = useState([{"id": '', "value": 'Select an option'}]);
 
+  const emptyFormData = {
+    needsTempHousing: '',
+    numNights: '',
+    area: '',
+    location: '',
+    apartmentReferenceId: '',
+    customDestinationAddress: '',
+    contactName: '',
+    contactEmailAddress: '',
+    contactPhoneNumber: '',
+  };
+
+  const [initialValues, setInitialValues] = useState(emptyFormData);
+
   // Parse optionReferences to build a location hierarchy tree
   const areaReferences = useMemo(() => {
     if(optionReferences.Area !== undefined)
@@ -91,8 +105,6 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
         setAddressText('If not, where should we drive you to from the airport? Address');
       }
 
-      innerRef.current.setValues(formData);
-
       if (formData.apartmentReferenceId !== '') {
         setShowLocation(true);
         setShowApartment(true);
@@ -117,9 +129,9 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
           return;
         }
 
-        innerRef.current.setFieldValue('area', selectedAreaReference.referenceId);
-        innerRef.current.setFieldValue('location', selectedLocationReference.referenceId);
-
+        formData.area = selectedAreaReference.referenceId;
+        formData.location = selectedLocationReference.referenceId;
+    
         let newLocationOptions = selectedAreaReference.children ?? [];
         let newApartmentOptions = selectedLocationReference.children ?? [];
 
@@ -148,20 +160,12 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
         setLocationOptions([{"id": '', "value": 'Select an option'}]);
         setApartmentOptions([{"id": '', "value": 'Select an option'}]);
       }
+
+      setInitialValues(formData);
     }
   }, [loadedData, innerRef, referencesById]);
 
-  const initialValues = {
-    needsTempHousing: '',
-    numNights: '',
-    area: '',
-    location: '',
-    apartmentReferenceId: '',
-    customDestinationAddress: '',
-    contactName: '',
-    contactEmailAddress: '',
-    contactPhoneNumber: '',
-  };
+
 
   const optionalAlphaSpaceTest =  yup.string().matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
   const requiredSelectTest = yup.string().required('Required!');
@@ -273,7 +277,7 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
       setAddressText('If not, where should we drive you to from the airport? Address');
     }
 
-    action({values: { ...initialValues, needsTempHousing: e.target.value}}); 
+    setValues({ ...emptyFormData, needsTempHousing: e.target.value}); 
   };
 
   return (
@@ -282,15 +286,16 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
       validationSchema={schema}
       onSubmit={onSubmit}
       initialValues={initialValues}
+      enableReinitialize={true}
     >
-      {({ handleSubmit, handleChange, resetForm, setFieldValue, values, touched, errors }) => (
+      {({ handleSubmit, handleChange, setValues, setFieldValue, values, touched, errors }) => (
         <Form noValidate onSubmit={handleSubmit}>
           <Row className="mb-3">
             <Form.Group as={Col} controlId="StudentTempHousingFormNeedsTempHousing">
               <RequiredFieldFormLabel>Do you need temporary housing</RequiredFieldFormLabel>
               <Form.Select
                 name='needsTempHousing'
-                onChange={(e) => {handleChange(e); handleNeedsTempHousingChange(e, resetForm);}}
+                onChange={(e) => {handleChange(e); handleNeedsTempHousingChange(e, setValues);}}
                 value={values.needsTempHousing}
                 isValid={touched.needsTempHousing && !errors.needsTempHousing}
                 isInvalid={touched.needsTempHousing && !!errors.needsTempHousing}
