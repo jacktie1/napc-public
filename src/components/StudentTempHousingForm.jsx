@@ -277,7 +277,7 @@ const StudentTempHousingForm = ({ innerRef, onSubmit, optionReferences, loadedDa
       setAddressText('If not, where should we drive you to from the airport? Address');
     }
 
-    setValues({ ...emptyFormData, needsTempHousing: e.target.value}); 
+    action({ ...emptyFormData, needsTempHousing: e.target.value}); 
   };
 
   return (
