@@ -10,6 +10,16 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, loadedData, formReadO
 
   const [showCapacityDetails, setShowCapacityDetails] = useState(false);
 
+  const [initialValues, setInitialValues] = useState({
+    providesAirportPickup: '',
+    carManufacturer: '',
+    carModel: '',
+    numCarSeats: '',
+    numMaxLgLuggages: '',
+    numMaxTrips: '',
+    airportPickupComment: ''
+  });
+
   useEffect(() => {
     if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
     {
@@ -22,19 +32,9 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, loadedData, formReadO
         setShowCapacityDetails(false);
       }
 
-      innerRef.current.setValues(formData);
+      setInitialValues(formData);
     }
   }, [innerRef, loadedData]);
-
-  const initialValues = {
-    providesAirportPickup: '',
-    carManufacturer: '',
-    carModel: '',
-    numCarSeats: '',
-    numMaxLgLuggages: '',
-    numMaxTrips: '',
-    airportPickupComment: ''
-  };
 
   const optionalAlphaSpaceTest =  yup.string().matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
   const optionalAlphaNumSpaceTest =  yup.string().matches(/^[a-zA-Z0-9][a-zA-Z0-9 ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
@@ -72,6 +72,7 @@ const VolunteerPickupCapacityForm = ({ innerRef, onSubmit, loadedData, formReadO
       onSubmit={onSubmit}
       validationSchema={schema}
       initialValues={initialValues}
+      enableReinitialize={true}
     >
       {({ handleSubmit, handleChange, resetForm, values, touched, errors }) => (
 

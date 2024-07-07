@@ -11,23 +11,7 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, loadedData, formRead
 
   const [showCapacityDetails, setShowCapacityDetails] = useState(false);
 
-  useEffect(() => {
-    if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
-    {
-      let formData = formUtils.toVolunteerTempHousingForm(loadedData);
-
-      if(formData.providesTempHousing === 'yes') {
-        setShowCapacityDetails(true);
-      }
-      else {
-        setShowCapacityDetails(false);
-      }
-
-      innerRef.current.setValues(formData);
-    }
-  }, [innerRef, loadedData]);
-
-  const initialValues = {
+  const [initialValues, setInitialValues] = useState({
     providesTempHousing: '',
     homeAddress: '',
     numMaxStudentsHosted: '',
@@ -40,7 +24,23 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, loadedData, formRead
     hasPet: '',
     petDescription: '',
     tempHousingComment: '',
-  };
+  });
+
+  useEffect(() => {
+    if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
+    {
+      let formData = formUtils.toVolunteerTempHousingForm(loadedData);
+
+      if(formData.providesTempHousing === 'yes') {
+        setShowCapacityDetails(true);
+      }
+      else {
+        setShowCapacityDetails(false);
+      }
+
+      setInitialValues(formData);
+    }
+  }, [innerRef, loadedData]);
 
   const requiredAlphaNumSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z0-9][a-zA-Z0-9, ]*$/, { message: 'Can only contain English letters, numbers, comma(,) and spaces!', excludeEmptyString: true });
   const capacityNumTest = yup.number().typeError('Must be a whole number!')
@@ -88,6 +88,7 @@ const VolunteerHousingCapacityForm = ({ innerRef, onSubmit, loadedData, formRead
       onSubmit={onSubmit}
       validationSchema={schema}
       initialValues={initialValues}
+      enableReinitialize={true}
     >
       {({ handleSubmit, handleChange, resetForm, setFieldValue, values, touched, errors }) => (
 

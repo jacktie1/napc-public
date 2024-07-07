@@ -49,7 +49,6 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
     const handleTabSelect = (key) => {
       if(readOnly || !getTabFormDirty(currentTab))
         {
-          console.log(getTabFormDirty(currentTab));
           setCurrentTab(key);
         }
         else
@@ -98,6 +97,8 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
       {
         return studentCommentFormRef.current.dirty;
       }
+
+      return false;
     }
     
     useEffect(() => {

@@ -17,15 +17,15 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
 
     const userId = value;
 
-    var studentProfile;
+    var volunteerProfile;
     var userAccount;
     var pickupCapacity;
     var housingCapacity;
 
-    const studentProfileFormRef = useRef(null);
+    const volunteerProfileFormRef = useRef(null);
     const userAccountFormRef = useRef(null);
-    const VolunteerPickupCapacityFormRef = useRef(null);
-    const VolunteerHousingCapacityFormRef = useRef(null);
+    const volunteerPickupCapacityFormRef = useRef(null);
+    const volunteerHousingCapacityFormRef = useRef(null);
 
     const modalSize = 'lg';
   
@@ -40,7 +40,7 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
     };
 
     const handleTabSelect = (key) => {
-      if(readOnly)
+      if(readOnly || !getTabFormDirty(currentTab))
       {
         setCurrentTab(key);
       }
@@ -52,6 +52,39 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
           setCurrentTab(key);
         }
       }
+    }
+
+    const getTabFormDirty = (key) => {
+      if( !volunteerProfileFormRef
+        || !userAccountFormRef
+        || !volunteerPickupCapacityFormRef
+        || !volunteerHousingCapacityFormRef
+        || !volunteerProfileFormRef.current
+        || !userAccountFormRef.current
+        || !volunteerPickupCapacityFormRef.current
+        || !volunteerHousingCapacityFormRef.current )
+      {
+        return false;
+      }
+
+      if (key === 'profile')
+      {
+        return volunteerProfileFormRef.current.dirty;
+      }
+      else if (key === 'userAccount')
+      {
+        return userAccountFormRef.current.dirty;
+      }
+      else if (key === 'pickupCapacity')
+      {
+        return volunteerPickupCapacityFormRef.current.dirty;
+      }
+      else if (key === 'housingCapacity')
+      {
+        return volunteerHousingCapacityFormRef.current.dirty;
+      }
+
+      return false;
     }
 
     useEffect(() => {
@@ -75,9 +108,9 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
       }
     }, [showModal, userId]);
 
-    const sendUpdateVolunteerProfileRequest = async () => {
+    const sendUpdateVolunteerProfileRequest = async (setSubmitting) => {
       try {
-        let preparedVolunteerProfile = formUtils.fromVolunteerProfileForm(studentProfile);
+        let preparedVolunteerProfile = formUtils.fromVolunteerProfileForm(volunteerProfile);
 
         await axiosInstance.put(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/updateProfile/${userId}`,
           {
@@ -87,6 +120,10 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
         setServerError('');
 
         alert('Volunteer profile updated successully!');
+
+        setSubmitting(false);
+
+        volunteerProfileFormRef.current.resetForm({values: volunteerProfile});
 
         node.setData({
           ...node.data,
@@ -107,7 +144,7 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
       }
     };
 
-    const sendUpdateUserAccountRequest = async () => {
+    const sendUpdateUserAccountRequest = async (setSubmitting) => {
       try {
         let preparedUserAccount = formUtils.fromUserAccountForm(userAccount);
 
@@ -119,6 +156,10 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
         setServerError('');
 
         alert('User account updated successully!');
+
+        setSubmitting(false);
+
+        userAccountFormRef.current.resetForm({values: userAccount});
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
 
@@ -127,7 +168,7 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
       }
     };
 
-    const sendUpdateVolunteerAirportPickupRequest = async () => {
+    const sendUpdateVolunteerAirportPickupRequest = async (setSubmitting) => {
       try {
         let preparedVolunteerAirportPickup = formUtils.fromVolunteerAirportPickupForm(pickupCapacity);
 
@@ -139,6 +180,10 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
         setServerError('');
 
         alert('Volunteer airport pickup capacity updated successully!');
+
+        setSubmitting(false);
+
+        volunteerPickupCapacityFormRef.current.resetForm({values: pickupCapacity});
 
         node.setData({
           ...node.data,
@@ -153,7 +198,7 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
       }
     };
 
-    const sendUpdateVolunteerTempHousingRequest = async () => {
+    const sendUpdateVolunteerTempHousingRequest = async (setSubmitting) => {
       try {
         let preparedVolunteerTempHousing = formUtils.fromVolunteerTempHousingForm(housingCapacity);
         
@@ -165,6 +210,10 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
         setServerError('');
 
         alert('Volunteer temporary housing capacity updated successully!');
+
+        setSubmitting(false);
+
+        volunteerHousingCapacityFormRef.current.resetForm({values: housingCapacity});
 
         node.setData({
           ...node.data,
@@ -182,68 +231,64 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
     const handleSubmit = () => {
       if (currentTab === 'profile')
       {
-        studentProfileFormRef.current.submitForm().then(() => {
-            const studentProfileErrors = studentProfileFormRef.current.errors;
-        
-            if (Object.keys(studentProfileErrors).length === 0)
-            {
-              sendUpdateVolunteerProfileRequest();
-            }
-        });
+        volunteerProfileFormRef.current.submitForm();
       }
       else if (currentTab === 'userAccount')
       {
-        userAccountFormRef.current.submitForm().then(() => {
-            const userAccountErrors = userAccountFormRef.current.errors;
-
-            if (Object.keys(userAccountErrors).length === 0)
-            {
-              sendUpdateUserAccountRequest();
-            }
-        });
+        userAccountFormRef.current.submitForm();
       }
       else if (currentTab === 'pickupCapacity')
       {
-        VolunteerPickupCapacityFormRef.current.submitForm().then(() => {
-            const VolunteerPickupCapacityFormErros = VolunteerPickupCapacityFormRef.current.errors;
-        
-            if (Object.keys(VolunteerPickupCapacityFormErros).length === 0)
-            {
-              sendUpdateVolunteerAirportPickupRequest();
-            }
-        });
+        volunteerPickupCapacityFormRef.current.submitForm();
       }
       else if (currentTab === 'housingCapacity')
       {
-        VolunteerHousingCapacityFormRef.current.submitForm().then(() => {
-            const VolunteerHousingCapacityFormErros = VolunteerHousingCapacityFormRef.current.errors;
-        
-            if (Object.keys(VolunteerHousingCapacityFormErros).length === 0)
-            {
-              sendUpdateVolunteerTempHousingRequest();
-            }
-        });
+        volunteerHousingCapacityFormRef.current.submitForm();
       }
     }
 
     const handleVolunteerProfileSubmit = (values, { setSubmitting }) => {
-      studentProfile = values;
-      setSubmitting(false);
+      volunteerProfile = values;
+
+      const volunteerProfileErrors = volunteerProfileFormRef.current.errors;
+  
+      if (Object.keys(volunteerProfileErrors).length === 0)
+      {
+        sendUpdateVolunteerProfileRequest(setSubmitting);
+      }
     };
 
     const handleUserAccountSubmit = (values, { setSubmitting }) => {
       userAccount = values;
-      setSubmitting(false);
+
+      const userAccountErrors = userAccountFormRef.current.errors;
+
+      if (Object.keys(userAccountErrors).length === 0)
+      {
+        sendUpdateUserAccountRequest(setSubmitting);
+      }
     };
   
     const handleVolunteerPickupCapacityFormSubmit = (values, { setSubmitting }) => {
       pickupCapacity = values;
-      setSubmitting(false);
+
+      const VolunteerPickupCapacityFormErros = volunteerPickupCapacityFormRef.current.errors;
+        
+      if (Object.keys(VolunteerPickupCapacityFormErros).length === 0)
+      {
+        sendUpdateVolunteerAirportPickupRequest(setSubmitting);
+      }
     };
   
     const handleVolunteerHousingCapacityFormSubmit = (values, { setSubmitting }) => {
       housingCapacity = values;
-      setSubmitting(false);
+
+      const VolunteerHousingCapacityFormErros = volunteerHousingCapacityFormRef.current.errors;
+        
+      if (Object.keys(VolunteerHousingCapacityFormErros).length === 0)
+      {
+        sendUpdateVolunteerTempHousingRequest(setSubmitting);
+      }
     };
 
     return (
@@ -271,7 +316,7 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
             >
               <Tab eventKey="profile" title="Volunteer Profile">
                 <VolunteerProfileForm
-                  innerRef={studentProfileFormRef}
+                  innerRef={volunteerProfileFormRef}
                   onSubmit={handleVolunteerProfileSubmit}
                   adminView={adminView}
                   formReadOnly={readOnly}
@@ -291,7 +336,7 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
               }
               <Tab eventKey="pickupCapacity" title="Airport Pickup">
                 <VolunteerPickupCapacityForm
-                  innerRef={VolunteerPickupCapacityFormRef}
+                  innerRef={volunteerPickupCapacityFormRef}
                   onSubmit={handleVolunteerPickupCapacityFormSubmit}
                   formReadOnly={readOnly}
                   loadedData={loadedData.volunteerAirportPickup}
@@ -299,7 +344,7 @@ const VolunteerDetailsModal = ({ value, node, readOnly, adminView }) => {
               </Tab>
               <Tab eventKey="housingCapacity" title="Temporary Housing">
                 <VolunteerHousingCapacityForm
-                  innerRef={VolunteerHousingCapacityFormRef}
+                  innerRef={volunteerHousingCapacityFormRef}
                   onSubmit={handleVolunteerHousingCapacityFormSubmit}
                   formReadOnly={readOnly}
                   loadedData={loadedData.volunteerTempHousing}

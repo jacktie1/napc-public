@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Form, Col } from 'react-bootstrap';
 import RequiredFieldFormLabel from './RequiredFieldFormLabel'
 import * as formik from 'formik';
@@ -8,17 +8,7 @@ import * as formUtils from '../utils/formUtils';
 const VolunteerProfileForm = ({ innerRef, onSubmit, loadedData, formReadOnly, adminView }) => {
   const { Formik } = formik;
 
-  useEffect(() => {
-    if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
-    {
-      let formData = formUtils.toVolunteerProfileForm(loadedData);
-
-      innerRef.current.setValues(formData);
-    }
-  }, [innerRef, loadedData]);
-
-
-  const initialValues = {
+  const [initialValues, setInitialValues] = useState({
     firstName: '',
     lastName: '',
     gender: '',
@@ -27,13 +17,24 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, loadedData, formReadOnly, ad
     wechatId: '',
     primaryPhoneNumber: '',
     secondaryPhoneNumber: '',
-  };
+  });
 
-  if(adminView)
-  {
-    initialValues.userStatus = '';
-  }
-  
+  useEffect(() => {
+    if(loadedData && typeof loadedData === 'object' && Object.keys(loadedData).length > 0)
+    {
+      let formData = formUtils.toVolunteerProfileForm(loadedData);
+
+      // If the current user is not an admin, remove the userStatus field from the form
+      // because it cannot be edited by non-admin users
+      if(!adminView)
+      {
+        delete formData.userStatus;
+      }
+
+      setInitialValues(formData);
+    }
+  }, [innerRef, loadedData]);
+
   const nameTest = yup.string().required('Required!').matches(/^[a-zA-Z &-]+$/, { message: "Can only contain English letters, spaces, '&', or '-'!", excludeEmptyString: true });
   const affiliationTest =  yup.string().required('Required!').matches(/^[a-zA-Z0-9][a-zA-Z0-9 \/\-&]*$/, { message: 'Can only contain English letters, numbers, spaces, "/", "&" or "-"!', excludeEmptyString: true });
   const optionalNoSpaceTest = yup.string().matches(/^[^ ]+$/, { message: 'Cannot contain any space!', excludeEmptyString: true });
@@ -78,6 +79,7 @@ const VolunteerProfileForm = ({ innerRef, onSubmit, loadedData, formReadOnly, ad
       validationSchema={schema}
       onSubmit={onSubmit}
       initialValues={initialValues}
+      enableReinitialize={true}
     >
       {({ handleSubmit, handleChange, values, touched, errors }) => (
         <Form noValidate onSubmit={handleSubmit}>
