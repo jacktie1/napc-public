@@ -93,7 +93,7 @@ const VolunteerProfilePage = () => {
       <Container>
         <Row className="mt-5 wide-pretty-box-layout">
           <Col className="pretty-box" >
-              <h2 className="pretty-box-heading">Edit Profile</h2> 
+              <h2 className="pretty-box-heading">Edit Volunteer Profile</h2> 
               <RequiredFieldInfo />
               <hr/>
               {serverError && (

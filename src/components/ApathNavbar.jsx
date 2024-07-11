@@ -27,15 +27,19 @@ function ApathNavbar() {
           <Navbar.Brand href="/volunteer/home">APATH - International</Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav">
-            <Nav className="me-auto" variant="underline" activeKey={activeKey}>
+            <Nav className="me-auto" activeKey={activeKey}>
               <Nav.Item>
                 <Nav.Link href="/volunteer/airport-pickup-needs">Airport Pickup Needs</Nav.Link>
               </Nav.Item>
+              <NavDropdown title='My Assignments' id="collapsible-nav-dropdown-1">
+                <NavDropdown.Item href="/volunteer/airport-pickup-assignment">Airport Pickup Assignment</NavDropdown.Item>
+                <NavDropdown.Item href="/volunteer/temp-housing-assignment">Temporary Housing Assignment</NavDropdown.Item>
+              </NavDropdown>
               <Nav.Item>
-                <Nav.Link href="/volunteer/airport-pickup-assignment">Airport Pickup Assignment</Nav.Link>
+                <Nav.Link href="/volunteer/airport-pickup">Airport Pickup Profile</Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link href="/volunteer/temp-housing-assignment">Temporary Housing Assignment</Nav.Link>
+                <Nav.Link href="/volunteer/temp-housing">Temp Housing Profile</Nav.Link>
               </Nav.Item>
             </Nav>
             <Nav>
@@ -44,9 +48,7 @@ function ApathNavbar() {
               </Navbar.Text>
               <NavDropdown title={fullName} id="collapsible-nav-dropdown">
                 <NavDropdown.Item href="/volunteer/account">Account Settings</NavDropdown.Item>
-                <NavDropdown.Item href="/volunteer/profile">Edit Account Profile</NavDropdown.Item>
-                <NavDropdown.Item href="/volunteer/airport-pickup">Airport Pickup Profile</NavDropdown.Item>
-                <NavDropdown.Item href="/volunteer/temp-housing">Temporary Housing Profile</NavDropdown.Item>
+                <NavDropdown.Item href="/volunteer/profile">Edit Volunteer Profile</NavDropdown.Item>
                 <NavDropdown.Divider />
                 <NavDropdown.Item onClick={handleLogout}>
                   Logout
@@ -64,12 +66,19 @@ function ApathNavbar() {
           <Navbar.Brand href="/student/home">APATH - International</Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav">
-            <Nav className="me-auto" variant='underline' activeKey={activeKey}>
+            <Nav className="me-auto" activeKey={activeKey}>
+            <NavDropdown title='My Assignments' id="collapsible-nav-dropdown-1">
+                <NavDropdown.Item href="/student/airport-pickup-assignment">Airport Pickup Assignment</NavDropdown.Item>
+                <NavDropdown.Item href="/student/temp-housing-assignment">Temporary Housing Assignment</NavDropdown.Item>
+              </NavDropdown>
               <Nav.Item>
-                <Nav.Link href="/student/airport-pickup-assignment">Airport Pickup Assignment</Nav.Link>
+                <Nav.Link href="/student/flight-info">Flight Information</Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link href="/student/temp-housing-assignment">Temporary Housing Assignment</Nav.Link>
+                <Nav.Link href="/student/temp-housing">Temporary Housing</Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link href="/student/comment">Comment For Admin</Nav.Link>
               </Nav.Item>
             </Nav>
             <Nav>
@@ -78,10 +87,7 @@ function ApathNavbar() {
               </Navbar.Text>
               <NavDropdown title={fullName} id="collapsible-nav-dropdown">
                 <NavDropdown.Item href="/student/account">Account Settings</NavDropdown.Item>
-                <NavDropdown.Item href="/student/profile">Edit Profile</NavDropdown.Item>
-                <NavDropdown.Item href="/student/flight-info">Update Flight Information</NavDropdown.Item>
-                <NavDropdown.Item href="/student/temp-housing">Update Temporary Housing</NavDropdown.Item>
-                <NavDropdown.Item href="/student/comment">Comment For Admin</NavDropdown.Item>
+                <NavDropdown.Item href="/student/profile">Edit Student Profile</NavDropdown.Item>
                 <NavDropdown.Divider />
                 <NavDropdown.Item onClick={handleLogout}>
                   Logout
@@ -99,7 +105,7 @@ function ApathNavbar() {
           <Navbar.Brand href="/admin/home">APATH - International</Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav">
-            <Nav className="me-auto" variant="underline" activeKey={activeKey}>
+            <Nav className="me-auto" activeKey={activeKey}>
               <Nav.Item>
                 <Nav.Link href="/admin/manage-announcement">Announcement</Nav.Link>
               </Nav.Item>
@@ -124,7 +130,7 @@ function ApathNavbar() {
               </Navbar.Text>
               <NavDropdown title={fullName} id="collapsible-nav-dropdown-4">
                 <NavDropdown.Item href="/admin/account">Account Settings</NavDropdown.Item>
-                <NavDropdown.Item href="/admin/profile">Edit Profile</NavDropdown.Item>
+                <NavDropdown.Item href="/admin/profile">Edit Admin Profile</NavDropdown.Item>
                 <NavDropdown.Divider />
                 <NavDropdown.Item onClick={handleLogout}>
                   Logout
