@@ -32,10 +32,16 @@ const ManageStudentsPage = () => {
           needsAirportPickup: magicDataGridUtils.toYesOrNoValue(student.studentFlightInfo.needsAirportPickup),
           needsTempHousing: magicDataGridUtils.toYesOrNoValue(student.studentTempHousing.needsTempHousing),
           modifiedAt: new Date(student.modifiedAt),
+          lastLoginTime: null,
           arrivalDate: null,
           arrivalTime: null,
           arrivalFlightNumber: null,
           numLgLuggages: null,
+        }
+
+        if(student.lastLoginTime)
+        {
+          retRow.lastLoginTime = new Date(student.lastLoginTime);
         }
 
         if(student.studentFlightInfo.needsAirportPickup && student.studentFlightInfo.hasFlightInfo)
@@ -145,6 +151,11 @@ const ManageStudentsPage = () => {
       field: 'modifiedAt',
       isTimestamp: true,
       sort: 'desc',
+    },
+    {
+      headerName: 'Last Login',
+      field: 'lastLoginTime',
+      isTimestamp: true,
     },
   ];
 

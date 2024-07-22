@@ -36,6 +36,12 @@ const ManageVolunteersPage = () => {
           providesTempHousing: magicDataGridUtils.toYesOrNoValue(volunteer.volunteerTempHousing.providesTempHousing),
           userEnabled: magicDataGridUtils.toYesOrNoValue(volunteer.volunteerProfile.enabled),
           modifiedAt: new Date(volunteer.modifiedAt),
+          lastLoginTime: null,
+        }
+
+        if(volunteer.lastLoginTime)
+        {
+          retRow.lastLoginTime = new Date(volunteer.lastLoginTime);
         }
 
         return retRow
@@ -123,6 +129,11 @@ const ManageVolunteersPage = () => {
       isTimestamp: true,
       sort: 'desc',
     },
+    {
+      headerName: 'Last Login',
+      field: 'lastLoginTime',
+      isTimestamp: true,
+    }
   ];
 
   const handleCloseConfirmModal = () => setShowConfirmModal(false);
