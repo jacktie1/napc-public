@@ -39,6 +39,7 @@ const ManageTempHousingStudentsPage = () => {
           numNights: student.studentTempHousing.numNights,
           tempHousingVolunteer: student?.tempHousingAssignment?.volunteerUserId,
           modified: new Date(student.modifiedAt),
+          lastLoginTime: null,
         }
 
         if(student.studentProfile.majorReferenceId !== null) {
@@ -47,6 +48,10 @@ const ManageTempHousingStudentsPage = () => {
 
         if(student.studentFlightInfo.arrivalAirlineReferenceId !== null) {
           retRow.arrivalAirline = referencesById['Airline'][student.studentFlightInfo.arrivalAirlineReferenceId];
+        }
+
+        if(student.lastLoginTime) {
+          retRow.lastLoginTime = new Date(student.lastLoginTime);
         }
 
         return retRow
@@ -174,6 +179,11 @@ const ManageTempHousingStudentsPage = () => {
     {
       headerName: 'Modified',
       field: 'modified',
+      isTimestamp: true,
+    },
+    {
+      headerName: 'Last Login',
+      field: 'lastLoginTime',
       isTimestamp: true,
       sort: 'desc',
     },

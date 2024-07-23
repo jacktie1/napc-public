@@ -150,12 +150,12 @@ const ManageStudentsPage = () => {
       headerName: 'Modified',
       field: 'modifiedAt',
       isTimestamp: true,
-      sort: 'desc',
     },
     {
       headerName: 'Last Login',
       field: 'lastLoginTime',
       isTimestamp: true,
+      sort: 'desc',
     },
   ];
 

@@ -62,8 +62,8 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
     }
   }, [loadedData, innerRef]);
 
-  const requiredAlphaNumTest = yup.string().required('Required!').matches(/^[a-zA-Z0-9]+$/, { message: 'Can only contain English letters and numbers!', excludeEmptyString: true });
   const requiredAlphaSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
+  const requiredAlphaNumSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z0-9 ]+$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
   const requiredSelectTest = yup.string().required('Required!');
   const requiredDateTest = yup.date().typeError('Must be a valid date!').required('Required!');
   const requiredTimeTest = yup.string().required('Required!').matches(/^([01][0-9]|2[0-3]):([0-5][0-9])$/, { message: 'Must be a valid time!', excludeEmptyString: true });
@@ -72,7 +72,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
   const schema = yup.object().shape({
     needsAirportPickup: requiredSelectTest,
     hasFlightInfo: yup.string().when('needsAirportPickup', {is: 'yes', then: () => requiredSelectTest}),
-    arrivalFlightNumber: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredAlphaNumTest}),
+    arrivalFlightNumber: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredAlphaNumSpaceTest}),
     arrivalAirlineReferenceId: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredSelectTest}),
     customArrivalAirline: yup.string()
         .when(
@@ -84,7 +84,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
     arrivalDate: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredDateTest}),
     arrivalTime: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredTimeTest}),
     departureAirlineReferenceId: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredSelectTest}),
-    departureFlightNumber: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredAlphaNumTest}),
+    departureFlightNumber: yup.string().when('hasFlightInfo', {is: 'yes', then: () => requiredAlphaNumSpaceTest}),
     customDepartureAirline: yup.string()
         .when(
             ['hasFlightInfo','departureAirlineReferenceId'], 

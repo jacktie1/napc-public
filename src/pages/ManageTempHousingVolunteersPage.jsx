@@ -41,6 +41,11 @@ const ManageTempHousingStudentsPage = () => {
           modified: new Date(volunteer.modifiedAt),
         }
 
+        if(volunteer.lastLoginTime)
+        {
+          retRow.lastLoginTime = new Date(volunteer.lastLoginTime);
+        }
+
         return retRow
       });
 
@@ -113,6 +118,12 @@ const ManageTempHousingStudentsPage = () => {
       headerName: 'Modified',
       field: 'modified',
       isTimestamp: true,
+    },
+    {
+      headerName: 'Last Login',
+      field: 'lastLoginTime',
+      isTimestamp: true,
+      sort: 'desc',
     },
   ];
 
