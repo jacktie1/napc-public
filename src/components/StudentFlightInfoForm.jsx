@@ -63,7 +63,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
   }, [loadedData, innerRef]);
 
   const requiredAlphaSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
-  const requiredAlphaNumSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z0-9 ]+$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
+  const requiredAlphaNumSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z0-9 ]+$/, { message: 'Can only contain English letters, numbers and spaces!', excludeEmptyString: true });
   const requiredSelectTest = yup.string().required('Required!');
   const requiredDateTest = yup.date().typeError('Must be a valid date!').required('Required!');
   const requiredTimeTest = yup.string().required('Required!').matches(/^([01][0-9]|2[0-3]):([0-5][0-9])$/, { message: 'Must be a valid time!', excludeEmptyString: true });
