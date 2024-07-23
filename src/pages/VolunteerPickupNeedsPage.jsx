@@ -26,23 +26,21 @@ const VolunteerPickupNeedsPage = () => {
       let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/getAirportPickupPreferences/${userId}`);
       let fetchedAirportPickupReferences = axiosResponse.data.result.airportPickupPreferences;
 
-      let extractedAirportPickupPreferences = fetchedAirportPickupReferences.map(function(airportPickupPreference) {
-        return airportPickupPreference.studentUserId;
-      });
-
-      extractedAirportPickupPreferences.sort();
-
       let airportPreferencesMap = {};
 
       for (let airportPickupPreference of fetchedAirportPickupReferences) {
         airportPreferencesMap[airportPickupPreference.studentUserId] = airportPickupPreference;
       }
 
+      let extractedAirportPickupPreferences = [];
       for (let studentWithNeed of studentsWithNeeds) {
         if (airportPreferencesMap[studentWithNeed.studentUserId]) {
           studentWithNeed.rowSelected = true;
+          extractedAirportPickupPreferences.push(studentWithNeed.studentUserId);
         }
       }
+
+      extractedAirportPickupPreferences.sort();
 
       setAirportPickupNeeds(studentsWithNeeds);
       setAirportPickupPreferences(extractedAirportPickupPreferences);
