@@ -20,6 +20,8 @@ const StudentTempHousingPage = () => {
 
   const [optionReferences, setOptionReferences] = useState({});
 
+  const [assigned, setAssigned] = useState(false);
+
   var studentTempHousing;
 
   const studentTempHousingFormRef = useRef(null);
@@ -51,6 +53,25 @@ const StudentTempHousingPage = () => {
         let studentTempHousing = axiosResponse.data.result.student.studentTempHousing;
   
         setLoadedData(studentTempHousing);
+
+        checkTempHousingAssignment();
+      } catch (axiosError) {
+        let { errorMessage } = parseAxiosError(axiosError);
+  
+        window.scrollTo(0, 0);
+        setServerError(errorMessage);
+      }
+    }
+
+    const checkTempHousingAssignment = async () => {
+      try{
+        let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getTempHousingAssignment/${userId}`);
+        let fetchedTempHousingAssignment = axiosResponse.data.result.student.tempHousingAssignment;
+        let assignedVolunteer = fetchedTempHousingAssignment?.volunteer;
+
+        if(assignedVolunteer !== undefined && assignedVolunteer !== null) {
+          setAssigned(true);
+        }
       } catch (axiosError) {
         let { errorMessage } = parseAxiosError(axiosError);
   
@@ -121,16 +142,24 @@ const StudentTempHousingPage = () => {
                   {serverError}
                 </Alert>
               )}
+              {assigned && (
+                <Alert variant='info'>
+                  You have already been assigned an temporary housing volunteer. Your temporary housing information cannot be updated.
+                </Alert>
+              )}
               <StudentTempHousingForm
                 innerRef={studentTempHousingFormRef}
                 onSubmit={handleStudentTempHousingSubmit}
                 optionReferences={optionReferences}
                 loadedData={loadedData}
+                formReadOnly={assigned}
               />
               <hr/>
-              <Button variant="primary" onClick={handleClick} className="pretty-box-button">
-                Submit
-              </Button> 
+              {!assigned && (
+                <Button variant="primary" onClick={handleClick} className="pretty-box-button">
+                  Submit
+                </Button> 
+              )}
           </Col>
         </Row>
       </Container>

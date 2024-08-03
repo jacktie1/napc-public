@@ -18,6 +18,8 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
     const [currentTab, setCurrentTab] = useState('profile');
     const [loadedData, setLoadedData] = useState({});
     const [managementData, setManagementData] = useState({});
+    const [airportPickupAssigned, setAirportPickupAssigned] = useState(false);
+    const [tempHousingAssigned, setTempHousingAssigned] = useState(false);
 
     const userId = value;
 
@@ -109,7 +111,14 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
 
           setLoadedData(student);
 
-          fetchManagementData();
+          if( adminView )
+          {
+            checkAirportPickupAssignment();
+          }
+          else
+          {
+            fetchManagementData();
+          }
         } catch (axiosError) {
           let { errorMessage } = parseAxiosError(axiosError);
 
@@ -117,6 +126,44 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
           setServerError(errorMessage);
         }
       };
+
+      const checkAirportPickupAssignment = async () => {
+        try{
+          let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getAirportPickupAssignment/${userId}`);
+          let fetchedAirportPickupAssignment = axiosResponse.data.result.student.airportPickupAssignment;
+          let assignedVolunteer = fetchedAirportPickupAssignment?.volunteer;
+  
+          if(assignedVolunteer !== undefined && assignedVolunteer !== null) {
+            setAirportPickupAssigned(true);
+          }
+
+          checkTempHousingAssignment();
+        } catch (axiosError) {
+          let { errorMessage } = parseAxiosError(axiosError);
+    
+          window.scrollTo(0, 0);
+          setServerError(errorMessage);
+        }
+      }
+
+      const checkTempHousingAssignment = async () => {
+        try{
+          let axiosResponse = await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/student/getTempHousingAssignment/${userId}`);
+          let fetchedTempHousingAssignment = axiosResponse.data.result.student.tempHousingAssignment;
+          let assignedVolunteer = fetchedTempHousingAssignment?.volunteer;
+  
+          if(assignedVolunteer !== undefined && assignedVolunteer !== null) {
+            setTempHousingAssigned(true);
+          }
+
+          fetchManagementData();
+        } catch (axiosError) {
+          let { errorMessage } = parseAxiosError(axiosError);
+    
+          window.scrollTo(0, 0);
+          setServerError(errorMessage);
+        }
+      }
 
       const fetchManagementData = async () => {
         try {
@@ -423,6 +470,11 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
                 : null
               }
               <Tab eventKey="flightInfo" title="Airport Pickup">
+                {airportPickupAssigned && adminView && (
+                  <Alert variant='warning'>
+                    This student has already been assigned an airport pickup volunteer. Please keep the volunteer informed of any changes.
+                  </Alert>
+                )}
                 <StudentFlightInfoForm
                   innerRef={studentFlightInfoFormRef}
                   onSubmit={handleStudentFlightInfoFormSubmit}
@@ -432,6 +484,11 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
                 />
               </Tab>
               <Tab eventKey="tempHousing" title="Temporary Housing">
+                {tempHousingAssigned && adminView && (
+                  <Alert variant='warning'>
+                    This student has already been assigned a temporary housing volunteer. Please keep the volunteer informed of any changes.
+                  </Alert>
+                )}
                 <StudentTempHousingForm
                   innerRef={studentTempHousingFormRef}
                   onSubmit={handleStudentTempHousingFormSubmit}
