@@ -479,6 +479,7 @@ const StudentDetailsModal = ({ value, node, readOnly, adminView, optionReference
                   innerRef={studentFlightInfoFormRef}
                   onSubmit={handleStudentFlightInfoFormSubmit}
                   formReadOnly={readOnly}
+                  adminView={adminView}
                   optionReferences={optionReferences}
                   loadedData={loadedData.studentFlightInfo}
                 />

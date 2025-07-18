@@ -29,6 +29,7 @@ const ManageStudentsPage = () => {
           lastName: student.studentProfile.lastName,
           firstName: student.studentProfile.firstName,
           gender: magicDataGridUtils.toGenderValue(student.studentProfile.gender),
+          hasCompanion: magicDataGridUtils.toYesOrNoValue(student.studentProfile.hasCompanion),
           needsAirportPickup: magicDataGridUtils.toYesOrNoValue(student.studentFlightInfo.needsAirportPickup),
           needsTempHousing: magicDataGridUtils.toYesOrNoValue(student.studentTempHousing.needsTempHousing),
           modifiedAt: new Date(student.modifiedAt),
@@ -105,6 +106,7 @@ const ManageStudentsPage = () => {
       headerName: 'Last Name',
       field: 'lastName',
       textFilter: true,
+      width: 140,
     },
     {
       headerName: 'First Name',
@@ -135,6 +137,13 @@ const ManageStudentsPage = () => {
       headerName: 'BigLug',
       field: 'numLgLuggages',
       numberFilter: true,
+      width: 100,
+    },
+    {
+      headerName: 'Has Comp.',
+      field: 'hasCompanion',
+      booleanFilter: true,
+      width: 120,
     },
     {
       headerName: 'PK Req',

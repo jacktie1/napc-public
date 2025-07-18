@@ -6,7 +6,7 @@ import * as yup from 'yup';
 import * as formUtils from '../utils/formUtils';
 
 
-const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedData, formReadOnly }) => {
+const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedData, formReadOnly, adminView }) => {
   const { Formik } = formik;
 
   const [showHasFlightInfoQ, setShowHasFlightInfoQ] = useState(false);
@@ -62,10 +62,22 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
     }
   }, [loadedData, innerRef]);
 
+  const allowedDaysAhead = 5; // Minimum number of days ahead for flight date
+  const today = new Date();
+  const minFlightDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + allowedDaysAhead);
+  // Format the date as YYYY-MM-DD for the input field
+  const minFlightDateString = adminView ? '' : minFlightDate.toISOString().split('T')[0];
+
+
   const requiredAlphaSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z][a-zA-Z ]*$/, { message: 'Can only contain English letters and spaces!', excludeEmptyString: true });
   const requiredAlphaNumSpaceTest =  yup.string().required('Required!').matches(/^[a-zA-Z0-9 ]+$/, { message: 'Can only contain English letters, numbers and spaces!', excludeEmptyString: true });
   const requiredSelectTest = yup.string().required('Required!');
-  const requiredDateTest = yup.date().typeError('Must be a valid date!').required('Required!');
+  const requiredDateTest = adminView ?
+    yup.date().typeError('Must be a valid date!').required('Required!'):
+    yup.date().typeError('Must be a valid date!').required('Required!').test('minDate', 'Must be at least 5 days from today!', function(value) {
+      return value >= minFlightDate;
+   });
+
   const requiredTimeTest = yup.string().required('Required!').matches(/^([01][0-9]|2[0-3]):([0-5][0-9])$/, { message: 'Must be a valid time!', excludeEmptyString: true });
   const requiredNonNegIntegerTest = yup.number().typeError('Must be a whole number!').integer('Must be a whole number!').min(0, 'Must be a non-negative number！').required('Required!');
 
@@ -230,6 +242,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
                     <Form.Control
                     type="date"
                     name='arrivalDate'
+                    min={minFlightDateString}
                     value={values.arrivalDate}
                     onChange={handleChange}
                     isValid={touched.arrivalDate && !errors.arrivalDate}
@@ -320,6 +333,7 @@ const StudentFlightInfoForm = ({ innerRef, onSubmit, optionReferences, loadedDat
                     <Form.Control
                     type="date"
                     name='departureDate'
+                    min={minFlightDateString}
                     value={values.departureDate}
                     onChange={handleChange}
                     isValid={touched.departureDate && !errors.departureDate}
