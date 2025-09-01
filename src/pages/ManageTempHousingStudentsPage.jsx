@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import parseAxiosError from '../utils/parseAxiosError';
 import ApathNavbar from '../components/ApathNavbar';
@@ -7,10 +7,13 @@ import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import AssignHostedByModal from '../components/AssignHostedByModal';
 import VolunteerDetailsModal from '../components/VolunteerDetailsModal';
+import QuickViewModal from '../components/QuickViewModal';
 import * as magicDataGridUtils from '../utils/magicDataGridUtils';
 
 const ManageTempHousingStudentsPage = () => {
   const [serverError, setServerError] = useState('');
+  const [showQuickViewModal, setShowQuickViewModal] = useState(false);
+  const [quickViewData, setQuickViewData] = useState({});
 
   const [tempHousingNeeds, setTempHousingNeeds] = useState([]);
 
@@ -40,6 +43,12 @@ const ManageTempHousingStudentsPage = () => {
           tempHousingVolunteer: student?.tempHousingAssignment?.volunteerUserId,
           modified: new Date(student.modifiedAt),
           lastLoginTime: null,
+
+          // For quick view modal only
+          wechatId: student.studentProfile.wechatId,
+          emailAddress: student.studentProfile.emailAddress,
+          cnPhoneNumber: student.studentProfile.cnPhoneNumber,
+          usPhoneNumber: student.studentProfile.usPhoneNumber,
         }
 
         if(student.studentProfile.majorReferenceId !== null) {
@@ -101,6 +110,77 @@ const ManageTempHousingStudentsPage = () => {
   useEffect(() => {
     fetchOptions();
   }, [fetchOptions]);
+
+  // Fetch volunteer details when a student is selected with an API call
+  // tempHousingVolunteer is just the volunteer's userId
+  const handleRowDoubleClicked = useCallback(async (event) => {
+    if(event.data) {
+      let quickData = {
+        'Title1': 'Student Info',
+        'Student User ID': event.data.studentUserId,
+        'Student Name': event.data.firstName + ' ' + event.data.lastName,
+        'Student Wechat': event.data.wechatId,
+        'Student Email': event.data.emailAddress,
+        'Student US Phone': event.data.usPhoneNumber,
+        'Student CN Phone': event.data.cnPhoneNumber,
+      }
+
+      if(event.data.arrivalAirline) {
+        quickData['Arrival Flight Number'] = event.data.arrivalFlightNumber;
+
+        //extract Date only
+        quickData['Arrival Date'] = event.data.arrivalDate.toISOString().split("T")[0];
+        let estimatedDepartureDate = new Date(event.data.arrivalDate);
+        estimatedDepartureDate.setDate(estimatedDepartureDate.getDate() + event.data.numNights);
+        quickData['Est. Departure Date'] = estimatedDepartureDate.toISOString().split("T")[0];
+        quickData['Nights of Stay'] = event.data.numNights;
+      } else {
+        quickData['Arrival Flight Number'] = 'Not Provided';
+        quickData['Arrival Date'] = 'Not Provided';
+        quickData['Est. Departure Date'] = '(Arrival date missing, cannot decide)';
+        quickData['Nights of Stay'] = event.data.numNights;
+      }
+
+      quickData['SEPARATOR'] = '';
+      quickData['Title2'] = 'Volunteer Info';
+      
+      let tempHousingVolunteerUserId = event.data.tempHousingVolunteer;
+
+      if (tempHousingVolunteerUserId) {
+        // Fetch volunteer details using the volunteer ID
+        await axiosInstance.get(`${process.env.REACT_APP_API_BASE_URL}/api/volunteer/getVolunteer/${tempHousingVolunteerUserId}`)
+          .then((axiosResponse) => {
+            let volunteer = axiosResponse.data.result.volunteer;
+
+            let volunteerDetails = {
+              'Volunteer User ID': volunteer.userAccount.userId,
+              'Volunteer Name': volunteer.volunteerProfile.firstName + ' ' + volunteer.volunteerProfile.lastName,
+              'Volunteer Email': volunteer.volunteerProfile.emailAddress,
+              'Volunteer Phone': volunteer.volunteerProfile.primaryPhoneNumber,
+              'Volunteer Home Address': volunteer.volunteerTempHousing.homeAddress,
+            }
+
+            setQuickViewData({
+              ...quickData,
+              ...volunteerDetails
+            });
+
+            setShowQuickViewModal(true);
+          }
+        ).catch((axiosError) => {
+          let { errorMessage } = parseAxiosError(axiosError);
+          window.scrollTo(0, 0);
+          setServerError(errorMessage);
+        });
+      } else {
+        setQuickViewData({
+          ...quickData,
+          'Temp Housing Volunteer': 'Not Assigned',
+        });
+        setShowQuickViewModal(true);
+      }
+    }
+  }, []);
 
   const columns = [
     {
@@ -199,7 +279,8 @@ const ManageTempHousingStudentsPage = () => {
           This table below displays all students that request temporary housing.
         </Alert>
         <Alert dismissible variant='secondary'>
-          Click a student ID to assign a housing volunteer to this student.
+          <b>Click a student ID</b> to <b>assign</b> a housing volunteer to this student.<br/><br/>
+          <b>Double click</b> a row to see a <b>quick view</b> of the student's temp housing request and be able to <b>copy/paste</b>.
         </Alert>
         <MultipleSortingInfo/>
         {serverError && (
@@ -212,8 +293,16 @@ const ManageTempHousingStudentsPage = () => {
           columnDefs={columns}
           rowData={tempHousingNeeds}
           pagination={true}
+          onRowDoubleClicked={handleRowDoubleClicked}
         />
       </Container>
+
+      <QuickViewModal
+        title="Quick Temp Housing (Student View)"
+        data={quickViewData}
+        show={showQuickViewModal}
+        onHide={() => setShowQuickViewModal(false)}
+      />
     </div>
   );
 };

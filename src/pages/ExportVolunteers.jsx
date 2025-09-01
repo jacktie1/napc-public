@@ -62,6 +62,12 @@ const ExportVolunteersPage = () => {
           airportPickupStudents: volunteer?.airportPickupAssignments?.map(assignment => assignment.studentUserId),
           tempHousingStudents: volunteer?.tempHousingAssignments?.map(assignment => assignment.studentUserId),
           modified: new Date(volunteer.modifiedAt),
+          lastLoginTime: null,
+        }
+
+        if(volunteer.lastLoginTime)
+        {
+          retRow.lastLoginTime = new Date(volunteer.lastLoginTime);
         }
 
         return retRow
@@ -273,6 +279,11 @@ const ExportVolunteersPage = () => {
         {
           headerName: 'Modified',
           field: 'modified',
+          isTimestamp: true,
+        },
+        {
+          headerName: 'Last Login',
+          field: 'lastLoginTime',
           isTimestamp: true,
         },
     ];

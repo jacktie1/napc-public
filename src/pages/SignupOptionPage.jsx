@@ -12,7 +12,7 @@ const SignupOptionPage = () => {
             <h2 className="pretty-box-heading">You are a</h2>
 
             <Button variant="primary" href='/signup/student' className="pretty-box-button">
-              New Student
+              New Student (or Companion)
             </Button>
 
             <Button variant="primary" href='/signup/volunteer' className="pretty-box-button">

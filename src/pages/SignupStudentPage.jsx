@@ -232,6 +232,10 @@ const SignupStudentPage = () => {
                 The purpose of this website is to link these students with friends who will assist them with airport pickup and temporary housing when they arrive.<br/><br/>
                 We hope that many solid friendships will be made.
               </CollapsibleAlert>
+              <Alert variant='warning'>
+                Every person must have their own account. Please register your family members or friends separately.<br/><br/>
+                每个人都必须有自己的账户。请分别为您每位同行的家人或朋友注册。
+              </Alert>
               <PrivacyStatement />
               <PatienceInfo targetGroup='student'/>
               <RequiredFieldInfo />

@@ -67,10 +67,16 @@ const ExportStudentsPage = () => {
           airportPickupVolunteer: student?.airportPickupAssignment?.volunteerUserId,
           tempHousingVolunteer: student?.tempHousingAssignment?.volunteerUserId,
           modified: new Date(student.modifiedAt),
+          lastLoginTime: null,
         }
 
         if(student.studentProfile.majorReferenceId !== null) {
           retRow.major = referencesById['Major'][student.studentProfile.majorReferenceId];
+        }
+        
+        if(student.lastLoginTime)
+        {
+          retRow.lastLoginTime = new Date(student.lastLoginTime);
         }
 
         if(student.studentFlightInfo.needsAirportPickup && student.studentFlightInfo.hasFlightInfo)
@@ -364,6 +370,11 @@ const ExportStudentsPage = () => {
         {
           headerName: 'Modified',
           field: 'modified',
+          isTimestamp: true,
+        },
+        {
+          headerName: 'Last Login',
+          field: 'lastLoginTime',
           isTimestamp: true,
         },
     ];

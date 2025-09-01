@@ -2,7 +2,7 @@ import React from 'react';
 import { AgGridReact } from 'ag-grid-react'; // React Grid Logic
 
 
-const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, rowSelection, onRowSelected, isRowSelectable, noDefaultCellClass}) => {
+const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, rowSelection, onRowSelected, onRowDoubleClicked, isRowSelectable, noDefaultCellClass}) => {
     const autoSizeStrategy = {
         type: 'fitGridWidth',
         defaultMinWidth: 100,
@@ -285,6 +285,7 @@ const MagicDataGrid = ({innerRef, gridStyle, columnDefs, rowData, pagination, ro
                     onFirstDataRendered={onFirstDataRendered}
                     onRowDataUpdated={onRowDataUpdated}
                     rowSelection={rowSelection}
+                    onRowDoubleClicked={onRowDoubleClicked}
                     suppressRowClickSelection={true}
                     suppressCellFocus={true}
                     isRowSelectable={isRowSelectable}

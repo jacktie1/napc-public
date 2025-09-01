@@ -50,8 +50,11 @@ const StudentCommentForm = ({ innerRef, onSubmit, adminView, loadedData }) => {
             <Form.Group as={Col} controlId="studentCommentFormStudentComment">
               { !adminView ?
                 <>
-                  <Form.Label>Do you have any studentComment or special needs (Maximum 500 characters):</Form.Label>
-                  <Alert variant='warning'>Please let us know if you already got VISA or NOT in the studentComment.</Alert>
+                  <Form.Label>Do you have any comment or special needs (Maximum 500 characters):</Form.Label>
+                  <Alert variant='warning'>
+                    Please let us know if you already got VISA or NOT in the comment. <br/><br/>
+                    If you are a family member or friend of a student or visiting scholar, please include the name of the person you are accompanying in the comment.
+                  </Alert>
                 </>
               :
               <>

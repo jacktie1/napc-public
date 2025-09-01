@@ -98,8 +98,9 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, managementDa
     { value: 'undergrad', label: "Undergradute Student" },
     { value: 'grad', label: "Graduate Student" },
     { value: 'visiting', label: "Visiting Scholar" },
-    { value: 'other', label: "Other" },
-  ];
+    { value: 'family', label: "Family Member (of Above)" },
+    { value: 'friend', label: "Friend (of Above)" },
+    ];
 
   return (
     <Formik
@@ -205,7 +206,7 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, managementDa
           </Row>
           <Row className="mb-3">
             <Form.Group as={Col} controlId="studentProfileFormStudentType">
-              <RequiredFieldFormLabel>I'm coming to the US to be a</RequiredFieldFormLabel>
+              <RequiredFieldFormLabel>I'm coming to the US as a</RequiredFieldFormLabel>
               <Form.Select
                 name='studentType'
                 onChange={handleChange}
@@ -220,6 +221,26 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, managementDa
               </Form.Select>
               <Form.Control.Feedback type="invalid">
                 {errors.studentType}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Row>
+          <Row className="mb-3">
+            <Form.Group as={Col} controlId="studentProfileFormHasCompanion">
+              <RequiredFieldFormLabel>Bringing family members or frinds together?</RequiredFieldFormLabel>
+              <Form.Select
+                name='hasCompanion'
+                onChange={handleChange}
+                value={values.hasCompanion}
+                isValid={touched.hasCompanion && !errors.hasCompanion}
+                isInvalid={touched.hasCompanion && !!errors.hasCompanion}
+                disabled={formReadOnly}
+              >
+                {yesOrNoOptions.map((option) => (
+                  <option key={option.value} value={option.value} label={option.label} />
+                ))}
+              </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                {errors.hasCompanion}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
@@ -295,26 +316,6 @@ const StudentProfileForm = ({ innerRef, onSubmit, optionReferences, managementDa
               />
               <Form.Control.Feedback type="invalid">
                 {errors.customMajor}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} controlId="studentProfileFormHasCompanion">
-              <RequiredFieldFormLabel>Bringing family members or frinds together?</RequiredFieldFormLabel>
-              <Form.Select
-                name='hasCompanion'
-                onChange={handleChange}
-                value={values.hasCompanion}
-                isValid={touched.hasCompanion && !errors.hasCompanion}
-                isInvalid={touched.hasCompanion && !!errors.hasCompanion}
-                disabled={formReadOnly}
-              >
-                {yesOrNoOptions.map((option) => (
-                  <option key={option.value} value={option.value} label={option.label} />
-                ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {errors.hasCompanion}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>

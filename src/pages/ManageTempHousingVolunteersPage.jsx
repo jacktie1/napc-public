@@ -6,11 +6,13 @@ import { Container, Alert } from 'react-bootstrap';
 import MagicDataGrid from '../components/MagicDataGrid';
 import MultipleSortingInfo from '../components/MultipleSortingInfo';
 import AssignHostStudentsModal from '../components/AssignHostStudentsModal';
+import QuickViewModal from '../components/QuickViewModal';
 import * as magicDataGridUtils from '../utils/magicDataGridUtils';
-
 
 const ManageTempHousingStudentsPage = () => {
   const [serverError, setServerError] = useState('');
+  const [showQuickViewModal, setShowQuickViewModal] = useState(false);
+  const [quickViewData, setQuickViewData] = useState({});
 
   const [volunteerData, setVolunteerData] = useState([]);
 
@@ -39,6 +41,10 @@ const ManageTempHousingStudentsPage = () => {
           gender: magicDataGridUtils.toGenderValue(volunteer.volunteerProfile.gender),
           tempHousingStudents: volunteer?.tempHousingAssignments?.map(assignment => assignment.studentUserId),
           modified: new Date(volunteer.modifiedAt),
+
+          // For quick view modal
+          tempHousingStartDate: magicDataGridUtils.getDate(volunteer.volunteerTempHousing.tempHousingStartDate),
+          tempHousingEndDate: magicDataGridUtils.getDate(volunteer.volunteerTempHousing.tempHousingEndDate),
         }
 
         if(volunteer.lastLoginTime)
@@ -61,6 +67,54 @@ const ManageTempHousingStudentsPage = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const handleRowDoubleClicked = useCallback((event) => {
+    let quickData = {};
+
+    if(event.data)
+    {
+        quickData['Title1'] = 'Volunteer Info';
+        quickData['Volunteer ID'] = event.data.volunteerUserId;
+        quickData['Volunteer Name'] = `${event.data.firstName} ${event.data.lastName}`;
+        quickData['Volunteer Email'] = event.data.emailAddress;
+        quickData['Volunteer Phone'] = event.data.primaryPhoneNumber;
+        quickData['Volunteer Home Address'] = event.data.homeAddress;
+
+        let tempHousingStartDate = null;
+        let tempHousingEndDate = null;
+
+        if(event.data.tempHousingStartDate)
+        {
+          tempHousingStartDate = event.data.tempHousingStartDate.toISOString().split('T')[0];
+        }
+
+        if(event.data.tempHousingEndDate)
+        {
+          tempHousingEndDate = event.data.tempHousingEndDate.toISOString().split('T')[0];
+        }
+        
+        if(tempHousingStartDate && tempHousingEndDate)
+        {
+          quickData['Temp Housing Availability'] = `${tempHousingStartDate} - ${tempHousingEndDate}`;
+        }
+        else if(tempHousingStartDate)
+        {
+          quickData['Temp Housing Availability'] = `${tempHousingStartDate} - (not specified)`;
+        }
+        else if(tempHousingEndDate)
+        {
+          quickData['Temp Housing Availability'] = `(not specified) - ${tempHousingEndDate}`;
+        }
+        else
+        {
+          quickData['Temp Housing Availability'] = '(not specified)';
+        }
+
+
+        setQuickViewData(quickData);
+        setShowQuickViewModal(true);
+    }
+  }, []);
 
   const columns = [
     {
@@ -137,7 +191,8 @@ const ManageTempHousingStudentsPage = () => {
           This table below displays all volunteers that provide temporary housing.
         </Alert>
         <Alert dismissible variant='secondary'>
-          Click a volunteer ID to assign temporary housing task(s) this volunteer.
+          <b>Click a volunteer ID</b> to <b>assign</b> temporary housing task(s) this volunteer. <br/><br/>
+          <b>Double click</b> a row to see a <b>quick view</b> of the volunteer's temp housing information and be able to <b>copy/paste</b>.
         </Alert>
         <MultipleSortingInfo/>
         {serverError && (
@@ -150,8 +205,16 @@ const ManageTempHousingStudentsPage = () => {
           columnDefs={columns}
           rowData={volunteerData}
           pagination={true}
+          onRowDoubleClicked={handleRowDoubleClicked}
         />
       </Container>
+
+      <QuickViewModal
+        title="Quick Temp Housing (Volunteer View)"
+        data={quickViewData}
+        show={showQuickViewModal}
+        onHide={() => setShowQuickViewModal(false)}
+      />
     </div>
   );
 };

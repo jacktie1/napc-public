@@ -115,6 +115,7 @@ const UserAccountForm = ({ innerRef, onSubmit, optionReferences }) => {
                     <RequiredFieldFormLabel>Username</RequiredFieldFormLabel>
                     <Form.Control
                         name='username'
+                        autoComplete="off"
                         value={values.username}
                         onChange={handleChange}
                         isValid={touched.username && !errors.username}
@@ -131,6 +132,7 @@ const UserAccountForm = ({ innerRef, onSubmit, optionReferences }) => {
                     <Form.Control
                       name='password'
                       type='password'
+                      autoComplete="new-password"
                       value={values.password}
                       onChange={handleChange}
                       isValid={touched.password && !errors.password}
@@ -147,6 +149,7 @@ const UserAccountForm = ({ innerRef, onSubmit, optionReferences }) => {
                     <Form.Control
                       name='confirmPassword'
                       type='password'
+                      autoComplete="new-password"
                       value={values.confirmPassword}
                       onChange={handleChange}
                       isValid={touched.confirmPassword && !errors.confirmPassword}
