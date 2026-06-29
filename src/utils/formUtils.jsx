@@ -84,6 +84,12 @@ export const fromStudentTypeValue = (optionValue)=> {
     else if (optionValue === 'visiting'){
         return 'Visiting Scholar';
     }
+    else if (optionValue === 'family'){
+        return 'Family Member';
+    }
+    else if (optionValue === 'friend'){
+        return 'Friend';
+    }
     else if (optionValue === 'other'){
         return 'Other';
     }
@@ -101,6 +107,12 @@ export const toStudentTypeValue = (dbValue)=> {
     }
     else if (dbValue === 'Visiting Scholar'){
         return 'visiting';
+    }
+    else if (dbValue === 'Family Member'){
+        return 'family';
+    }
+    else if (dbValue === 'Friend'){
+        return 'friend';
     }
     else if (dbValue === 'Other'){
         return 'other';
